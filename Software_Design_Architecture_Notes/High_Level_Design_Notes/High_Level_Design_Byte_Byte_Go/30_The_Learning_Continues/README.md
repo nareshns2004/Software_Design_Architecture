@@ -1,7 +1,9 @@
 #The Learning Continues
+
 Designing good systems requires years of accumulation of knowledge. One shortcut is to dive into real-world system architectures. Below is a collection of helpful reading materials. We highly recommend you pay attention to both the shared principles and the underlying technologies. Researching each technology and understanding what problems it solves is a great way to strengthen your knowledge base and refine the design process.
 
 #Real-world systems
+
 The following materials can help you understand general design ideas of real system architectures behind different companies.
 
 Facebook Timeline: Brought To You By The Power Of Denormalization: https://goo.gl/FCNrbm
@@ -71,6 +73,7 @@ How We've Scaled Dropbox: https://goo.gl/NjBDtC
 The WhatsApp Architecture Facebook Bought For $19 Billion: https://bit.ly/2AHJnFn
 
 #Company engineering blogs
+
 If you are going to interview with a company, it is a great idea to read their engineering blogs and get familiar with technologies and systems adopted and implemented there. Besides, engineering blogs provide invaluable insights about certain fields. Reading them regularly could help us become better engineers.
 
 Here is a list of engineering blogs of well-known large companies and startups.
