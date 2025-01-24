@@ -1,16 +1,12 @@
+# Foreword
+We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
 
-[![Code_Smells](https://github.com/user-attachments/assets/04b29619-93a6-44ee-aaa4-d15a322a4337)](https://github.com/nareshns2004/Software_Design_Architecture/blob/main/Software_Design_Architecture_Notes/Low_Level_Design_Notes/Low_Level_Design_Refactoring_Guru/01_Code_Smells/01_Bloaters/images/Code_Smells.png)
+Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
 
-[![Bloaters](https://github.com/user-attachments/assets/46bc04e9-f552-49e9-a29b-7f585595eec8)](https://github.com/nareshns2004/Software_Design_Architecture/blob/main/Software_Design_Architecture_Notes/Low_Level_Design_Notes/Low_Level_Design_Refactoring_Guru/01_Code_Smells/01_Bloaters/images/Bloaters.png)
+The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
 
-https://github.com/nareshns2004/Software_Design_Architecture/blob/54269f3403b9c3c734d0516b475b37b43e809977/Software_Design_Architecture_Notes/Low_Level_Design_Notes/Low_Level_Design_Refactoring_Guru/01_Code_Smells/01_Bloaters/images/Long_Method.png
+The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
 
-https://github.com/nareshns2004/Software_Design_Architecture/blob/main/Software_Design_Architecture_Notes/Low_Level_Design_Notes/Low_Level_Design_Refactoring_Guru/01_Code_Smells/01_Bloaters/images/Reasons_For_The_Problem.png
+This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
 
-https://github.com/nareshns2004/Software_Design_Architecture/blob/main/Software_Design_Architecture_Notes/Low_Level_Design_Notes/Low_Level_Design_Refactoring_Guru/01_Code_Smells/01_Bloaters/images/Treatment_1.png
-
-https://github.com/nareshns2004/Software_Design_Architecture/blob/main/Software_Design_Architecture_Notes/Low_Level_Design_Notes/Low_Level_Design_Refactoring_Guru/01_Code_Smells/01_Bloaters/images/Treatment_2.png
-
-
-
-
+This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
