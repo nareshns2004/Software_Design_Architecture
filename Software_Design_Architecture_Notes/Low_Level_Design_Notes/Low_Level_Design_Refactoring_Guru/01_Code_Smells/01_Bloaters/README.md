@@ -19,3 +19,22 @@
 ![Recipe_2](images/Recipe_2.png)
 
 ![Replace_Temp_Query](images/Replace_Temp_Query.png)
+
+![Prameter_Object](images/Prameter_Object.png)
+
+![Whole_Object](images/Whole_Object.png)
+
+![Recipe_3](images/Recipe_3.png)
+
+![Replace_Method](images/Replace_Method.png)
+
+![Recipe_4](images/Recipe_4.png)
+
+![Decompose_Conditional](images/Decompose_Conditional.png)
+
+![Extract_Decompose](images/Extract_Decompose.png)
+
+![Payoff](images/Payoff.png)
+
+![Performance](images/Performance.png)
+
