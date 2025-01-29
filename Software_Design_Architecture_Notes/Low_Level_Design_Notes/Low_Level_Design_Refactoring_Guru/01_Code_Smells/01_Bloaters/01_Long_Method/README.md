@@ -36,3 +36,5 @@
 
 ![Payoff](images/Payoff.png)
 
+![Performance](images/Performance.png)
+
