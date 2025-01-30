@@ -15,13 +15,13 @@ A sequence of steps like this is called a scenario. However, the depicted scenar
 	* The passenger doesn’t get through passport inspection because his or her passport has expired.
 	
 
-![UML_Airport_1](images/UML_Airport_1.png)
+![UML_Airport_1](images/UML_Airport_1.jpg)
 
 	Figure 2.1 Case Study: “Passenger takes plane to go on vacation”
 	
 	Think about which of the above-mentioned scenarios are relevant for passenger departure and whether there are more relevant scenarios than those mentioned.
 	
-![UML_Airport_2](images/UML_Airport_2.png)
+![UML_Airport_2](images/UML_Airport_2.jpg)
 
 	Figure 2.2 Schematic illustration of the UML Airport
 
