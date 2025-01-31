@@ -12,7 +12,7 @@ Models are often built in the context of business and IT systems in order to bet
 	
 The more information a model is supposed to give, the more complex and difficult it becomes. A map of Europe, for example, that simultaneously contains political, geological, demographic, and transportation-related information is hardly legible. The solution to this problem is to convey the different types of information on individual maps. Different views are formed of the objects under consideration. These views are interconnected in many ways. Generally, if one view is changed, all other views have to be adjusted as well. If, for instance, in the Netherlands new land is reclaimed from the North Sea, all views—meaning all maps—have to be updated.
 
-	![Views_Object](images/Views_Object.jpg)
+![Views_Object](images/Views_Object.jpg)
 	
 	Figure 2.3 Different views of an object
 	
@@ -61,7 +61,7 @@ Analysis or design patterns are example models that describe common design and m
 Figure 2.4 shows the process of analysis, which consists of obtaining, representing, and verifying facts:
 
 	
-	![Process_Analysis](images/Process_Analysis.jpg)	
+![Process_Analysis](images/Process_Analysis.jpg)	
 	
 	Figure 2.4 Process of Analysis
 	
@@ -101,7 +101,7 @@ Several helpful techniques have proven to be useful for the analysis and underst
 
 Each particular UML diagram corresponds to one view of a model of a system. Depending on the type of diagram used, different aspects are either emphasized or omitted. All the different views combined result in a good model of a system. Most of the UML diagrams are graphs (as shown in Figure 2.5), implying that they consist of elements that are connected through lines:
 
-	![Diagram_Graphs](images/Diagram_Graphs.jpg)
+![Diagram_Graphs](images/Diagram_Graphs.jpg)
 	
 	Figure 2.5 Diagram as graphs
 	
@@ -109,7 +109,7 @@ To read diagrams, you have to know what types of elements and lines are allowed 
 
 Even computer-aided software engineering (CASE) tools treat UML diagrams as views. They use a database in which the information about the model is stored. Each diagram shows—as a view—a part of that information. In this way, the CASE tool helps to preserve the consistency of each view. If, for example, the name of a class is changed in a class diagram, the statechart diagram of that class is automatically updated:
 
-	![CASE](images/CASE.jpg)
+![CASE](images/CASE.jpg)
 	
 	Figure 2.6 CASE tool as database
 
