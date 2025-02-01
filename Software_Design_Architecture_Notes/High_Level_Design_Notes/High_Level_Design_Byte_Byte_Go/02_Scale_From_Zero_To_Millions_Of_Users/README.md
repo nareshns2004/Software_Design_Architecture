@@ -178,7 +178,7 @@ Here are a few considerations for using a cache system:
 
  * Mitigating failures: A single cache server represents a potential single point of failure (SPOF), defined in Wikipedia as follows: “A single point of failure (SPOF) is a part of a system that, if it fails, will stop the entire system from working” [8]. As a result, multiple cache servers across different data centers are recommended to avoid SPOF. Another recommended approach is to overprovision the required memory by certain percentages. This provides a buffer as the memory usage increases.
  
- ![SPOF](images/SPOF.webp)
+ ![spof](images/spof.webp)
  
 	Figure 8
  
