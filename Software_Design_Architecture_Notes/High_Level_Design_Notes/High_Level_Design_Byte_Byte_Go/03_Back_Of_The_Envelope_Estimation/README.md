@@ -1,85 +1,86 @@
 # Back-of-the-envelope Estimation
 
-You are sometimes asked in a system design interview to estimate performance requirements or system capacity.
+In a system design interview, sometimes you are asked to estimate system capacity or performance requirements using a back-of-the-envelope estimation. According to Jeff Dean, Google Senior Fellow, “back-of-the-envelope calculations are estimates you create using a combination of thought experiments and common performance numbers to get a good feel for which designs will meet your requirements” [1].
 
-These are usually done with thought experiments and common performance numbers, according to Jeff Dean (Google Senior Fellow).
-
-To do this estimation effectively, there are several mechanisms one should be aware of.
+You need to have a good sense of scalability basics to effectively carry out back-of-the-envelope estimation. The following concepts should be well understood: power of two [2], latency numbers every programmer should know, and availability numbers.
 
 # Power of two
 
-Data volumes can become enormous, but calculation boils down to basics.
+Although data volume can become enormous when dealing with distributed systems, calculation all boils down to the basics. To obtain correct calculations, it is critical to know the data volume unit using the power of 2. A byte is a sequence of 8 bits. An ASCII character uses one byte of memory (8 bits). Below is a table explaining the data volume unit (Table 1).
 
-For precise calculations, you need to be aware of the power of two, which corresponds to given data units:
- * 2^10 == ~1000 == 1kb
- * 2^20 == ~1mil == 1mb
- * 2^30 == ~1bil == 1gb
- * 2^40 == ~1tril == 1tb
- * 2^50 == ~1quad == 1pb
+![power_of_two](images/power_of_two.webp)
+	
+	Table 1
 
 # Latency numbers every programmer should know
 
-There's a well-known table of the duration of typical computer operations, created by Jeff Dean.
+Dr. Dean from Google reveals the length of typical computer operations in 2010 [1]. Some numbers are outdated as computers become faster and more powerful. However, those numbers should still be able to give us an idea of the fastness and slowness of different computer operations.
 
-These might be a bit outdated due to hardware improvements, but they still give a good relative measure among the operations:
- * L1 cache reference == 0.5ns
- * Branch mispredict == 5ns
- * L2 cache reference == 7ns
- * Mutex lock/unlock == 100ns
- * Main memory reference == 100ns
- * Compress 1kb == 10,000ns == 10us
- * Send 2kb over 1gbps network == 20,000ns == 20us
- * Read 1mb sequentially from memory == 250us
- * Round trip within same DC == 500us
- * Disk seek == 10ms
- * Read 1mb sequentially from network == 10ms
- * Read 1mb sequentially from disk == 30ms
- * Send packet CA->Netherlands->CA == 150ms
+![latency_numbers](images/latency_numbers.webp)
 
-A good visualization of the above:
-![latency-numbers-visu](images/latency-numbers-visu.png)
+	Table 2
 
-Some conclusions from the above numbers:
- * Memory is fast, disk is slow
- * Avoid disk seeks if possible
- * Compression is usually fast
- * Compress data before sending over the network if possible
- * Data centers round trips are expensive
+Notes
+
+ns = nanosecond, µs = microsecond, ms = millisecond
+1 ns = 10^-9 seconds
+1 µs= 10^-6 seconds = 1,000 ns
+1 ms = 10^-3 seconds = 1,000 µs = 1,000,000 ns
+
+A Google software engineer built a tool to visualize Dr. Dean’s numbers. The tool also takes the time factor into consideration. Figures 2-1 shows the visualized latency numbers as of 2020 (source of figures: reference material [3]).
+
+![latency_numbers_visual](images/latency_numbers_visual.webp)
+
+	Figure 1
+	
+By analyzing the numbers in Figure 1, we get the following conclusions:
+
+ * Memory is fast but the disk is slow.
+ * Avoid disk seeks if possible.
+ * Simple compression algorithms are fast.
+ * Compress data before sending it over the internet if possible.
+ * Data centers are usually in different regions, and it takes time to send data between them.
 
 # Availability numbers
 
-High availability == ability of a system to be continuously operational. In other words, minimizing downtime.
+High availability is the ability of a system to be continuously operational for a desirably long period of time. High availability is measured as a percentage, with 100% means a service that has 0 downtime. Most services fall between 99% and 100%.
 
-Typically, services aim for availability in the range of 99% to 100%.
+A service level agreement (SLA) is a commonly used term for service providers. This is an agreement between you (the service provider) and your customer, and this agreement formally defines the level of uptime your service will deliver. Cloud providers Amazon [4], Google [5] and Microsoft [6] set their SLAs at 99.9% or above. Uptime is traditionally measured in nines. The more the nines, the better. As shown in Table 3, the number of nines correlate to the expected system downtime.
 
-An SLA is a formal agreement between a service provider and a customer. 
-This formally defines the level of uptime your service needs to support.
+![sla_chart](images/sla_chart.webp)
 
-Cloud providers typically set their uptime at 99.9% or more. Eg AWS EC2 has an SLA of 99.99%
-
-Here's a summary of the allowed downtime based on different SLAs:
-![sla-chart](images/sla-chart.png)
+	Table 3
 
 # Example - estimate Twitter QPS and storage requirements
 
-Assumptions:
- * 300mil MAU
- * 50% of users use twitter daily
- * Users post 2 tweets per day on average
- * 10% of tweets contain media
- * Data is stored for 5y
+Please note the following numbers are for this exercise only as they are not real numbers from Twitter.
 
+Assumptions:
+
+ * 300 million monthly active users.
+ * 50% of users use Twitter daily.
+ * Users post 2 tweets per day on average.
+ * 10% of tweets contain media.
+ * Data is stored for 5 years.
+ 
 Estimations:
- * Write RPS estimation == 150mil * 2 / 24h / 60m / 60s = 3400-3600 tweets per second, peak=7000 TPS
- * Media storage per day == 300mil * 10% == 30mil media storage per day
-     * If we assume 1mb per media -> 30mil * 1mb = 30tb per day
-     * in 5y -> 30tb * 365 * 5 == 55pb
- * tweet storage estimation:
-     * 1 tweet = 64byte id + 140 bytes text + 1000 bytes metadata
-     * 3500 * 60 * 60 * 24 = 302mb per day
-     * In 5y -> 302 * 365 * 5 == 551gb in 5y
+
+ * Query per second (QPS) estimate:
+ * Daily active users (DAU) = 300 million * 50% = 150 million
+ * Tweets QPS = 150 million * 2 tweets / 24 hour / 3600 seconds = ~3500
+ * Peek QPS = 2 * QPS = ~7000
+
+We will only estimate media storage here.
+
+ * Average tweet size:
+ * tweet_id 64 bytes
+ * text 140 bytes
+ * media 1 MB
+ * Media storage: 150 million * 2 * 10% * 1 MB = 30 TB per day
+ * 5-year media storage: 30 TB * 365 * 5 = ~55 PB
 
 # Tips
+
 Back-of-the-envelope estimation is all about the process. Solving the problem is more important than obtaining results. Interviewers may test your problem-solving skills. Here are a few tips to follow:
 
  * Rounding and Approximation. It is difficult to perform complicated math operations during the interview. For example, what is the result of “99987 / 9.1”? There is no need to spend valuable time to solve complicated math problems. Precision is not expected. Use round numbers and approximation to your advantage. The division question can be simplified as follows: “100,000 / 10”.
@@ -90,13 +91,6 @@ Back-of-the-envelope estimation is all about the process. Solving the problem is
 
  * Commonly asked back-of-the-envelope estimations: QPS, peak QPS, storage, cache, number of servers, etc. You can practice these calculations when preparing for an interview. Practice makes perfect.
 
-Some tips to take into consideration:
-
- * Rounding and approximation - don't try to calculate 99987/9.1, round it to 100000/10 instead, which is easier to calculate.
- * Write down your assumptions before going forward with estimations
- * Label your units explicitly. Write 5mb instead of 5.
- * Commonly asked estimations to make - QPS (queries per second), peak QPS, storage, cache, number of servers.
- 
 Congratulations on getting this far! Now give yourself a pat on the back. Good job!
 
 # Reference materials
