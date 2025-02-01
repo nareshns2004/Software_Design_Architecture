@@ -53,23 +53,23 @@ What kind of questions to ask? Ask questions to understand the exact requirement
 
 If you are asked to design a news feed system, you want to ask questions that help you clarify the requirements. The conversation between you and the interviewer might look like this:
 
-<b>Candidate:</b> Is this a mobile app? Or a web app? Or both?
-<b>Interviewer:</b> Both.
+<p><b>Candidate:</b> Is this a mobile app? Or a web app? Or both?</p>
+<p><b>Interviewer:</b> Both.</p>
 
-<b>Candidate:</b> What are the most important features for the product?
-<b>Interviewer:</b> Ability to make a post and see friends’ news feed.
+<p><b>Candidate:</b> What are the most important features for the product?</p>
+<p><b>Interviewer:</b> Ability to make a post and see friends’ news feed.</p>
 
-<b>Candidate:</b> Is the news feed sorted in reverse chronological order or a particular order? The particular order means each post is given a different weight. For instance, posts from your close friends are more important than posts from a group.
-<b>Interviewer:</b> To keep things simple, let us assume the feed is sorted by reverse chronological order.
+<p><b>Candidate:</b> Is the news feed sorted in reverse chronological order or a particular order? The particular order means each post is given a different weight. For instance, posts from your close friends are more important than posts from a group.</p>
+<p><b>Interviewer:</b> To keep things simple, let us assume the feed is sorted by reverse chronological order.</p>
 
-<b>Candidate:</b> How many friends can a user have?
-<b>Interviewer:</b> 5000
+<p><b>Candidate:</b> How many friends can a user have?</p>
+<p><b>Interviewer:</b> 5000</p>
 
-<b>Candidate:</b> What is the traffic volume?
-<b>Interviewer:</b> 10 million daily active users (DAU)
+<p><b>Candidate:</b> What is the traffic volume?</p>
+<p><b>Interviewer:</b> 10 million daily active users (DAU)</p>
 
-<b>Candidate:</b> Can feed contain images, videos, or just text?
-<b>Interviewer:</b> It can contain media files, including both images and videos.
+<p><b>Candidate:</b> Can feed contain images, videos, or just text?</p>
+<p><b>Interviewer:</b> It can contain media files, including both images and videos.</p>
 
 Above are some sample questions that you can ask your interviewer. It is important to understand the requirements and clarify ambiguities
 
