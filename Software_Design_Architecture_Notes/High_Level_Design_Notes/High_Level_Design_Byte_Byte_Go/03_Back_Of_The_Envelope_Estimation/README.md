@@ -1,4 +1,5 @@
 # Back-of-the-envelope Estimation
+
 You are sometimes asked in a system design interview to estimate performance requirements or system capacity.
 
 These are usually done with thought experiments and common performance numbers, according to Jeff Dean (Google Senior Fellow).
@@ -6,6 +7,7 @@ These are usually done with thought experiments and common performance numbers, 
 To do this estimation effectively, there are several mechanisms one should be aware of.
 
 # Power of two
+
 Data volumes can become enormous, but calculation boils down to basics.
 
 For precise calculations, you need to be aware of the power of two, which corresponds to given data units:
@@ -16,6 +18,7 @@ For precise calculations, you need to be aware of the power of two, which corres
  * 2^50 == ~1quad == 1pb
 
 # Latency numbers every programmer should know
+
 There's a well-known table of the duration of typical computer operations, created by Jeff Dean.
 
 These might be a bit outdated due to hardware improvements, but they still give a good relative measure among the operations:
@@ -44,6 +47,7 @@ Some conclusions from the above numbers:
  * Data centers round trips are expensive
 
 # Availability numbers
+
 High availability == ability of a system to be continuously operational. In other words, minimizing downtime.
 
 Typically, services aim for availability in the range of 99% to 100%.
@@ -57,6 +61,7 @@ Here's a summary of the allowed downtime based on different SLAs:
 ![sla-chart](images/sla-chart.png)
 
 # Example - estimate Twitter QPS and storage requirements
+
 Assumptions:
  * 300mil MAU
  * 50% of users use twitter daily
@@ -75,10 +80,41 @@ Estimations:
      * In 5y -> 302 * 365 * 5 == 551gb in 5y
 
 # Tips
-Back-of-the-envelope Estimations are about the process, not the results. Interviewers might test your problem-solving skills.
+Back-of-the-envelope estimation is all about the process. Solving the problem is more important than obtaining results. Interviewers may test your problem-solving skills. Here are a few tips to follow:
+
+ * Rounding and Approximation. It is difficult to perform complicated math operations during the interview. For example, what is the result of “99987 / 9.1”? There is no need to spend valuable time to solve complicated math problems. Precision is not expected. Use round numbers and approximation to your advantage. The division question can be simplified as follows: “100,000 / 10”.
+
+ * Write down your assumptions. It is a good idea to write down your assumptions to be referenced later.
+
+ * Label your units. When you write down “5”, does it mean 5 KB or 5 MB? You might confuse yourself with this. Write down the units because “5 MB” helps to remove ambiguity.
+
+ * Commonly asked back-of-the-envelope estimations: QPS, peak QPS, storage, cache, number of servers, etc. You can practice these calculations when preparing for an interview. Practice makes perfect.
 
 Some tips to take into consideration:
+
  * Rounding and approximation - don't try to calculate 99987/9.1, round it to 100000/10 instead, which is easier to calculate.
  * Write down your assumptions before going forward with estimations
  * Label your units explicitly. Write 5mb instead of 5.
  * Commonly asked estimations to make - QPS (queries per second), peak QPS, storage, cache, number of servers.
+ 
+Congratulations on getting this far! Now give yourself a pat on the back. Good job!
+
+# Reference materials
+
+[1] J. Dean.Google Pro Tip: Use Back-Of-The-Envelope-Calculations To Choose The Best Design:
+http://highscalability.com/blog/2011/1/26/google-pro-tip-use-back-of-the-envelope-calculations-to-choo.html
+
+[2] System design primer:
+https://github.com/donnemartin/system-design-primer
+
+[3] Latency Numbers Every Programmer Should Know:
+https://colin-scott.github.io/personal_website/research/interactive_latency.html
+
+[4] Amazon Compute Service Level Agreement:
+https://aws.amazon.com/compute/sla/
+
+[5] Compute Engine Service Level Agreement (SLA):
+https://cloud.google.com/compute/sla
+
+[6] SLA summary for Azure services:
+https://azure.microsoft.com/en-us/support/legal/sla/summary/

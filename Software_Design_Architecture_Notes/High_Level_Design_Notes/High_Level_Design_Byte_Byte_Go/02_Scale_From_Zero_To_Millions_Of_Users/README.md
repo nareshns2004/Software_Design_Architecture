@@ -1,272 +1,450 @@
 # Scale From Zero to Millions of Users
-Here, we're building a system that supports a few users & gradually scale it to support millions.
+
+Designing a system that supports millions of users is challenging, and it is a journey that requires continuous refinement and endless improvement. In this chapter, we build a system that supports a single user and gradually scale it up to serve millions of users. After reading this chapter, you will master a handful of techniques that will help you to crack the system design interview questions.
 
 # Single server setup
-To start off, we're going to put everything on a single server - web app, database, cache, etc.
-![single-server-setup](images/single-server-setup.png)
 
-What's the request flow in there?
- * User asks DNS server for the IP of my site (ie `api.mysite.com -> 15.125.23.214`). Usually, DNS is provided by third-parties instead of hosting it yourself.
- * HTTP requests are sent directly to server (via its IP) from your device
- * Server returns HTML pages or JSON payloads, used for rendering.
+A journey of a thousand miles begins with a single step, and building a complex system is no different. To start with something simple, everything is running on a single server. Figure 1 shows the illustration of a single server setup where everything is running on one server: web app, database, cache, etc.
 
-Traffic to web server comes from either a web application or a mobile application:
- * Web applications use a combo of server-side languages (ie Java, Python) to handle business logic & storage. Client-side languages (ie HTML, JS) are used for presentation.
- * Mobile apps use the HTTP protocol for communication between mobile & the web server. JSON is used for formatting transmitted data. Example payload:
-```
-{
-  "id":12,
-  "firstName":"John",
-  "lastName":"Smith",
-  "address":{
-     "streetAddress":"21 2nd Street",
-     "city":"New York",
-     "state":"NY",
-     "postalCode":10021
-  },
-  "phoneNumbers":[
-     "212 555-1234",
-     "646 555-4567"
-  ]
-}
-```
+![single-server-setup-1](images/single-server-setup-1.png)
+
+	Figure 1
+	
+To understand this setup, it is helpful to investigate the request flow and traffic source. Let us first look at the request flow (Figure 2).
+
+![single-server-setup-2](images/single-server-setup-2.png)
+
+	Figure 2
+
+1. Users access websites through domain names, such as api.mysite.com. Usually, the Domain Name System (DNS) is a paid service provided by 3rd parties and not hosted by our servers.
+
+2. Internet Protocol (IP) address is returned to the browser or mobile app. In the example, IP address 15.125.23.214 is returned.
+
+3. Once the IP address is obtained, Hypertext Transfer Protocol (HTTP) [1] requests are sent directly to your web server.
+
+4. The web server returns HTML pages or JSON response for rendering.
+
+Next, let us examine the traffic source. The traffic to your web server comes from two sources: web application and mobile application.
+
+Web application: it uses a combination of server-side languages (Java, Python, etc.) to handle business logic, storage, etc., and client-side languages (HTML and JavaScript) for presentation.
+
+Mobile application: HTTP protocol is the communication protocol between the mobile app and the web server. JavaScript Object Notation (JSON) is commonly used API response format to transfer data due to its simplicity. An example of the API response in JSON format is shown below:
+
+GET /users/12 – Retrieve user object for id = 12
+
+     ```
+	{
+	  "id":12,
+	  "firstName":"John",
+	  "lastName":"Smith",
+	  "address":{
+	     "streetAddress":"21 2nd Street",
+	     "city":"New York",
+	     "state":"NY",
+	     "postalCode":10021
+	  },
+	  "phoneNumbers":[
+	     "212 555-1234",
+	     "646 555-4567"
+	  ]
+	}
+     ```
 
 # Database
-As the user base grows, storing everything on a single server is insufficient. 
-We can separate our database on another server so that it can be scaled independently from the web tier:
+
+With the growth of the user base, one server is not enough, and we need multiple servers: one for web/mobile traffic, the other for the database (Figure 3). Separating web/mobile traffic (web tier) and database (data tier) servers allows them to be scaled independently.
+
 ![database-separate-from-web](images/database-separate-from-web.png)
 
-## Which databases to use?
-You can choose either a traditional relational database or a non-relational (NoSQL) one.
- * Most popular relational DBs - MySQL, Oracle, PostgreSQL.
- * Most popular NoSQL DBs - CouchDB, Neo4J, Cassandra, HBase, DynamoDB
+	Figure 3
 
-Relational databases represent & store data in tables & rows. You can join different tables to represent aggregate objects.
-NoSQL databases are grouped into four categories - key-value stores, graph stores, column stores & document stores. Join operations are generally not supported.
+# Which databases to use?
 
-For most use-cases, relational databases are the best option as they've been around the most & have worked quite well historically.
+You can choose between a traditional relational database and a non-relational database. Let us examine their differences.
 
-If not suitable though, it might be worth exploring NoSQL databases. They might be a better option if:
- * Application requires super-low latency.
- * Data is unstructured or you don't need any relational data.
- * You only need to serialize/deserialize data (JSON, XML, YAML, etc).
+Relational databases are also called a relational database management system (RDBMS) or SQL database. The most popular ones are MySQL, Oracle database, PostgreSQL, etc. Relational databases represent and store data in tables and rows. You can perform join operations using SQL across different database tables.
+
+Non-Relational databases are also called NoSQL databases. Popular ones are CouchDB, Neo4j, Cassandra, HBase, Amazon DynamoDB, etc. [2]. These databases are grouped into four categories: key-value stores, graph stores, column stores, and document stores. Join operations are generally not supported in non-relational databases.
+
+For most developers, relational databases are the best option because they have been around for over 40 years and historically, they have worked well. However, if relational databases are not suitable for your specific use cases, it is critical to explore beyond relational databases. Non-relational databases might be the right choice if:
+
+ * Your application requires super-low latency.
+ * Your data are unstructured, or you do not have any relational data.
+ * You only need to serialize and deserialize data (JSON, XML, YAML, etc.).
  * You need to store a massive amount of data.
 
 # Vertical scaling vs. horizontal scaling
-Vertical scaling == scale up. This means adding more power to your servers - CPU, RAM, etc.
 
-Horizontal scaling == scale out. Add more servers to your pool of resources.
+Vertical scaling, referred to as “scale up”, means the process of adding more power (CPU, RAM, etc.) to your servers. Horizontal scaling, referred to as “scale-out”, allows you to scale by adding more servers into your pool of resources.
 
-Vertical scaling is great when traffic is low. Simplicity is its main advantage, but it has limitations:
- * It has a hard limit. Impossible to add unlimited CPU/RAM to a single server.
- * Lack of fail over and redundancy. If server goes down, whole app/website goes down with it.
+When traffic is low, vertical scaling is a great option, and the simplicity of vertical scaling is its main advantage. Unfortunately, it comes with serious limitations.
 
-Horizontal scaling is more appropriate for larger applications due to vertical scaling's limitations. Its main disadvantage is that it's harder to get right.
+ * Vertical scaling has a hard limit. It is impossible to add unlimited CPU and memory to a single server.
+ * Vertical scaling does not have failover and redundancy. If one server goes down, the website/app goes down with it completely.
 
-In design so far, the server going down (ie due to failure or overload) means the whole application goes down with it. 
-A good solution for this problem is to use a load balancer.
+Horizontal scaling is more desirable for large scale applications due to the limitations of vertical scaling.
+
+In the previous design, users are connected to the web server directly. Users will unable to access the website if the web server is offline. In another scenario, if many users access the web server simultaneously and it reaches the web server’s load limit, users generally experience slower response or fail to connect to the server. A load balancer is the best technique to address these problems.
 
 # Load balancer
-A load balancer evenly distributes incoming traffic among web servers in a load-balanced set:
+
+A load balancer evenly distributes incoming traffic among web servers that are defined in a load-balanced set. Figure 4 shows how a load balancer works.
+
 ![load-balancer-example](images/load-balancer-example.png)
 
-Clients connect to the public IP of the load balancer. Web servers are unreachable by clients directly.
-Instead, they have private IPs, which the load balancer has access to.
+	Figure 4
 
-By adding a load balancer, we successfully made our web tier more available and we also added possibility for fail over.
+As shown in Figure 4, users connect to the public IP of the load balancer directly. With this setup, web servers are unreachable directly by clients anymore. For better security, private IPs are used for communication between servers. A private IP is an IP address reachable only between servers in the same network; however, it is unreachable over the internet. The load balancer communicates with web servers through private IPs.
 
-How it works?
- * If server 1 goes down, all traffic will be routed to server 2. This prevents website from going offline. We'll also add a fresh new server to balance the load.
- * If website traffic spikes and two servers are not sufficient to handle traffic, load balancer can handle this gracefully by adding more servers to the pool.
+In Figure 4, after a load balancer and a second web server are added, we successfully solved no failover issue and improved the availability of the web tier. Details are explained below:
 
-Web tier looks lit now. But what about the data tier?
+* If server 1 goes offline, all the traffic will be routed to server 2. This prevents the website from going offline. We will also add a new healthy web server to the server pool to balance the load.
+
+* If the website traffic grows rapidly, and two servers are not enough to handle the traffic, the load balancer can handle this problem gracefully. You only need to add more servers to the web server pool, and the load balancer automatically starts to send requests to them.
+
+Now the web tier looks good, what about the data tier? The current design has one database, so it does not support failover and redundancy. Database replication is a common technique to address those problems. Let us take a look.
 
 # Database replication
-Database replication can usually be achieved via master/slave replication (side note - nowadays, it's usually referred to as primary/secondary replication).
 
-A master database generally only supports writes. Slave databases store copies of the data from the master & only support read operations.
-This setup works well for most applications as there's usually a higher read to write ratio. Reads can easily be scaled by adding more slave instances.
+Quoted from Wikipedia: “Database replication can be used in many database management systems, usually with a master/slave relationship between the original (master) and the copies (slaves)” [3].
+
+A master database generally only supports write operations. A slave database gets copies of the data from the master database and only supports read operations. All the data-modifying commands like insert, delete, or update must be sent to the master database. Most applications require a much higher ratio of reads to writes; thus, the number of slave databases in a system is usually larger than the number of master databases. Figure 5 shows a master database with multiple slave databases.
+
 ![master-slave-replication](images/master-slave-replication.png)
 
-Advantages:
- * Better performance - enables more read queries to be processed in parallel.
- * Reliability - If one database gets destroyed, data is still preserved.
- * High availability - Data is accessible as long as one instance is not offline.
+	Figure 5
+	
+Advantages of database replication:
 
-So what if one database goes offline?
- * If slave database goes offline, read operations are routed to the master/other slaves temporarily. 
- * If master goes down, a slave instance will be promoted to the new master. A new slave instance will replace the old master.
+ * Better performance: In the master-slave model, all writes and updates happen in master nodes; whereas, read operations are distributed across slave nodes. This model improves performance because it allows more queries to be processed in parallel.
+
+ * Reliability: If one of your database servers is destroyed by a natural disaster, such as a typhoon or an earthquake, data is still preserved. You do not need to worry about data loss because data is replicated across multiple locations.
+
+ * High availability: By replicating data across different locations, your website remains in operation even if a database is offline as you can access data stored in another database server.
+
+In the previous section, we discussed how a load balancer helped to improve system availability. We ask the same question here: what if one of the databases goes offline? The architectural design discussed in Figure 5 can handle this case:
+
+ * If only one slave database is available and it goes offline, read operations will be directed to the master database temporarily. As soon as the issue is found, a new slave database will replace the old one. In case multiple slave databases are available, read operations are redirected to other healthy slave databases. A new database server will replace the old one.
+
+ * If the master database goes offline, a slave database will be promoted to be the new master. All the database operations will be temporarily executed on the new master database. A new slave database will replace the old one for data replication immediately. In production systems, promoting a new master is more complicated as the data in a slave database might not be up to date. The missing data needs to be updated by running data recovery scripts. Although some other replication methods like multi-masters and circular replication could help, those setups are more complicated; and their discussions are beyond the scope of this course. Interested readers should refer to the listed reference materials [4] [5].
+
+Figure 6 shows the system design after adding the load balancer and database replication.
+
 ![master-slave-db-replication](images/master-slave-db-replication.png)
 
-Here's the refined request lifecycle:
- * user gets IP address of load balancer from DNS
- * user connects to load balancer via IP
- * HTTP request is routed to server 1 or server 2
- * web server reads user data from a slave database instance or routes data modifications to the master instance.
+	Figure 6
 
-Sweet, let's now improve the load/response time by adding a cache & shifting static content to a CDN.
+Let us take a look at the design:
+
+ * A user gets the IP address of the load balancer from DNS.
+ * A user connects the load balancer with this IP address.
+ * The HTTP request is routed to either Server 1 or Server 2.
+ * A web server reads user data from a slave database.
+ * A web server routes any data-modifying operations to the master database. This includes write, update, and delete operations.
+
+Now, you have a solid understanding of the web and data tiers, it is time to improve the load/response time. This can be done by adding a cache layer and shifting static content (JavaScript/CSS/image/video files) to the content delivery network (CDN).
 
 # Cache
-Cache is a temporary storage which stores frequently accessed data or results of expensive computations.
 
-In our web application, every time a web page is loaded, expensive queries are sent to the database. 
-We can mitigate this using a cache.
+A cache is a temporary storage area that stores the result of expensive responses or frequently accessed data in memory so that subsequent requests are served more quickly. As illustrated in Figure 6, every time a new web page loads, one or more database calls are executed to fetch data. The application performance is greatly affected by calling the database repeatedly. The cache can mitigate this problem.
 
-## Cache tier
-The cache tier is a temporary storage layer, from which results are fetched much more rapidly than from within a database.
-It can also be scaled independently from the database.
+# Cache tier
+
+The cache tier is a temporary data store layer, much faster than the database. The benefits of having a separate cache tier include better system performance, ability to reduce database workloads, and the ability to scale the cache tier independently. Figure 7 shows a possible setup of a cache server:
+
 ![cache-tier](images/cache-tier.png)
 
-The example above is a read-through cache - server checks if data is available in the cache. If not, data is fetched from the database.
+	Figure 7
 
-## Considerations for using cache
- * When to use it - usually useful when data is read frequently but modified infrequently. Caches usually don't preserve data upon restart so it's not a good persistence layer.
- * Expiration policy - controls whether (and when) cached data expires and is removed from it. Make it too short - DB will be queried frequently. Make it too long - data will become stale.
- * Consistency - How in sync should the data store & cache be? Inconsistency happens if data is changed in DB, but cache is not updated.
- * Mitigating failures - A single cache server could be a single point of failure (SPOF). Consider over-provisioning it with a lot of memory and/or provisioning servers in multiple locations.
- * Eviction policy - What happens when you want to add items to a cache, but it's full? Cache eviction policy controls that. Common policies - LRU, LFU, FIFO.
+After receiving a request, a web server first checks if the cache has the available response. If it has, it sends data back to the client. If not, it queries the database, stores the response in cache, and sends it back to the client. This caching strategy is called a read-through cache. Other caching strategies are available depending on the data type, size, and access patterns. A previous study explains how different caching strategies work [6].
+
+Interacting with cache servers is simple because most cache servers provide APIs for common programming languages. The following code snippet shows typical Memcached APIs:
+     
+     ```
+	SECONDS = 1
+	cache.set('myKey, 'hi there', 3600 * SECONDS)
+	cache.get('myKey')
+     ```
+
+# Considerations for using cache
+
+Here are a few considerations for using a cache system:
+
+ * Decide when to use cache. Consider using cache when data is read frequently but modified infrequently. Since cached data is stored in volatile memory, a cache server is not ideal for persisting data. For instance, if a cache server restarts, all the data in memory is lost. Thus, important data should be saved in persistent data stores.
+
+ * Expiration policy. It is a good practice to implement an expiration policy. Once cached data is expired, it is removed from the cache. When there is no expiration policy, cached data will be stored in the memory permanently. It is advisable not to make the expiration date too short as this will cause the system to reload data from the database too frequently. Meanwhile, it is advisable not to make the expiration date too long as the data can become stale.
+
+ * Consistency: This involves keeping the data store and the cache in sync. Inconsistency can happen because data-modifying operations on the data store and cache are not in a single transaction. When scaling across multiple regions, maintaining consistency between the data store and cache is challenging. For further details, refer to the paper titled “Scaling Memcache at Facebook” published by Facebook [7].
+
+ * Mitigating failures: A single cache server represents a potential single point of failure (SPOF), defined in Wikipedia as follows: “A single point of failure (SPOF) is a part of a system that, if it fails, will stop the entire system from working” [8]. As a result, multiple cache servers across different data centers are recommended to avoid SPOF. Another recommended approach is to overprovision the required memory by certain percentages. This provides a buffer as the memory usage increases.
 
 # Content Delivery Network (CDN)
-CDN == network of geographically dispersed servers, used for delivering static content - eg images, HTML, CSS, JS files.
 
-Whenever a user requests some static content, the CDN server closest to the user serves it:
+A CDN is a network of geographically dispersed servers used to deliver static content. CDN servers cache static content like images, videos, CSS, JavaScript files, etc.
+
+Dynamic content caching is a relatively new concept and beyond the scope of this course. It enables the caching of HTML pages that are based on request path, query strings, cookies, and request headers. Refer to the article mentioned in reference material [9] for more about this. This course focuses on how to use CDN to cache static content.
+
+Here is how CDN works at the high-level: when a user visits a website, a CDN server closest to the user will deliver static content. Intuitively, the further users are from CDN servers, the slower the website loads. For example, if CDN servers are in San Francisco, users in Los Angeles will get content faster than users in Europe. Figure 9 is a great example that shows how CDN improves load time.
+
 ![cdn](images/cdn.png)
 
-Here's the request flow:
+	Figure 9
+
+Figure 10 demonstrates the CDN workflow.
+
 ![cdn-request-flow](images/cdn-request-flow.png)
- * User tries fetching an image via URL. URLs are provided by the CDN, eg `https://mysite.cloudfront.net/logo.jpg`
- * If the image is not in the cache, the CDN requests the file from the origin - eg web server, S3 bucket, etc.
- * Origin returns the image to the CDN with an optional TTL (time to live) parameter, which controls how long that static resource is to be cached.
- * Subsequent users fetch the image from the CDN without any requests reaching the origin as long as it's within the TTL.
 
-## Considerations of using CDN
- * Cost - CDNs are managed by third-parties for which you pay a fee. Be careful not to store infrequently accessed data in there.
- * Cache expiry - consider appropriate cache expiry. Too short - frequent requests to origin. Too long - data becomes stale.
- * CDN fallback - clients should be able to workaround the CDN provider if there is a temporary outage on their end.
- * Invalidation - can be done via an API call or by passing object versions.
+	Figure 10
+	
+1. User A tries to get image.png by using an image URL. The URL’s domain is provided by the CDN provider. The following two image URLs are samples used to demonstrate what image URLs look like on Amazon and Akamai CDNs:
 
-Refined design of our web application:
+ * https://mysite.cloudfront.net/logo.jpg
+
+ * https://mysite.akamai.com/image-manager/img/logo.jpg
+
+2. If the CDN server does not have image.png in the cache, the CDN server requests the file from the origin, which can be a web server or online storage like Amazon S3.
+
+3. The origin returns image.png to the CDN server, which includes optional HTTP header Time-to-Live (TTL) which describes how long the image is cached.
+
+4. The CDN caches the image and returns it to User A. The image remains cached in the CDN until the TTL expires.
+
+5. User B sends a request to get the same image.
+
+6. The image is returned from the cache as long as the TTL has not expired.
+
+
+
+# Considerations of using CDN
+
+ * Cost: CDNs are run by third-party providers, and you are charged for data transfers in and out of the CDN. Caching infrequently used assets provides no significant benefits so you should consider moving them out of the CDN.
+
+ * Setting an appropriate cache expiry: For time-sensitive content, setting a cache expiry time is important. The cache expiry time should neither be too long nor too short. If it is too long, the content might no longer be fresh. If it is too short, it can cause repeat reloading of content from origin servers to the CDN.
+
+ * CDN fallback: You should consider how your website/application copes with CDN failure. If there is a temporary CDN outage, clients should be able to detect the problem and request resources from the origin.
+
+ * Invalidating files: You can remove a file from the CDN before it expires by performing one of the following operations:
+
+ * Invalidate the CDN object using APIs provided by CDN vendors.
+
+ * Use object versioning to serve a different version of the object. To version an object, you can add a parameter to the URL, such as a version number. For example, version number 2 is added to the query string: image.png?v=2.
+
+Figure 11 shows the design after the CDN and cache are added.
+
 ![web-app-design-after-cdn](images/web-app-design-after-cdn.png)
 
+	Figure 11
+
+1. Static assets (JS, CSS, images, etc.,) are no longer served by web servers. They are fetched from the CDN for better performance.
+
+2. The database load is lightened by caching data.
+
 # Stateless web tier
-In order to scale our web tier, we need to make it stateless.
 
-In order to do that, we can store user session data in persistent data storage such as our relational database or a NoSQL database.
+Now it is time to consider scaling the web tier horizontally. For this, we need to move state (for instance user session data) out of the web tier. A good practice is to store session data in the persistent storage such as relational database or NoSQL. Each web server in the cluster can access state data from databases. This is called stateless web tier.
 
-## Stateful architecture
-Stateful servers remember client data across different requests. Stateless servers don't.
+# Stateful architecture
+
+A stateful server and stateless server has some key differences. A stateful server remembers client data (state) from one request to the next. A stateless server keeps no state information.
+
+Figure 12 shows an example of a stateful architecture.
+
 ![stateful-servers](images/stateful-servers.png)
 
-In the above case, users are coupled to the server which stores their session data. If they make a request to another server, it won't have access to the user's session.
+	Figure 12
 
-This can be solved via sticky sessions, which most load balancers support, but it adds overhead.
-Adding/removing servers is much more challenging, which limits our options in case of server failures.
+In Figure 12, user A’s session data and profile image are stored in Server 1. To authenticate User A, HTTP requests must be routed to Server 1. If a request is sent to other servers like Server 2, authentication would fail because Server 2 does not contain User A’s session data. Similarly, all HTTP requests from User B must be routed to Server 2; all requests from User C must be sent to Server 3.
 
-## Stateless architecture
+The issue is that every request from the same client must be routed to the same server. This can be done with sticky sessions in most load balancers [10]; however, this adds the overhead. Adding or removing servers is much more difficult with this approach. It is also challenging to handle server failures.
+
+# Stateless architecture
+
+Figure 13 shows the stateless architecture.
+
 ![stateless-architecture](images/stateless-architecture.png)
 
-In this scenario, servers don't store any user data themselves. 
-Instead, they store it in a shared data store, which all servers have access to.
+	Figure 13
+	
+In this stateless architecture, HTTP requests from users can be sent to any web servers, which fetch state data from a shared data store. State data is stored in a shared data store and kept out of web servers. A stateless system is simpler, more robust, and scalable.
 
-This way, HTTP requests from users can be served by any web server.
+Figure 14 shows the updated design with a stateless web tier.
 
-Updated web application architecture:
 ![web-app-architecture-updated](images/web-app-architecture-updated.png)
 
-The user session data store could either be a relational database or a NoSQL data store, which is easier to scale for this kind of data.
-The next step in the app's evolution is supporting multiple data centers.
+	Figure 14
+
+In Figure 14, we move the session data out of the web tier and store them in the persistent data store. The shared data store could be a relational database, Memcached/Redis, NoSQL, etc. The NoSQL data store is chosen as it is easy to scale. Autoscaling means adding or removing web servers automatically based on the traffic load. After the state data is removed out of web servers, auto-scaling of the web tier is easily achieved by adding or removing servers based on traffic load.
+
+Your website grows rapidly and attracts a significant number of users internationally. To improve availability and provide a better user experience across wider geographical areas, supporting multiple data centers is crucial.
 
 # Data centers
+
+Figure 15 shows an example setup with two data centers. In normal operation, users are geoDNS-routed, also known as geo-routed, to the closest data center, with a split traffic of x% in US-East and (100 – x)% in US-West. geoDNS is a DNS service that allows domain names to be resolved to IP addresses based on the location of a user.
+
 ![data-centers](images/data-centers.png)
 
-In the above example, clients are geo-routed to the nearest data center based on the IP address.
+	Figure 15
+	
+In the event of any significant data center outage, we direct all traffic to a healthy data center. In Figure 16, data center 2 (US-West) is offline, and 100% of the traffic is routed to data center 1 (US-East).
 
-In the event of an outage, we route all traffic to the healthy data center:
 ![data-center-failover](images/data-center-failover.png)
 
-To achieve this multi-datacenter setup, there are several issues we need to address:
- * traffic redirection - tooling for correctly directing traffic to the right data center. GeoDNS can be used in this case.
- * data synchronization - in case of failover, users from DC1 go to DC2. A challenge is whether their user data is there.
- * test and deployment - automated deployment & testing is crucial to keep deployments consistent across DCs.
- 
-To further scale the system, we need to decouple different system components so they can scale independently.
+	Figure 16
+	
+Several technical challenges must be resolved to achieve multi-data center setup:
+
+ * Traffic redirection: Effective tools are needed to direct traffic to the correct data center. GeoDNS can be used to direct traffic to the nearest data center depending on where a user is located.
+
+ * Data synchronization: Users from different regions could use different local databases or caches. In failover cases, traffic might be routed to a data center where data is unavailable. A common strategy is to replicate data across multiple data centers. A previous study shows how Netflix implements asynchronous multi-data center replication [11].
+
+ * Test and deployment: With multi-data center setup, it is important to test your website/application at different locations. Automated deployment tools are vital to keep services consistent through all the data centers [11].
+
+To further scale our system, we need to decouple different components of the system so they can be scaled independently. Messaging queue is a key strategy employed by many real-world distributed systems to solve this problem.
 
 # Message queues
-Message queues are durable components, which enable asynchronous communication.
+
+A message queue is a durable component, stored in memory, that supports asynchronous communication. It serves as a buffer and distributes asynchronous requests. The basic architecture of a message queue is simple. Input services, called producers/publishers, create messages, and publish them to a message queue. Other services or servers, called consumers/subscribers, connect to the queue, and perform actions defined by the messages. The model is shown in Figure 17.
+
 ![message-queue](images/message-queue.png)
 
-Basic architecture:
- * Producers create messages.
- * Consumers/Subscribers subscribe to new messages and consume them.
+	Figure 17
+	
+Decoupling makes the message queue a preferred architecture for building a scalable and reliable application. With the message queue, the producer can post a message to the queue when the consumer is unavailable to process it. The consumer can read messages from the queue even when the producer is unavailable.
 
-Message queues enable producers to be decoupled from consumers. 
-If a consumer is down, a producer can still publish a message and the consumer will receive it at a later point.
+Consider the following use case: your application supports photo customization, including cropping, sharpening, blurring, etc. Those customization tasks take time to complete. In Figure 18, web servers publish photo processing jobs to the message queue. Photo processing workers pick up jobs from the message queue and asynchronously perform photo customization tasks. The producer and the consumer can be scaled independently. When the size of the queue becomes large, more workers are added to reduce the processing time. However, if the queue is empty most of the time, the number of workers can be reduced.
 
-Example use-case in our application - photo processing:
- * Web servers publish "photo processing tasks" to a message queue
- * A variable number of workers (can be scaled up or down) subscribe to the queue and process those tasks.
 ![photo-processing-queue](images/photo-processing-queue.png)
 
+	Figure 18
+	
 # Logging, metrics, automation
-Once your web application grows beyond a given point, investing in monitoring tooling is critical.
- * Logging - error logs can be emitted to a data store, which can later be read by service operators.
- * Metrics - collecting various types of metrics helps us collect business insight & monitor the health of the system.
- * Automation - investing in continuous integration such as automated build, test, deployment can detect various problems early and also increases developer productivity.
 
-Updated system design:
+When working with a small website that runs on a few servers, logging, metrics, and automation support are good practices but not a necessity. However, now that your site has grown to serve a large business, investing in those tools is essential.
+
+Logging: Monitoring error logs is important because it helps to identify errors and problems in the system. You can monitor error logs at per server level or use tools to aggregate them to a centralized service for easy search and viewing.
+
+Metrics: Collecting different types of metrics help us to gain business insights and understand the health status of the system. Some of the following metrics are useful:
+
+ * Host level metrics: CPU, Memory, disk I/O, etc.
+ * Aggregated level metrics: for example, the performance of the entire database tier, cache tier, etc.
+ * Key business metrics: daily active users, retention, revenue, etc.
+
+Automation: When a system gets big and complex, we need to build or leverage automation tools to improve productivity. Continuous integration is a good practice, in which each code check-in is verified through automation, allowing teams to detect problems early. Besides, automating your build, test, deploy process, etc. could improve developer productivity significantly.
+
+Adding message queues and different tools
+
+Figure 19 shows the updated design. Due to the space constraint, only one data center is shown in the figure.
+
+1. The design includes a message queue, which helps to make the system more loosely coupled and failure resilient.
+
+2. Logging, monitoring, metrics, and automation tools are included.
+
 ![sys-design-after-monitoring](images/sys-design-after-monitoring.png)
 
+	Figure 19
+	
+As the data grows every day, your database gets more overloaded. It is time to scale the data tier.
+
 # Database scaling
-There are two approaches to database scaling - vertical and horizontal.
 
-## Vertical scaling
-Also known as scaling up, it means adding more physical resources to your database nodes - CPU, RAM, HDD, etc.
-In Amazon RDS, for example, you can get a database node with 24 TB of RAM.
+There are two broad approaches for database scaling: vertical scaling and horizontal scaling.
 
-This kind of database can handle lots of data - eg stackoverflow in 2013 had 10mil monthly unique visitors \w a single database node.
+# Vertical scaling
 
-Vertical scaling has some drawbacks, though:
- * There are hardware limits to the amount of resources you can add to a node.
- * You still have a single point of failure.
- * Overall cost is high - the price of powerful servers is high.
+Vertical scaling, also known as scaling up, is the scaling by adding more power (CPU, RAM, DISK, etc.) to an existing machine. There are some powerful database servers. According to Amazon Relational Database Service (RDS) [12], you can get a database server with 24 TB of RAM. This kind of powerful database server could store and handle lots of data. For example, stackoverflow.com in 2013 had over 10 million monthly unique visitors, but it only had 1 master database [13]. However, vertical scaling comes with some serious drawbacks:
 
-## Horizontal scaling
-Instead of adding bigger servers, you can add more of them:
+ * You can add more CPU, RAM, etc. to your database server, but there are hardware limits. If you have a large user base, a single server is not enough.
+ * Greater risk of single point of failures.
+ * The overall cost of vertical scaling is high. Powerful servers are much more expensive.
+
+# Horizontal scaling
+
+Horizontal scaling, also known as sharding, is the practice of adding more servers. Figure 20 compares vertical scaling with horizontal scaling.
+
 ![vertical-vs-horizontal-scaling](images/vertical-vs-horizontal-scaling.png)
 
-Sharding is a type of database horizontal scaling which separates large data sets into smaller ones.
-Each shard shares the same schema, but the actual data is different.
+	Figure 20
+	
+Sharding separates large databases into smaller, more easily managed parts called shards. Each shard shares the same schema, though the actual data on each shard is unique to the shard.
 
-One way to shard the database is based on some key, which is equally distributed on all shards using the modulo operator:
+Figure 21 shows an example of sharded databases. User data is allocated to a database server based on user IDs. Anytime you access data, a hash function is used to find the corresponding shard. In our example, user_id % 4 is used as the hash function. If the result equals to 0, shard 0 is used to store and fetch data. If the result equals to 1, shard 1 is used. The same logic applies to other shards.
+
 ![database-sharding](images/database-sharding.png)
+	
+	Figure 21
+	
+Figure 22 shows the user table in sharded databases.
 
-Here's how the user data looks like in this example:
 ![user-data-in-shards](images/user-data-in-shards.png)
 
-The sharding key (aka partition key) is the most important factor to consider when using sharding.
-In particular, the key should be chosen in a way that distributes the data as evenly as possible.
+	Figure 22
+	
+The most important factor to consider when implementing a sharding strategy is the choice of the sharding key. Sharding key (known as a partition key) consists of one or more columns that determine how data is distributed. As shown in Figure 22, “user_id” is the sharding key. A sharding key allows you to retrieve and modify data efficiently by routing database queries to the correct database. When choosing a sharding key, one of the most important criteria is to choose a key that can evenly distributed data.
 
-Although a useful technique, it introduces a lot of complexities in the system:
- * Resharding data - you need to do it if a single shard grows too big. This can happen rather quickly if data is distributed unevenly. Consistent hashing helps to avoid moving too much data around.
- * Celebrity problem (aka hotspot) - one shard could be accessed much more frequently than others and can lead to server overload. We may have to resort to using separate shards for certain celebrities.
- * Join and de-normalization - It is hard to perform join operations across shards. A common workaround is to de-normalize your tables to avoid making joins.
+Sharding is a great technique to scale the database but it is far from a perfect solution. It introduces complexities and new challenges to the system:
 
-Here's how our application architecture looks like after introducing sharding and a NoSQL database for some of the non-relational data:
+<b>Resharding data:</b> Resharding data is needed when 1) a single shard could no longer hold more data due to rapid growth. 2) Certain shards might experience shard exhaustion faster than others due to uneven data distribution. When shard exhaustion happens, it requires updating the sharding function and moving data around. Consistent hashing is a commonly used technique to solve this problem.
+
+<b>Celebrity problem:</b> This is also called a hotspot key problem. Excessive access to a specific shard could cause server overload. Imagine data for Katy Perry, Justin Bieber, and Lady Gaga all end up on the same shard. For social applications, that shard will be overwhelmed with read operations. To solve this problem, we may need to allocate a shard for each celebrity. Each shard might even require further partition.
+
+<b>Join and de-normalization:</b> Once a database has been sharded across multiple servers, it is hard to perform join operations across database shards. A common workaround is to de-normalize the database so that queries can be performed in a single table.
+
+In Figure 23, we shard databases to support rapidly increasing data traffic. At the same time, some of the non-relational functionalities are moved to a NoSQL data store to reduce the database load. Here is an article that covers many use cases of NoSQL [14].
+
 ![updated-system-design](images/updated-system-design.png)
 
+	Figure 23
+
 # Millions of users and beyond
-Scaling a system is iterative.
 
-What we've learned so far can get us far, but we might need to apply even more sophisticated techniques to scale the application beyond millions of users.
+Scaling a system is an iterative process. Iterating on what we have learned in this chapter could get us far. More fine-tuning and new strategies are needed to scale beyond millions of users. For example, you might need to optimize your system and decouple the system to even smaller services. All the techniques learned in this chapter should provide a good foundation to tackle new challenges. To conclude this chapter, we provide a summary of how we scale our system to support millions of users:
 
-The techniques we saw so far can offer a good foundation to start from.
-
-Here's a summary:
  * Keep web tier stateless
- * Build redundancy at every layer
- * Cache frequently accessed data
+ * Build redundancy at every tier
+ * Cache data as much as you can
  * Support multiple data centers
- * Host static assets in CDNs
- * Scale your data tier via sharding
- * Split your big application into multiple services
- * Monitor your system & use automation
+ * Host static assets in CDN
+ * Scale your data tier by sharding
+ * Split tiers into individual services
+ * Monitor your system and use automation tools
+
+Congratulations on getting this far! Now give yourself a pat on the back. Good job!
+
+# Reference materials
+
+[1] Hypertext Transfer Protocol: https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
+
+[2] Should you go Beyond Relational Databases?:
+https://blog.teamtreehouse.com/should-you-go-beyond-relational-databases
+
+[3] Replication: https://en.wikipedia.org/wiki/Replication_(computing)
+
+[4] Multi-master replication:
+https://en.wikipedia.org/wiki/Multi-master_replication
+
+[5] NDB Cluster Replication: Multi-Master and Circular Replication:
+https://dev.mysql.com/doc/refman/5.7/en/mysql-cluster-replication-multi-master.html
+
+[6] Caching Strategies and How to Choose the Right One:
+https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/
+
+[7] R. Nishtala, "Facebook, Scaling Memcache at," 10th USENIX Symposium on Networked Systems Design and Implementation (NSDI ’13).
+
+[8] Single point of failure: https://en.wikipedia.org/wiki/Single_point_of_failure
+
+[9] Amazon CloudFront Dynamic Content Delivery:
+https://aws.amazon.com/cloudfront/dynamic-content/
+
+[10] Configure Sticky Sessions for Your Classic Load Balancer:
+https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-sticky-sessions.html
+
+[11] Active-Active for Multi-Regional Resiliency:
+https://netflixtechblog.com/active-active-for-multi-regional-resiliency-c47719f6685b
+
+[12] Amazon EC2 High Memory Instances:
+https://aws.amazon.com/ec2/instance-types/high-memory/
+
+[13] What it takes to run Stack Overflow:
+http://nickcraver.com/blog/2013/11/22/what-it-takes-to-run-stack-overflow
+
+[14] What The Heck Are You Actually Using NoSQL For:
+http://highscalability.com/blog/2010/12/6/what-the-heck-are-you-actually-using-nosql-for.html
