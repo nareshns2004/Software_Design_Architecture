@@ -6,15 +6,14 @@ We will restrict our example to those areas of the airport that passengers are i
 
 A sequence of steps like this is called a scenario. However, the depicted scenario is only one of many possible scenarios. The following exceptions are possible for passenger check-in and boarding:
 
-	* The passenger only has carry-on luggage.
-	* The passenger doesn’t buy anything at the newsstand.
-	* The passenger is running late and now has to check in as quickly as possible.
-	* The passenger loses his or her boarding pass.
-	* The passenger arrived by plane and merely has to change planes, meaning that he or she doesn’t leave the transit area.
-	* The passenger checks in, but falls asleep on an uncomfortable chair in the waiting area, and misses the departure of his or her flight, despite being called repeatedly.
+ * The passenger only has carry-on luggage.
+ * The passenger doesn’t buy anything at the newsstand.
+ * The passenger is running late and now has to check in as quickly as possible.
+ * The passenger loses his or her boarding pass.
+ * The passenger arrived by plane and merely has to change planes, meaning that he or she doesn’t leave the transit area.
+ * The passenger checks in, but falls asleep on an uncomfortable chair in the waiting area, and misses the departure of his or her flight, despite being called repeatedly.
 	* The passenger doesn’t get through passport inspection because his or her passport has expired.
 	
-
 ![UML_Airport_1](images/UML_Airport_1.jpg)
 
 	Figure 2.1 Case Study: “Passenger takes plane to go on vacation”
@@ -27,13 +26,13 @@ A sequence of steps like this is called a scenario. However, the depicted scenar
 
 The schematic illustration of the UML Airport in Figure 2.2 should help you to understand the events of the case study better. Many areas around the main passenger services are related in one or more ways to passenger services. Some examples are:
 
-	* Ticket sales
-	* Newsstand
-	* Duty-free shop
-	* Passport inspection/immigration
-	* Flight control
-	* Information desk
-	* Baggage check-in and transportation
+ * Ticket sales
+ * Newsstand
+ * Duty-free shop
+ * Passport inspection/immigration
+ * Flight control
+ * Information desk
+ * Baggage check-in and transportation
 
 Passenger services have to exchange data with some of these areas. They also have to communicate with other areas of the airport. We will introduce those areas when we discuss business models and models of system integration. Therefore, the case study will be expanded further in the following chapters.
 
@@ -47,7 +46,7 @@ We distinguish between a flight and a flight number. For instance, a flight numb
 
 We differentiate between three options for check-in:
 
-	* Normal check-in with luggage at a normal check-in counter
-	* Expres scheck-in without luggage at a special check-in counter
-	* Automated check-in without luggage at a machine
+ * Normal check-in with luggage at a normal check-in counter
+ * Expres scheck-in without luggage at a special check-in counter
+ * Automated check-in without luggage at a machine
 

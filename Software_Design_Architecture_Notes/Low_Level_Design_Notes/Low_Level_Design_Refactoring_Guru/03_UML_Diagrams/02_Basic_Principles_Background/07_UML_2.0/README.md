@@ -2,22 +2,19 @@
 
 This book is based on the new version of UML—UML 2.0. In this version, the structure and documentation of UML was completely revised. There are now two documents available that describe UML:
 
-	* UML 2.0 Infrastructure defines the basic constructs of the language on which UML is based. This section is not directly relevant to the users of UML (our readers), but is directed more towards the developers of modeling tools.
-
-	* UML 2.0 Superstructure defines the user constructs of UML 2.0, meaning those elements of UML that users work with at the immediate level.
+ * UML 2.0 Infrastructure defines the basic constructs of the language on which UML is based. This section is not directly relevant to the users of UML (our readers), but is directed more towards the developers of modeling tools.
+ * UML 2.0 Superstructure defines the user constructs of UML 2.0, meaning those elements of UML that users work with at the immediate level.
 
 Among other things, this revision of UML was created to pursue the following goals:
 
-	* To restructure and refine UML so that usability, implementation, and adaptation are simplified.
-		
-	* The UML infrastructure is supposed to:
-		Provide a reusable meta-language core, with which UML can define itself
-		Provide mechanisms for the adjustment of language
-	
-	* The UML superstructure is supposed to:
-		Feature better support for component-based development
-		Improve constructs for the specification of architecture
-		o Provide better options for the modeling of behavior
+ * To restructure and refine UML so that usability, implementation, and adaptation are simplified.		
+ * The UML infrastructure is supposed to:
+		* Provide a reusable meta-language core, with which UML can define itself
+		* Provide mechanisms for the adjustment of language
+ * The UML superstructure is supposed to:
+		* Feature better support for component-based development
+		* Improve constructs for the specification of architecture
+		* Provide better options for the modeling of behavior
 
 In addition to the proposal of UML Infrastructure and UML Superstructure specifications, separate proposals were published for a new Object Constraint Language (OCL) as well as for Diagram Interchange. Together, they make up the complete UML 2.0 package, as shown in Figure 2.12:
 
@@ -39,10 +36,10 @@ We consciously only show the tip of the iceberg, while the part hidden under wat
 	
 We would also like to point out a new possibility that UML 2.0 opens up. One of the goals of UML 2.0 was the definition of formal and completely defined semantics. If this new possibility is utilized for the development of models, corresponding systems can be generated from these models. This yields the following advantages:
 
-	* A model that was described with UML reflects the real system.
-	* It is possible to correct mistakes in the model early and continuously.
-	* Intermediate steps such as amending code outside of the model design are omitted.
-	* It is possible to make the same model executable on different platforms (hardware as well as software).
+ * A model that was described with UML reflects the real system.
+ * It is possible to correct mistakes in the model early and continuously.
+ * Intermediate steps such as amending code outside of the model design are omitted.
+ * It is possible to make the same model executable on different platforms (hardware as well as software).
 
 However, a price has to be paid for these advantages. It becomes necessary to acquire a deep and accurate understanding of UML and considerable effort has to be invested in the development of the models.
 

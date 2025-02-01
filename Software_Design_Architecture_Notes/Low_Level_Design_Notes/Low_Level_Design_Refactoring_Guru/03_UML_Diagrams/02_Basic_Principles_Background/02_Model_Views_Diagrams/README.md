@@ -50,42 +50,39 @@ Analysis or design patterns are example models that describe common design and m
 
 Figure 2.4 shows the process of analysis, which consists of obtaining, representing, and verifying facts:
 
-	
 ![Process_Analysis](images/Process_Analysis.jpg)	
 	
 	Figure 2.4 Process of Analysis
 	
 This is the job of the analyst. The process of analysis produces a specification that comes from the model and other representations. The analyst works with knowledge carriers, such as customers, users, and domain experts:
 
-	* Facts are obtained by collaboration between analysts and domain experts in which knowledge carriers contribute domain knowledge and analysts contribute methodological knowledge.
-
-	* Facts are represented in diagrams and documents, which are usually prepared by the analyst.
-
-	* Facts are verified only by knowledge carriers, since they alone can decide if the presented facts are correct. Verification is absolutely essential. Without it we might have pretty diagrams, but the probability is high that the facts represented are faulty. In simple terms: development of a model without verification is absolutely worthless!
+ * Facts are obtained by collaboration between analysts and domain experts in which knowledge carriers contribute domain knowledge and analysts contribute methodological knowledge.
+ * Facts are represented in diagrams and documents, which are usually prepared by the analyst.
+ * Facts are verified only by knowledge carriers, since they alone can decide if the presented facts are correct. Verification is absolutely essential. Without it we might have pretty diagrams, but the probability is high that the facts represented are faulty. In simple terms: development of a model without verification is absolutely worthless!
 	
 # Practical Tips
 
 It is impossible to develop and verify a usable model without mastering the technical foundations of a topic. Where do we find these knowledge carriers who know something about the systems that we want to model? We have had good experiences with the following groups of people:
 
-	* People who are involved in performing, operating, and controlling business processes
-	* Users of similar or related IT systems
-	* Customers, who are often critical and creative knowledge carriers
-	* Business Partners
-	* Domain Experts
-	* Management
-	* External Observers
+ * People who are involved in performing, operating, and controlling business processes
+ * Users of similar or related IT systems
+ * Customers, who are often critical and creative knowledge carriers
+ * Business Partners
+ * Domain Experts
+ * Management
+ * External Observers
 
 Several helpful techniques have proven to be useful for the analysis and understanding of business processes:
 
-	* Observing employees at work
-	* Participating in the investigated business processes
-	* Taking the role of an outsider (e.g. of a customer)
-	* Carrying out surveys
-	* Conducting interviews
-	* Brainstorming with everyone involved
-	* Discussing with domain experts
-	* Reviewing existing forms, documentation, specifications, handbooks, and work tools
-	* Describing the organizational structure and workflow management (organization charts, etc.)
+ * Observing employees at work
+ * Participating in the investigated business processes
+ * Taking the role of an outsider (e.g. of a customer)
+ * Carrying out surveys
+ * Conducting interviews
+ * Brainstorming with everyone involved
+ * Discussing with domain experts
+ * Reviewing existing forms, documentation, specifications, handbooks, and work tools
+ * Describing the organizational structure and workflow management (organization charts, etc.)
 	
 # Diagrams as Views
 

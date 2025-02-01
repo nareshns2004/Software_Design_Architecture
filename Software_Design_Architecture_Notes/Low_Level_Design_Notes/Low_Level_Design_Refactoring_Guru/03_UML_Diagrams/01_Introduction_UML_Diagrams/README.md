@@ -6,27 +6,20 @@ Most books about UML describe it almost in its entirety. However, our experience
 
 There are several reasons to use UML as a modeling language:
 
-	* The unification of terminology and the standardization of notation lead to a significant easing of communication for all parties involved. 		 It facilitates the exchange of models between different departments or companies. Moreover, it eases the transfer of projects between project teams or project team members.
-
-	* UML grows as the requirements for modeling grow. Because UML is a powerful modeling language, you can start with the development of simple models or model complex systems in great detail. If the basic functionality of UML is not sufficient, you can extend it through the use of stereotypes.
-
-	* UML builds upon widely used and proven approaches. UML was not devised in an ivory tower but was developed mainly from real-world problems and existing modeling languages. This guarantees usability and real-life functionality.
-
-	* UML is widely supported.
-
-	* UML-based bids for software systems can be compared much more easily.
+ * The unification of terminology and the standardization of notation lead to a significant easing of communication for all parties involved. 		 It facilitates the exchange of models between different departments or companies. Moreover, it eases the transfer of projects between project teams or project team members.
+ * UML grows as the requirements for modeling grow. Because UML is a powerful modeling language, you can start with the development of simple models or model complex systems in great detail. If the basic functionality of UML is not sufficient, you can extend it through the use of stereotypes.
+ * UML builds upon widely used and proven approaches. UML was not devised in an ivory tower but was developed mainly from real-world problems and existing modeling languages. This guarantees usability and real-life functionality.
+ * UML is widely supported.
+ * UML-based bids for software systems can be compared much more easily.
 
 At the time this book was wrote, standardization of UML was not fully completed. However, subsequent changes to UML 2.0 will not affect the simplified approach that our book presents.
 
 Our book was written for computer scientists and for people involved in the development process of IT systems, such as analysts, decision makers, users, and experts. It shows how, with UML, simple models of business processes and specification models can be created and read with little effort. Our experience with projects showed that:
 
-	* Often only components of a model are created.
-
-	* Most of the time the entire system is not modeled.
-
-	* Very little time is spent on training in modeling language and methodology.
-
-	* In short: modeling is not given much priority.
+ * Often only components of a model are created.
+ * Most of the time the entire system is not modeled.
+ * Very little time is spent on training in modeling language and methodology.
+ * In short: modeling is not given much priority.
 
 Certainly a few projects use the complete UML model appropriately. However, the bulk of all projects use UML or other modeling languages, modeling tools, and modeling methods to only a small degree, if at all. While enthusiasm and motivation are strong at the beginning of the project, modeling and documentation of the modeling results are often the first to fall victim to the increasing time pressure as the deadline approaches.
 

@@ -12,26 +12,26 @@ On one hand, a general understanding of the business system and business process
 
 As a first step, it is important to find knowledge carriers, in order for analysts and knowledge carriers to work out the basic principles together. Such knowledge carriers are, for example:
 
-	* People who are involved in performing, operating, and controlling business processes
-	* Users of similar or related IT systems
-	* Customers, who are often critical and creative knowledge carriers
-	* Business partners
-	* Domain experts
-	* Management
-	* External observers
+ * People who are involved in performing, operating, and controlling business processes
+ * Users of similar or related IT systems
+ * Customers, who are often critical and creative knowledge carriers
+ * Business partners
+ * Domain experts
+ * Management
+ * External observers
 
 Several helpful techniques have proven to be practical for the analysis and understanding of business processes:
 
-	* Observing employees at work
-	* Participating in the business processes being investigated
-	* Taking the role of an outsider (e.g., of a customer)
-	* Giving out surveys
-	* Performing interviews
-	* Brainstorming with everyone involved
-	* Discussing with domain experts
-	* Reviewing existing forms, documentation, specifications, handbooks, and work tools
-	* Describing organizational structure and workflow management
-	* Reviewing organization charts and job descriptions
+ * Observing employees at work
+ * Participating in the business processes being investigated
+ * Taking the role of an outsider (e.g., of a customer)
+ * Giving out surveys
+ * Performing interviews
+ * Brainstorming with everyone involved
+ * Discussing with domain experts
+ * Reviewing existing forms, documentation, specifications, handbooks, and work tools
+ * Describing organizational structure and workflow management
+ * Reviewing organization charts and job descriptions
 	
 ![Scene_2](images/Scene_2.jpg)
 
@@ -43,10 +43,10 @@ This step is all about identifying potential actors. Here, this rule applies: th
 
 More potential actors can be found by answering the following questions (e.g., through consulting knowledge carriers). In doing this, it is advisable to create groups of people and types of organizations by abstracting directly from concrete examples of specific persons and organizations:
 
-	* Which customers are customers of the business system, and which are customers of the business processes?
-	* Who are the external partners of the business system? Which goods and services do these external partners use?
-	* Which in-house positions and organization units are partners of the business system and use its goods and services?
-	* With what external business systems does the business system interact?
+ * Which customers are customers of the business system, and which are customers of the business processes?
+ * Who are the external partners of the business system? Which goods and services do these external partners use?
+ * Which in-house positions and organization units are partners of the business system and use its goods and services?
+ * With what external business systems does the business system interact?
 
 As a first step, the previous explanations of our case study result in the following actors:
 
@@ -60,12 +60,12 @@ In addition to the passenger, who represents travelers, there is the check-in re
 
 This step is about finding potential business use cases. The rule—the more the merrier—applies here as well (in reasonable moderation). Potential business use cases can be found by answering the following questions:
 
-	* Which goods or services are provided to and used by the customer?
-	* Which goods or services are provided to and used by external partners?
-	* Which goods and services that are provided by the business system involve suppliers (suppliers of goods and suppliers of services)?
-	* What are the individual actors doing?
-	* How and on what occasions does communication take place with other business systems or business partners?
-	* Which events trigger what activities?
+ * Which goods or services are provided to and used by the customer?
+ * Which goods or services are provided to and used by external partners?
+ * Which goods and services that are provided by the business system involve suppliers (suppliers of goods and suppliers of services)?
+ * What are the individual actors doing?
+ * How and on what occasions does communication take place with other business systems or business partners?
+ * Which events trigger what activities?
 	
 First considerations of our case study result in the following business use cases:
 
@@ -75,10 +75,10 @@ First considerations of our case study result in the following business use case
 	
 Initially, the business use cases can only be described in a concise and informal manner:
 
-	* The check-in procedure includes submitting the ticket, baggage check-in, seat reservation, and issuing and handing over the boarding pass.
-	* Passengers who only have hand luggage can use express check-in. No baggage check-in is performed.
-	* During boarding, the boarding pass of the passenger is verified at the gate.
-	* Automated check-in is conducted without the help of a check-in clerk, directly at a machine (screen). Baggage cannot be checked in.
+ * The check-in procedure includes submitting the ticket, baggage check-in, seat reservation, and issuing and handing over the boarding pass.
+ * Passengers who only have hand luggage can use express check-in. No baggage check-in is performed.
+ * During boarding, the boarding pass of the passenger is verified at the gate.
+ * Automated check-in is conducted without the help of a check-in clerk, directly at a machine (screen). Baggage cannot be checked in.
 	
 # Practical Tips
 
@@ -108,9 +108,9 @@ How can an actor be described further? For instance, this description can includ
 
 Once you have found several business use cases, they can be used as starting points for further questions. Starting from a particular business use case, the following questions can be asked:
 
-	* Is there anything that has to be done at some point beforehand, prior to accessing a particular functionality?
-	* Is there anything that has to be done at some point afterwards, after performing a particular business use case?
-	* Is there anything that needs to be done if nobody performs a particular business use case?
+ * Is there anything that has to be done at some point beforehand, prior to accessing a particular functionality?
+ * Is there anything that has to be done at some point afterwards, after performing a particular business use case?
+ * Is there anything that needs to be done if nobody performs a particular business use case?
 	
 In doing so, it is important to consider the proper business system. Many of the events that occur before or after a business use case take place outside the business system under consideration. In our case study, for instance, booking the flight or getting to the airport does not belong to the system being considered.
 
@@ -130,15 +130,11 @@ Without a doubt, it is difficult to find the right amount of detail in the model
 
 Fortunately, some criteria will help you determine the optimal scope of a business use case. For this purpose, ask yourself the following questions:
 
-	* Does the business use case consist of a behaviourally related sequence of interactions that belong together (an interaction sequence)? Items that are included in a business use case have to be directly related. Issuing a boarding pass and searching for lost luggage are not related at all. Business use cases that violate this criterion have to be divided. This prevents the occurrence of oversized business use cases.
-
-	* How many actors are involved in a business use case? Business use cases that have too many actors have to be divided. This also prevents oversized business use cases.
-
-	* Does the business use case deliver tangible and relevant goods or services? A business use case is not supposed to describe incomplete steps, for example, counting pieces of luggage. Rather, at least in a regular case, it is supposed to produce a benefit that has meaning from a customer’s perspective. Business use cases that violate this criterion have to be combined with other business use cases. This way, undersized business use cases are prevented.
-
-	* Is the business use case never performed alone, but always in a sequence in combination with other business use cases? A business use case is not supposed to describe goods and services that are only used in combination with other goods and services. Business use cases that violate this criterion, have to be combined with other business use cases. This also prevents undersized business use cases.
-
-	* Is the business use case initiated by an actor? Business use cases that are not initiated by an actor are not use cases but internal activities that are depicted in the internal view of the business system.
+ * Does the business use case consist of a behaviourally related sequence of interactions that belong together (an interaction sequence)? Items that are included in a business use case have to be directly related. Issuing a boarding pass and searching for lost luggage are not related at all. Business use cases that violate this criterion have to be divided. This prevents the occurrence of oversized business use cases.
+ * How many actors are involved in a business use case? Business use cases that have too many actors have to be divided. This also prevents oversized business use cases.
+ * Does the business use case deliver tangible and relevant goods or services? A business use case is not supposed to describe incomplete steps, for example, counting pieces of luggage. Rather, at least in a regular case, it is supposed to produce a benefit that has meaning from a customer’s perspective. Business use cases that violate this criterion have to be combined with other business use cases. This way, undersized business use cases are prevented.
+ * Is the business use case never performed alone, but always in a sequence in combination with other business use cases? A business use case is not supposed to describe goods and services that are only used in combination with other goods and services. Business use cases that violate this criterion, have to be combined with other business use cases. This also prevents undersized business use cases.
+ * Is the business use case initiated by an actor? Business use cases that are not initiated by an actor are not use cases but internal activities that are depicted in the internal view of the business system.
 
 A review of the existing business use cases on the basis of these questions can lead to the consolidation or division of business use cases.
 
@@ -177,9 +173,8 @@ It is of fundamental importance that the terminology of the business processes o
 
 Terminology from the field of Information Technology does not belong in use case diagrams on the business-process level. The mixing of terms from the business process and IT communities leads to poor results. In reality, we often encounter use cases that are already very close to IT on the business-process level, e.g., updating a customer index. This leads to confusion in two aspects:
 
-	* Users—meaning people who are involved in business processes, and who are not familiar with IT terminology—do not understand the business use cases. Since business use cases describe the performance requirements for a business system, the business system and business processes cannot be understood, and therefore cannot be verified. In a project with poorly formulated business use cases, an IT department presented the business use cases to users for verification and received just one short answer: “Men throwing arrows?!”.
-
-	* Technical details on the level of business use cases distract from the business-process specific requirements for a system.
+ * Users—meaning people who are involved in business processes, and who are not familiar with IT terminology—do not understand the business use cases. Since business use cases describe the performance requirements for a business system, the business system and business processes cannot be understood, and therefore cannot be verified. In a project with poorly formulated business use cases, an IT department presented the business use cases to users for verification and received just one short answer: “Men throwing arrows?!”.
+ * Technical details on the level of business use cases distract from the business-process specific requirements for a system.
 
 
 

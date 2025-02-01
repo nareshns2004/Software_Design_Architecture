@@ -2,11 +2,11 @@
 
 The following types of UML diagrams represent the external view:
 
-	* Usecase diagrams show actors, business use cases, and their relationships. Use case diagrams do not describe procedures. Alternative scenarios also remain hidden. These diagrams give a good overview of the functionality of a business system.
+ * <b>Usecase diagrams</b> show actors, business use cases, and their relationships. Use case diagrams do not describe procedures. Alternative scenarios also remain hidden. These diagrams give a good overview of the functionality of a business system.
 
-	* Activity diagrams describe procedures, in our case, the business processes of the business system. The subjects of these descriptions are interactions between actors and the business system, meaning the goods and services that are offered to customers and business partners. On the basis of activity diagrams, outsiders can identify how to interact with the business system. They are especially useful to illustrate sequences, alternatives, and parallel events. Activity diagrams can be created in various degrees of detail.
-
-	* Sequence diagrams show the chronological chain of interactions. They do not depict every event with all its branches and parallelisms, but the information that is exchanged between the involved parties. These diagrams are a good basis for data and information exchange with partners and customers (Figure 3.6):
+ * <b>Activity diagrams</b> describe procedures, in our case, the business processes of the business system. The subjects of these descriptions are interactions between actors and the business system, meaning the goods and services that are offered to customers and business partners. On the basis of activity diagrams, outsiders can identify how to interact with the business system. They are especially useful to illustrate sequences, alternatives, and parallel events. Activity diagrams can be created in various degrees of detail.
+ 
+ * <b>Sequence diagrams</b> show the chronological chain of interactions. They do not depict every event with all its branches and parallelisms, but the information that is exchanged between the involved parties. These diagrams are a good basis for data and information exchange with partners and customers (Figure 3.6):
 	
 ![External_View](images/External_View.jpg)
 
