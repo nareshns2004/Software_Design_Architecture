@@ -1,12 +1,20 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# The Elements of a View
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+The following types of UML diagrams represent the external view:
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+	* Usecase diagrams show actors, business use cases, and their relationships. Use case diagrams do not describe procedures. Alternative scenarios also remain hidden. These diagrams give a good overview of the functionality of a business system.
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+	* Activity diagrams describe procedures, in our case, the business processes of the business system. The subjects of these descriptions are interactions between actors and the business system, meaning the goods and services that are offered to customers and business partners. On the basis of activity diagrams, outsiders can identify how to interact with the business system. They are especially useful to illustrate sequences, alternatives, and parallel events. Activity diagrams can be created in various degrees of detail.
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
+	* Sequence diagrams show the chronological chain of interactions. They do not depict every event with all its branches and parallelisms, but the information that is exchanged between the involved parties. These diagrams are a good basis for data and information exchange with partners and customers (Figure 3.6):
+	
+![External_View](images/External_View.jpg)
 
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+	Figure 3.6 The external view
+	
+UML diagrams for the description of business use cases can be annotated with written descriptions and illustrative figures. Not every diagram has to be used in each case. Which diagram type should be used depends on which system characteristics need to be emphasized. In any case, we recommend creating use case diagrams, because this diagram type is well suited for communicating with system partners and domain experts about the basic functionality and the context of the system. High-level activity diagrams with a low degree of detail, which can include several use cases, are also well suited for this purpose.
+
+When refining business use cases and identifying the various scenarios, it becomes necessary to describe the various activities with activity diagrams.
+
+Sequence diagrams show the information exchange with partners and customers (see Modeling for System Integration). In our practical experience, sequence diagrams meet great acceptance in the field of business-process modeling. This is because they are easy to read and require only a few graphical elements. As long as some basic knowledge exists about the technical events, sequence diagrams are often more appropriate for an overview of the interactions of a business system than activity diagrams.
+

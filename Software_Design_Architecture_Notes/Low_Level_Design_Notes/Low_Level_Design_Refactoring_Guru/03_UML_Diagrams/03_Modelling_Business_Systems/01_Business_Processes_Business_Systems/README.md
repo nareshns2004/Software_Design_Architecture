@@ -7,7 +7,6 @@ To ensure smooth business transactions through the use of IT systems, it is indi
 Today, most IT systems are not only embedded in a business environment, but are also connected with other IT systems. Thus, every new IT system has to fit not into one, but two different target environments:
 
 	* Integration on the business-process level: Each IT system has to be assigned the activities of a business process in a way that enables correct and efficient execution of the entire business process with all involved components.
-
 	* Integration at the IT-system level: Communication with other IT systems involved in the business process has to go smoothly. This requires semantically and technically perfect interfaces. Integration on the IT-system level will be discussed in Modeling for System Integration.
 
 ![Business_2](images/Business_2.jpg)
@@ -21,9 +20,7 @@ We don’t want to look only at the dynamic aspects of our model, but also at th
 Most people intuitively understand a business process to be a procedure or event with the purpose of reaching a goal. When looking at our UML Airport we can find many different business processes and goals:
 
 	* The goal of our passenger is to go on vacation. To achieve this goal, he has to book a flight and hotel, pack his bags, drive to the UML Airport, check in and board his airplane, exit the plane at his destination airport, go to the hotel, move into his room, and unpack his bags.
-
 	* The owner of the newsstand at the UML Airport wants to sell her goods. For this, she buys items inexpensively and sells them to her customers at a higher price.
-
 	* In order for passengers to check in at the UML Airport, an employee of passenger services accepts their tickets and luggage, inquires about their seat preferences, and uses an IT system. By the end of the procedure, the passengers receive their boarding passes on which their reserved seats and the appropriate gates are marked.
 
 As you can see, business processes are often completed in several steps. These steps are also referred to as activities, and have to be completed in a predetermined order. The newsstand owner cannot sell any goods unless she has purchased them beforehand.
@@ -83,9 +80,7 @@ We reach the limits of UML when modeling extensive business process projects, fo
 This text is tailored toward projects with the goal of developing IT systems. Moreover, it is tailored toward projects for which a concern of the business system is the assurance of the smooth integration of an IT system. The following characteristics mark such projects:
 
 	* Those business processes that are affected by the construction and integration of IT systems are considered.
-
 	* Business-process modeling is not the focus of these projects. Instead, the model serves as the foundation for the construction and integration of IT systems. Business process integration can determine the success or failure of such a project; but the main task still is the construction of IT systems.
-
 	* Because budgets are often tight, time investment in the methodology and language required for business-process modeling should not amount to more than 5-10% of the total project effort.
 	
 # Practical Tips for Modeling Business Processes
