@@ -2,13 +2,7 @@
 
 Models are often built in the context of business and IT systems in order to better understand existing or future systems. However, a model never fully corresponds to reality. Modeling always means emphasizing and omitting: emphasizing essential details and omitting irrelevant ones. But what is essential and what is irrelevant? There is no universal answer to this question. Rather, the answer depends on what the goals of the model are and who is viewing or reading it.
 
-	Think about what is emphasized or omitted in the following models:
-
-	* A wind tunnel model of a car
-	* A model of a building scaled at 1:50
-	* A route plan of the subway
-	* A map
-	* An organization chart
+![Scene_1](images/Scene_1.jpg)
 	
 The more information a model is supposed to give, the more complex and difficult it becomes. A map of Europe, for example, that simultaneously contains political, geological, demographic, and transportation-related information is hardly legible. The solution to this problem is to convey the different types of information on individual maps. Different views are formed of the objects under consideration. These views are interconnected in many ways. Generally, if one view is changed, all other views have to be adjusted as well. If, for instance, in the Netherlands new land is reclaimed from the North Sea, all views—meaning all maps—have to be updated.
 
@@ -28,11 +22,7 @@ Visualization of all facts for customers, experts, and users: All accumulated fa
 
 Verification of facts in terms of completeness, consistency, and correctness: A (more or less) formal model makes it possible to verify the facts obtained for completeness, consistency, and correctness. In particular, the clear depiction of interrelationships makes it possible to ask specific questions, and to answer them. We will list these questions with each diagram.
 
-	Answer the following questions for yourself:
-
-	* When was the last time you felt that you were at cross-purposes when you discussed a system?
-	* When was the last time you felt that you were discussing the same issue over and over again?
-	* When was the last time you wished that the consensus you reached during a discussion had been recorded?
+![Scene_2](images/Scene_2.jpg)
 	
 # Purpose and Target Group of a Model
 

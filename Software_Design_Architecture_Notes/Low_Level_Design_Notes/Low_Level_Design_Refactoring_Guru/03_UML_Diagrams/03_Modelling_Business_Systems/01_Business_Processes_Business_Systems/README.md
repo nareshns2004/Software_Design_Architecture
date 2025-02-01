@@ -1,6 +1,6 @@
 # Modeling Business Systems
 
-	* Commercial IT systems are used mainly for dealing with business transactions of various sorts. Because of this, the development and integration of IT systems determine the views of those business processes that are embedded in the IT system. The business system model and its business processes serve as the basis for this. In this chapter we will discuss the construction of business system models.
+![Business_1](images/Business_1.jpg)
 
 To ensure smooth business transactions through the use of IT systems, it is indispensable to know and understand the business environment of IT systems. Therefore, analysis and modeling of business processes are important components of development and integration of IT systems.
 
@@ -10,13 +10,7 @@ Today, most IT systems are not only embedded in a business environment, but are 
 
 	* Integration at the IT-system level: Communication with other IT systems involved in the business process has to go smoothly. This requires semantically and technically perfect interfaces. Integration on the IT-system level will be discussed in Modeling for System Integration.
 
-Answer the following questions for yourself:
-
-	* When was the last time you experienced a functional gap between a new IT system and its environment that appeared during the development process?
-	
-	* How many IT systems do you know that do not optimally support, or even obstruct, the operating processes of users?
-	
-	* When was the last time you experienced an IT system having to be halted on the day it was rolled out, because a functional error in the interfaces made operation impossible?
+![Business_2](images/Business_2.jpg)
 	
 We don’t want to look only at the dynamic aspects of our model, but also at the static elements. Because of this, we will construct a business system model that entails both business processes and business structures.
 
@@ -46,23 +40,14 @@ Individual activities can be organizationally distributed. The check-in procedur
 
 Usually, the activities of a business process are interdependent. This interdependency is created by the interaction of all the activities belonging to a business process that pursue one common goal.
 
-Think about which of the following activities are not interdependent with our case study, because they do not pursue the goal of our passenger to go on vacation in an Airbus 320:
-
-	* Loading of the Airbus 320 with food and beverages
-	* Fueling of a Boeing 737
-	* Cleaning of the UML Airport restrooms
-	* Promotion of a UML Airport employee to vice-president
+![Model_1](images/Model_1.jpg)
 	
 # Definition of the Workflow Management Coalition
 
 Official definitions of the terms process and business process were adopted by the Workflow Management Coalition. The following definitions can be found in the glossary of the Workflow Reference Model of the Workflow Management Coalition:
 
-	* “A process is a coordinated (parallel and/or serial) set of process activity(s) that are connected in order to achieve a common goal. Such activities may consist of manual activity(s) and/or workflow activity(s).”
+![Model_2](images/Model_2.jpg)
 
-According to this definition, a process is a set of activities that occur in a coordinated manner, either in parallel or one after another, and that pursue one common goal. These activities can be performed manually or when supported by an IT system.
-
-	* “A business process is a kind of process in the domain of business organizational structure and policy for the purpose of achieving business objectives.”
-	
 # Business Systems
 
 So far, we have explained business processes. Business processes are dynamic in nature and involve activities. However, if we want to look at the entire business system, we also have to consider the static aspects. This involves, for instance, the organizational structures within which business processes are conducted. This also involves various business objects and information objects, such as tickets or orders. For the static and dynamic aspects as a whole, we use the term business system.
@@ -87,7 +72,7 @@ We are not interested in any of the external business systems as a whole, but on
 
 Before we move on to the modeling of business processes and business systems with UML, we should ask ourselves whether UML is even suitable for the modeling of business processes and business systems. For this purpose we will take a look at UML’s definition by OMG (Object Management Group Inc.—the international association that promotes open standards for object-oriented applications, which publishes each version of UML that is submitted for standardization at www.omg.org):
 
-	* "The Unified Modeling Language is a visual language for specifying, constructing, and documenting the artifacts of systems"—UML Unified Modeling Language: Infrastructure, Version 2.0, Final Adopted Specifications, September 2003.
+![Model_3](images/Model_3.jpg)
 	
 This definition indicates that UML is a language for the modeling and representation of systems in general, and thus, also of business systems.
 
