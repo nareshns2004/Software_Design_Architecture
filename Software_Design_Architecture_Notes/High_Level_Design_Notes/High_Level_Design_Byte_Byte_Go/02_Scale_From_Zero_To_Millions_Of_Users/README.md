@@ -6,13 +6,13 @@ Designing a system that supports millions of users is challenging, and it is a j
 
 A journey of a thousand miles begins with a single step, and building a complex system is no different. To start with something simple, everything is running on a single server. Figure 1 shows the illustration of a single server setup where everything is running on one server: web app, database, cache, etc.
 
-![single-server-setup-1](images/single-server-setup-1.png)
+![single_server_setup_1](images/single_server_setup_1.webp)
 
 	Figure 1
 	
 To understand this setup, it is helpful to investigate the request flow and traffic source. Let us first look at the request flow (Figure 2).
 
-![single-server-setup-2](images/single-server-setup-2.png)
+![single_server_setup_2](images/single_server_setup_2.webp)
 
 	Figure 2
 
@@ -54,7 +54,7 @@ GET /users/12 – Retrieve user object for id = 12
 
 With the growth of the user base, one server is not enough, and we need multiple servers: one for web/mobile traffic, the other for the database (Figure 3). Separating web/mobile traffic (web tier) and database (data tier) servers allows them to be scaled independently.
 
-![database-separate-from-web](images/database-separate-from-web.png)
+![database-separate-from-web](images/database_separate_from_web.webp)
 
 	Figure 3
 
@@ -90,7 +90,7 @@ In the previous design, users are connected to the web server directly. Users wi
 
 A load balancer evenly distributes incoming traffic among web servers that are defined in a load-balanced set. Figure 4 shows how a load balancer works.
 
-![load-balancer-example](images/load-balancer-example.png)
+![load-balancer-example](images/load_balancer_example.webp)
 
 	Figure 4
 
@@ -110,7 +110,7 @@ Quoted from Wikipedia: “Database replication can be used in many database mana
 
 A master database generally only supports write operations. A slave database gets copies of the data from the master database and only supports read operations. All the data-modifying commands like insert, delete, or update must be sent to the master database. Most applications require a much higher ratio of reads to writes; thus, the number of slave databases in a system is usually larger than the number of master databases. Figure 5 shows a master database with multiple slave databases.
 
-![master-slave-replication](images/master-slave-replication.png)
+![master-slave-replication](images/master_slave_replication.webp)
 
 	Figure 5
 	
@@ -130,7 +130,7 @@ In the previous section, we discussed how a load balancer helped to improve syst
 
 Figure 6 shows the system design after adding the load balancer and database replication.
 
-![master-slave-db-replication](images/master-slave-db-replication.png)
+![master-slave-db-replication](images/master_slave_db_replication.webp)
 
 	Figure 6
 
@@ -152,7 +152,7 @@ A cache is a temporary storage area that stores the result of expensive response
 
 The cache tier is a temporary data store layer, much faster than the database. The benefits of having a separate cache tier include better system performance, ability to reduce database workloads, and the ability to scale the cache tier independently. Figure 7 shows a possible setup of a cache server:
 
-![cache-tier](images/cache-tier.png)
+![cache-tier](images/cache_tier.webp)
 
 	Figure 7
 
@@ -177,6 +177,12 @@ Here are a few considerations for using a cache system:
  * Consistency: This involves keeping the data store and the cache in sync. Inconsistency can happen because data-modifying operations on the data store and cache are not in a single transaction. When scaling across multiple regions, maintaining consistency between the data store and cache is challenging. For further details, refer to the paper titled “Scaling Memcache at Facebook” published by Facebook [7].
 
  * Mitigating failures: A single cache server represents a potential single point of failure (SPOF), defined in Wikipedia as follows: “A single point of failure (SPOF) is a part of a system that, if it fails, will stop the entire system from working” [8]. As a result, multiple cache servers across different data centers are recommended to avoid SPOF. Another recommended approach is to overprovision the required memory by certain percentages. This provides a buffer as the memory usage increases.
+ 
+ ![SPOF](images/SPOF.webp)
+ 
+	Figure 8
+ 
+ * Eviction Policy: Once the cache is full, any requests to add items to the cache might cause existing items to be removed. This is called cache eviction. Least-recently-used (LRU) is the most popular cache eviction policy. Other eviction policies, such as the Least Frequently Used (LFU) or First in First Out (FIFO), can be adopted to satisfy different use cases.
 
 # Content Delivery Network (CDN)
 
@@ -186,13 +192,13 @@ Dynamic content caching is a relatively new concept and beyond the scope of this
 
 Here is how CDN works at the high-level: when a user visits a website, a CDN server closest to the user will deliver static content. Intuitively, the further users are from CDN servers, the slower the website loads. For example, if CDN servers are in San Francisco, users in Los Angeles will get content faster than users in Europe. Figure 9 is a great example that shows how CDN improves load time.
 
-![cdn](images/cdn.png)
+![cdn](images/cdn.webp)
 
 	Figure 9
 
 Figure 10 demonstrates the CDN workflow.
 
-![cdn-request-flow](images/cdn-request-flow.png)
+![cdn_request_flow](images/cdn_request_flow.webp)
 
 	Figure 10
 	
@@ -230,7 +236,7 @@ Figure 10 demonstrates the CDN workflow.
 
 Figure 11 shows the design after the CDN and cache are added.
 
-![web-app-design-after-cdn](images/web-app-design-after-cdn.png)
+![web-app-design-after-cdn](images/web_app_design_after_cdn.webp)
 
 	Figure 11
 
@@ -248,7 +254,7 @@ A stateful server and stateless server has some key differences. A stateful serv
 
 Figure 12 shows an example of a stateful architecture.
 
-![stateful-servers](images/stateful-servers.png)
+![stateful-servers](images/stateful_servers.webp)
 
 	Figure 12
 
@@ -260,7 +266,7 @@ The issue is that every request from the same client must be routed to the same 
 
 Figure 13 shows the stateless architecture.
 
-![stateless-architecture](images/stateless-architecture.png)
+![stateless-architecture](images/stateless_architecture.webp)
 
 	Figure 13
 	
@@ -268,7 +274,7 @@ In this stateless architecture, HTTP requests from users can be sent to any web 
 
 Figure 14 shows the updated design with a stateless web tier.
 
-![web-app-architecture-updated](images/web-app-architecture-updated.png)
+![web-app-architecture-updated](images/web_app_architecture_updated.webp)
 
 	Figure 14
 
@@ -280,13 +286,13 @@ Your website grows rapidly and attracts a significant number of users internatio
 
 Figure 15 shows an example setup with two data centers. In normal operation, users are geoDNS-routed, also known as geo-routed, to the closest data center, with a split traffic of x% in US-East and (100 – x)% in US-West. geoDNS is a DNS service that allows domain names to be resolved to IP addresses based on the location of a user.
 
-![data-centers](images/data-centers.png)
+![data-centers](images/data_centers.webp)
 
 	Figure 15
 	
 In the event of any significant data center outage, we direct all traffic to a healthy data center. In Figure 16, data center 2 (US-West) is offline, and 100% of the traffic is routed to data center 1 (US-East).
 
-![data-center-failover](images/data-center-failover.png)
+![data-center-failover](images/data_center_failover.webp)
 
 	Figure 16
 	
@@ -304,7 +310,7 @@ To further scale our system, we need to decouple different components of the sys
 
 A message queue is a durable component, stored in memory, that supports asynchronous communication. It serves as a buffer and distributes asynchronous requests. The basic architecture of a message queue is simple. Input services, called producers/publishers, create messages, and publish them to a message queue. Other services or servers, called consumers/subscribers, connect to the queue, and perform actions defined by the messages. The model is shown in Figure 17.
 
-![message-queue](images/message-queue.png)
+![message-queue](images/message_queue.webp)
 
 	Figure 17
 	
@@ -312,7 +318,7 @@ Decoupling makes the message queue a preferred architecture for building a scala
 
 Consider the following use case: your application supports photo customization, including cropping, sharpening, blurring, etc. Those customization tasks take time to complete. In Figure 18, web servers publish photo processing jobs to the message queue. Photo processing workers pick up jobs from the message queue and asynchronously perform photo customization tasks. The producer and the consumer can be scaled independently. When the size of the queue becomes large, more workers are added to reduce the processing time. However, if the queue is empty most of the time, the number of workers can be reduced.
 
-![photo-processing-queue](images/photo-processing-queue.png)
+![photo-processing-queue](images/photo_processing_queue.webp)
 
 	Figure 18
 	
@@ -338,7 +344,7 @@ Figure 19 shows the updated design. Due to the space constraint, only one data c
 
 2. Logging, monitoring, metrics, and automation tools are included.
 
-![sys-design-after-monitoring](images/sys-design-after-monitoring.png)
+![sys-design-after-monitoring](images/sys_design_after_monitoring.webp)
 
 	Figure 19
 	
@@ -360,7 +366,7 @@ Vertical scaling, also known as scaling up, is the scaling by adding more power 
 
 Horizontal scaling, also known as sharding, is the practice of adding more servers. Figure 20 compares vertical scaling with horizontal scaling.
 
-![vertical-vs-horizontal-scaling](images/vertical-vs-horizontal-scaling.png)
+![vertical-vs-horizontal-scaling](images/vertical_vs_horizontal_scaling.webp)
 
 	Figure 20
 	
@@ -368,13 +374,13 @@ Sharding separates large databases into smaller, more easily managed parts calle
 
 Figure 21 shows an example of sharded databases. User data is allocated to a database server based on user IDs. Anytime you access data, a hash function is used to find the corresponding shard. In our example, user_id % 4 is used as the hash function. If the result equals to 0, shard 0 is used to store and fetch data. If the result equals to 1, shard 1 is used. The same logic applies to other shards.
 
-![database-sharding](images/database-sharding.png)
+![database-sharding](images/database_sharding.webp)
 	
 	Figure 21
 	
 Figure 22 shows the user table in sharded databases.
 
-![user-data-in-shards](images/user-data-in-shards.png)
+![user-data-in-shards](images/user_data_in_shards.webp)
 
 	Figure 22
 	
@@ -390,7 +396,7 @@ Sharding is a great technique to scale the database but it is far from a perfect
 
 In Figure 23, we shard databases to support rapidly increasing data traffic. At the same time, some of the non-relational functionalities are moved to a NoSQL data store to reduce the database load. Here is an article that covers many use cases of NoSQL [14].
 
-![updated-system-design](images/updated-system-design.png)
+![updated-system-design](images/updated_system_design.webp)
 
 	Figure 23
 
