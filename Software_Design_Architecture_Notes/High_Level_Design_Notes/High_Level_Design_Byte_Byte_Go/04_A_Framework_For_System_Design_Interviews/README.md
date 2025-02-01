@@ -1,130 +1,179 @@
 # A Framework for System Design Interviews
-System design interviews are intimidating.
 
-How could you possible design a popular system in an hour when it has taken other people decades?
- * It is about the problem solving aspect, not the final solution you came up with.
- * Goal is to demonstrate your design skills, defend your choices, respond to feedback constructively.
+You have just landed a coveted on-site interview at your dream company. The hiring coordinator sends you a schedule for that day. Scanning down the list, you feel pretty good about it until your eyes land on this interview session - System Design Interview.
 
-What's the goal of a system design interview?
- * It is much more than evaluating a person's technical design skills.
- * It is also about evaluating collaboration skills, working under pressure, resolving ambiguity, asking good questions.
- * Catching red flags - over-engineering, narrow mindedness, stubborness, etc.
+System design interviews are often intimidating. It could be as vague as “designing a well-known product X?”. The questions are ambiguous and seem unreasonably broad. Your weariness is understandable. After all, how could anyone design a popular product in an hour that has taken hundreds if not thousands of engineers to build?
+
+The good news is that no one expects you to. Real-world system design is extremely complicated. For example, Google search is deceptively simple; however, the amount of technology that underpins that simplicity is truly astonishing. If no one expects you to design a real-world system in an hour, what is the benefit of a system design interview?
+
+The system design interview simulates real-life problem solving where two co-workers collaborate on an ambiguous problem and come up with a solution that meets their goals. The problem is open-ended, and there is no perfect answer. The final design is less important compared to the work you put in the design process. This allows you to demonstrate your design skill, defend your design choices, and respond to feedback in a constructive manner.
+
+Let us flip the table and consider what goes through the interviewer’s head as she walks into the conference room to meet you. The primary goal of the interviewer is to accurately assess your abilities. The last thing she wants is to give an inconclusive evaluation because the session has gone poorly and there are not enough signals. What is an interviewer looking for in a system design interview?
+
+Many think that system design interview is all about a person's technical design skills. It is much more than that. An effective system design interview gives strong signals about a person's ability to collaborate, to work under pressure, and to resolve ambiguity constructively. The ability to ask good questions is also an essential skill, and many interviewers specifically look for this skill.
+
+A good interviewer also looks for red flags. Over-engineering is a real disease of many engineers as they delight in design purity and ignore tradeoffs. They are often unaware of the compounding costs of over-engineered systems, and many companies pay a high price for that ignorance. You certainly do not want to demonstrate this tendency in a system design interview. Other red flags include narrow mindedness, stubbornness, etc.
+
+In this chapter, we will go over some useful tips and introduce a simple and effective framework to solve system design interview problems.
 
 # A 4-step process for effective system design interview
-Although every interview is different, there are some steps to cover in any interview.
 
-## Step 1 - understand the problem and establish design scope
-Don't rush to give answers before understanding the problem well enough first.
-In fact, this might be a red flag - answering without a thorough understanding of requirements.
+Every system design interview is different. A great system design interview is open-ended and there is no one-size-fits-all solution. However, there are steps and common ground to cover in every system design interview.
 
-Don't jump to solutions. Ask questions to clarify requirements and assumptions.
+# Step 1 - understand the problem and establish design scope
 
-We have a tendency as engineers to jump ahead and solve a hard problem. But that often leads to designing the wrong system.
+"Why did the tiger roar?"
+A hand shot up in the back of the class.
+"Yes, Jimmy?", the teacher responded.
+"Because he was HUNGRY".
+"Very good Jimmy."
 
-When you get your answers (or you're asked to make assumptions yourself), write them down on the whiteboard to not forget.
+Throughout his childhood, Jimmy has always been the first to answer questions in the class. Whenever the teacher asks a question, there is always a kid in the classroom who loves to take a crack at the question, no matter if he knows the answer or not. That is Jimmy.
 
-What kind of questions to ask? - to understand the exact requirements. Some examples:
- * What specific features do we need to design?
+Jimmy is an ace student. He takes pride in knowing all the answers fast. In exams, he is usually the first person to finish the questions. He is a teacher's top choice for any academic competition.
+
+DON'T be like Jimmy.
+
+In a system design interview, giving out an answer quickly without thinking gives you no bonus points. Answering without a thorough understanding of the requirements is a huge red flag as the interview is not a trivia contest. There is no right answer.
+
+So, do not jump right in to give a solution. Slow down. Think deeply and ask questions to clarify requirements and assumptions. This is extremely important.
+
+As an engineer, we like to solve hard problems and jump into the final design; however, this approach is likely to lead you to design the wrong system. One of the most important skills as an engineer is to ask the right questions, make the proper assumptions, and gather all the information needed to build a system. So, do not be afraid to ask questions.
+
+When you ask a question, the interviewer either answers your question directly or asks you to make your assumptions. If the latter happens, write down your assumptions on the whiteboard or paper. You might need them later.
+
+What kind of questions to ask? Ask questions to understand the exact requirements. Here is a list of questions to help you get started:
+
+ * What specific features are we going to build?
  * How many users does the product have?
- * How fast is the company anticipated to scale up? - in 3, 6, 12 months?
- * What is the company's tech stack? What existing services can you leverage to simplify the design?
+ * How fast does the company anticipate to scale up? What are the anticipated scales in 3 months, 6 months, and a year?
+ * What is the company’s technology stack? What existing services you might leverage to simplify the design?
+ 
+# Example
 
-For example, say you have to design a news feed. Here's an example conversation:
- * Candidate: Is it mobile, web, both?
- * Interviewer: both.
- * C: What's the most important features?
- * I: Ability to make posts & see friends' news feed.
- * C: How is the feed sorted? Just chronologically or based on eg some weight to posts from close friends.
- * I: To keep things simple, assume posts are sorted chronologically.
- * C: Max friends on a user?
- * I: 5000
- * C: What's the traffic volume?
- * I: 10mil daily active users (DAU)
- * C: Is there any media in the feed? - images, video?
- * I: It can contain media files, including video & images.
+If you are asked to design a news feed system, you want to ask questions that help you clarify the requirements. The conversation between you and the interviewer might look like this:
 
-## Step 2 - Propose high-level design and get buy-in
-The goal of this step is to develop a high-level design, while collaborating with the interviewer.
- * Come up with a blueprint, ask for feedback. Many good interviewers involve the interviewer.
- * Draw boxes on the whiteboard with key components - clients, APIs, web servers, data stores, cache, cdn, message queue, etc.
- * Do back-of-the-envelope calculations to evaluate if the blueprint fits the scale constraints. Communicate with interviewer if this type of estimation is required beforehand.
+<b>Candidate:</b> Is this a mobile app? Or a web app? Or both?
+<b>Interviewer:</b> Both.
 
-You could go through some concrete use-cases, which can help you refine the design. It might help you uncover edge cases.
+<b>Candidate:</b> What are the most important features for the product?
+<b>Interviewer:</b> Ability to make a post and see friends’ news feed.
 
-Should we include API schema and database design? Depends on the problem. For larger scale systems, this might be too low level.
-Communicate with the interviewer to figure this out.
+<b>Candidate:</b> Is the news feed sorted in reverse chronological order or a particular order? The particular order means each post is given a different weight. For instance, posts from your close friends are more important than posts from a group.
+<b>Interviewer:</b> To keep things simple, let us assume the feed is sorted by reverse chronological order.
 
-Example - designing a news feed.
+<b>Candidate:</b> How many friends can a user have?
+<b>Interviewer:</b> 5000
 
-High-level features:
- * feed publishing - user creates a post and that post is written in cache/database, after which it gets populated in other news feeds.
- * news feed building - news feed is built by aggregating friends' posts in chronological order.
+<b>Candidate:</b> What is the traffic volume?
+<b>Interviewer:</b> 10 million daily active users (DAU)
 
-Example diagram - feed publishing:
-![feed-publishing](images/feed-publishing.png)
+<b>Candidate:</b> Can feed contain images, videos, or just text?
+<b>Interviewer:</b> It can contain media files, including both images and videos.
 
-Example diagram - news feed building:
-![news-feed-building](images/news-feed-building.png)
+Above are some sample questions that you can ask your interviewer. It is important to understand the requirements and clarify ambiguities
 
-## Step 3 - Design deep dive
-Objectives you should have achieved so far:
- * Agreed on overall goals & features
- * Sketched out a high-level blueprint of the design
- * Obtained feedback about the high-level design
- * Received initial ideas on areas you need to focus on in the deep dive
+# Step 2 - Propose high-level design and get buy-in
 
-At this stage, you should work with interviewer to prioritize which components you should focus on.
+In this step, we aim to develop a high-level design and reach an agreement with the interviewer on the design. It is a great idea to collaborate with the interviewer during the process.
 
-Example things you might have to focus on:
- * High-level design.
- * System performance characteristics.
- * In most cases, dig into the details of some system component.
+ * Come up with an initial blueprint for the design. Ask for feedback. Treat your interviewer as a teammate and work together. Many good interviewers love to talk and get involved.
+ * Draw box diagrams with key components on the whiteboard or paper. This might include clients (mobile/web), APIs, web servers, data stores, cache, CDN, message queue, etc.
+ * Do back-of-the-envelope calculations to evaluate if your blueprint fits the scale constraints. Think out loud. Communicate with your interviewer if back-of-the-envelope is necessary before diving into it.
 
-What details could you dig into? Some examples:
- * For URL shortener - the hash function which converts long URLs into small ones
- * For Chat system - reducing latency and supporting online/offline status
+If possible, go through a few concrete use cases. This will help you frame the high-level design. It is also likely that the use cases would help you discover edge cases you have not yet considered.
 
-Time management is essential - don't get carried away with details which don't show off your skills.
-For example, don't get carried away about how facebook's EdgeRank algorithm works as it doesn't demonstrate your design skills.
+Should we include API endpoints and database schema here? This depends on the problem. For large design problems like “Design Google search engine”, this is a bit of too low level. For a problem like designing the backend for a multi-player poker game, this is a fair game. Communicate with your interviewer.
 
+# Example
+
+Let us use “Design a news feed system” to demonstrate how to approach the high-level design. Here you are not required to understand how the system actually works. All the details will be explained in the "Design A News Feed System" chapter.
+
+At the high level, the design is divided into two flows: feed publishing and news feed building.
+
+ * Feed publishing: when a user publishes a post, corresponding data is written into cache/database, and the post will be populated into friends’ news feed.
+ * Newsfeed building: the news feed is built by aggregating friends’ posts in a reverse chronological order.
+
+Figure 1 and Figure 2 present high-level designs for feed publishing and news feed building flows, respectively.
+
+![feed_publishing](images/feed_publishing.webp)
+
+	Figure 1
+
+![news_feed_building](images/news_feed_building.webp)
+
+	Figure 2
+
+# Step 3 - Design deep dive
+At this step, you and your interviewer should have already achieved the following objectives:
+
+ * Agreed on the overall goals and feature scope
+ * Sketched out a high-level blueprint for the overall design
+ * Obtained feedback from your interviewer on the high-level design
+ * Had some initial ideas about areas to focus on in deep dive based on her feedback
+
+You shall work with the interviewer to identify and prioritize components in the architecture. It is worth stressing that every interview is different. Sometimes, the interviewer may give off hints that she likes focusing on high-level design. Sometimes, for a senior candidate interview, the discussion could be on the system performance characteristics, likely focusing on the bottlenecks and resource estimations. In most cases, the interviewer may want you to dig into details of some system components. For URL shortener, it is interesting to dive into the hash function design that converts a long URL to a short one. For a chat system, how to reduce latency and how to support online/offline status are two interesting topics.
+
+Time management is essential as it is easy to get carried away with minute details that do not demonstrate your abilities. You must be armed with signals to show your interviewer. Try not to get into unnecessary details. For example, talking about the EdgeRank algorithm of Facebook feed ranking in detail is not ideal during a system design interview as this takes much precious time and does not prove your ability in designing a scalable system.
+
+# Example
+At this point, we have discussed the high-level design for a news feed system, and the interviewer is happy with your proposal. Next, we will investigate two of the most important use cases:
+
+1. Feed publishing
+2. News feed retrieval
+
+Figure 3 and Figure 4 show the detailed design for the two use cases, which will be explained in detail in the "Design A News Feed System" chapter.
 Example design deep dive for feed publishing:
-![feed-publishing-deep-dive](images/feed-publishing-deep-dive.png)
 
-Example design deep dive for news feed building:
-![news-feed-building-deep-dive](images/news-feed-building-deep-dive.png)
+![feed_publishing_deep_dive](images/feed_publishing_deep_dive.webp)
+
+	Figure 3
+
+![news_feed_building_deep_dive](images/news_feed_building_deep_dive.webp)
+
+	Figure 4
 
 ## Step 4 - Wrap up
-At this stage, the interviewer might ask you some follow-up questions or give you the freedom to discuss anything you want.
 
-A few directions to follow:
- * Identify system bottlenecks and discuss improvements. No design is perfect, there are always things to improve.
- * Give a recap of your design.
- * Failure modes - server failure, network loss, etc.
- * Operational issues - monitoring, alerting, rolling out the system.
- * What needs to change to support the next scale curve? Eg 1mil -> 10mil users
- * Propose other refinements.
+In this final step, the interviewer might ask you a few follow-up questions or give you the freedom to discuss other additional points. Here are a few directions to follow:
 
-Do's:
- * Ask for clarification, don't assume your assumption is correct.
- * Understand problem requirements.
- * There is no right or perfect answer. A solution for a small company is different from one for a larger one.
- * Let interviewer know what you're thinking.
- * Suggest multiple approaches.
- * Agree on blueprint and then design the most critical components first.
- * Share ideas with interviewer. They should work with you.
+ * The interviewer might want you to identify the system bottlenecks and discuss potential improvements. Never say your design is perfect and nothing can be improved. There is always something to improve upon. This is a great opportunity to show your critical thinking and leave a good final impression.
+ * It could be useful to give the interviewer a recap of your design. This is particularly important if you suggested a few solutions. Refreshing your interviewer’s memory can be helpful after a long session.
+ * Error cases (server failure, network loss, etc.) are interesting to talk about.
+ * Operation issues are worth mentioning. How do you monitor metrics and error logs? How to roll out the system?
+ * How to handle the next scale curve is also an interesting topic. For example, if your current design supports 1 million users, what changes do you need to make to support 10 million users?
+ * Propose other refinements you need if you had more time.
 
-Dont's:
- * Come unprepared for typical interview questions.
- * Jump into a solution without understanding the requirements first.
- * Don't go into too much details on a single component at first. Design at a high-level initially.
- * Feel free to ask for hints if you get stuck.
- * Communicate, don't think silently.
+To wrap up, we summarize a list of the Dos and Don’ts.
 
-## Time allocation on each step
-45 minutes are not enough to cover any design into sufficient detail.
+Dos
 
-Here's a rough guide on how much time you should spend on each step:
- * Understand problem & establish design scope - 3-10m
- * Propose high-level design & get buy-in - 10-15m
- * Design deep dive - 10-25m
- * Wrap-up - 3-5m
+ * Always ask for clarification. Do not assume your assumption is correct.
+ * Understand the requirements of the problem.
+ * There is neither the right answer nor the best answer. A solution designed to solve the problems of a young startup is different from that of an established company with millions of users. Make sure you understand the requirements.
+ * Let the interviewer know what you are thinking. Communicate with your interview.
+ * Suggest multiple approaches if possible.
+ * Once you agree with your interviewer on the blueprint, go into details on each component. Design the most critical components first.
+ * Bounce ideas off the interviewer. A good interviewer works with you as a teammate.
+ * Never give up.
+
+Don’ts
+
+ * Don't be unprepared for typical interview questions.
+ * Don’t jump into a solution without clarifying the requirements and assumptions.
+ * Don’t go into too much detail on a single component in the beginning. Give the high-level design first then drills down.
+ * If you get stuck, don't hesitate to ask for hints.
+ * Again, communicate. Don't think in silence.
+ * Don’t think your interview is done once you give the design. You are not done until your interviewer says you are done. Ask for feedback early and often.
+
+# Time allocation on each step
+
+System design interview questions are usually very broad, and 45 minutes or an hour is not enough to cover the entire design. Time management is essential. How much time should you spend on each step? The following is a very rough guide on distributing your time in a 45-minute interview session. Please remember this is a rough estimate, and the actual time distribution depends on the scope of the problem and the requirements from the interviewer.
+
+Step 1 Understand the problem and establish design scope: 3 - 10 minutes
+
+Step 2 Propose high-level design and get buy-in: 10 - 15 minutes
+
+Step 3 Design deep dive: 10 - 25 minutes
+
+Step 4 Wrap: 3 - 5 minutes
