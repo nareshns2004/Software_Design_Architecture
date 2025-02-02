@@ -1,276 +1,445 @@
 # Design a Rate Limiter
-The rate limiter's purpose in a distributed system is to control the rate of traffic sent from clients to a given server.
 
-It controls the maximum number of requests allowed in a given time period. 
-If the number of requests exceeds the threshold, the extra requests are dropped by the rate limiter.
+In a network system, a rate limiter is used to control the rate of traffic sent by a client or a service. In the HTTP world, a rate limiter limits the number of client requests allowed to be sent over a specified period. If the API request count exceeds the threshold defined by the rate limiter, all the excess calls are blocked. Here are a few examples:
 
-Examples:
- * User can write no more than 2 posts per second.
- * You can create 10 accounts max per day from the same IP.
- * You can claim rewards max 10 times per week.
+ * A user can write no more than 2 posts per second.
+ * You can create a maximum of 10 accounts per day from the same IP address.
+ * You can claim rewards no more than 5 times per week from the same device.
 
-Almost all APIs have some sort of rate limiting - eg Twitter allows 300 tweets per 3h max.
+In this chapter, you are asked to design a rate limiter. Before starting the design, we first look at the benefits of using an API rate limiter:
 
-What are the benefits of using a rate limiter?
- * Prevents DoS attacks.
- * Reduces cost - fewer servers are allocated to lower priority APIs. 
-   Also, you might have a downstream dependency which charges you on a per-call basis, eg making a payment, retrieving health records, etc.
- * Prevents servers from getting overloaded.
+ * Prevent resource starvation caused by Denial of Service (DoS) attack [1]. Almost all APIs published by large tech companies enforce some form of rate limiting. For example, Twitter limits the number of tweets to 300 per 3 hours [2]. Google docs APIs have the following default limit: 300 per user per 60 seconds for read requests [3]. A rate limiter prevents DoS attacks, either intentional or unintentional, by blocking the excess calls.
+ * Reduce cost. Limiting excess requests means fewer servers and allocating more resources to high priority APIs. Rate limiting is extremely important for companies that use paid third party APIs. For example, you are charged on a per-call basis for the following external APIs: check credit, make a payment, retrieve health records, etc. Limiting the number of calls is essential to reduce costs.
+ * Prevent servers from being overloaded. To reduce server load, a rate limiter is used to filter out excess requests caused by bots or users’ misbehavior.
 
 # Step 1 - Understand the problem and establish design scope
-There are multiple techniques which you can use to implement a rate limiter, each with its pros and cons.
 
-Example Candidate-Interviewer conversation:
- * C: What kind of rate limiter are we designing? Client-side or server-side?
- * I: Server-side
- * C: Does the rate limiter throttle API requests based on IP, user ID or anything else?
- * I: The system should be flexible enough to support different throttling rules.
- * C: What's the scale of the system? Startup or big company?
- * I: It should handle a large number of requests.
- * C: Will the system work in a distributed environment?
- * I: Yes.
- * C: Should it be a separate service or a library?
- * I: Up to you.
- * C: Do we need to inform throttled users?
- * I: Yes.
+Rate limiting can be implemented using different algorithms, each with its pros and cons. The interactions between an interviewer and a candidate help to clarify the type of rate limiters we are trying to build.
 
-Summary of requirements:
- * Accurately limit excess requests
- * Low latency & as little memory as possible
- * Distributed rate limiting.
- * Exception handling
- * High fault tolerance - if cache server goes down, rate limiter should continue functioning.
+<p><b>Candidate:</b> What kind of rate limiter are we going to design? Is it a client-side rate limiter or server-side API rate limiter?</p>
+<p><b>Interviewer:</b> Great question. We focus on the server-side API rate limiter.</p>
+
+<p><b>Candidate:</b> Does the rate limiter throttle API requests based on IP, the user ID, or other properties?</p>
+<p><b>Interviewer:</b> The rate limiter should be flexible enough to support different sets of throttle rules.</p>
+
+<p><b>Candidate:</b> What is the scale of the system? Is it built for a startup or a big company with a large user base?</p>
+<p><b>Interviewer:</b> The system must be able to handle a large number of requests.</p>
+
+<p><b>Candidate:</b> Will the system work in a distributed environment?</p>
+<p><b>Interviewer:</b> Yes.</p>
+
+<p><b>Candidate:</b> Is the rate limiter a separate service or should it be implemented in application code?</p>
+<p><b>Interviewer:</b> It is a design decision up to you.</p>
+
+<p><b>Candidate:</b> Do we need to inform users who are throttled?</p>
+<p><b>Interviewer:</b> Yes.</p>
+
+<p><b>Requirements</b></p>
+
+Here is a summary of the requirements for the system:
+
+ * Accurately limit excessive requests.
+ * Low latency. The rate limiter should not slow down HTTP response time.
+ * Use as little memory as possible.
+ * Distributed rate limiting. The rate limiter can be shared across multiple servers or processes.
+ * Exception handling. Show clear exceptions to users when their requests are throttled.
+ * High fault tolerance. If there are any problems with the rate limiter (for example, a cache server goes offline), it does not affect the entire system.
 
 # Step 2 - Propose high-level design and get buy-in
-We'll stick with a simple client-server model for simplicity.
+
+Let us keep things simple and use a basic client and server model for communication.
 
 ## Where to put the rate limiter?
-It can be implemented either client-side, server-side or as a middleware.
 
-Client-side - Unreliable, because client requests can easily be forged by malicious actors. We also might not have control over client implementation.
+Intuitively, you can implement a rate limiter at either the client or server-side.
 
-Server-side:
-![server-side-rate-limiter](images/server-side-rate-limiter.png)
+ * Client-side implementation. Generally speaking, client is an unreliable place to enforce rate limiting because client requests can easily be forged by malicious actors. Moreover, we might not have control over the client implementation.
+ * Server-side implementation. Figure 1 shows a rate limiter that is placed on the server-side.
 
-As a middleware between client and server:
-![middleware-rate-limiter](images/middleware-rate-limiter.png)
 
-How it works, assuming 2 requests per second are allowed:
-![middleware-rate-limiter-example](images/middleware-rate-limiter-example.png)
+![server_side_rate_limiter](images/server_side_rate_limiter.webp)
 
-In cloud microservices, rate limiting is usually implemented in the API Gateway.
-This service supports rate limiting, ssl termination, authentication, IP whitelisting, serving static content, etc.
+	Figure 1
 
-So where should the rate limiter be implemented? On the server-side or in the API gateway?
+Besides the client and server-side implementations, there is an alternative way. Instead of putting a rate limiter at the API servers, we create a rate limiter middleware, which throttles requests to your APIs as shown in Figure 2.
 
-It depends on several things:
- * Current tech stack - if you're implementing it server-side, then your language should be sufficient enough to support it.
- * If implemented on the server-side, you have control over the rate limiting algorithm.
- * If you already have an API gateway, you might as well add the rate limiter in there.
- * Building your own rate limiter takes time. If you don't have sufficient resources, consider using an off-the-shelf third-party solution instead.
+![middleware_rate_limiter](images/middleware_rate_limiter.webp)
 
-## Algorithms for rate limiting
-There are multiple algorithms for rate limiting, each with its pros and cons.
+	Figure 2
 
-Some of the popular algorithms - token bucket, leaking bucket, fixed window counter, sliding window log, sliding window counter.
+Let us use an example in Figure 3 to illustrate how rate limiting works in this design. Assume our API allows 2 requests per second, and a client sends 3 requests to the server within a second. The first two requests are routed to API servers. However, the rate limiter middleware throttles the third request and returns a HTTP status code 429. The HTTP 429 response status code indicates a user has sent too many requests.
+
+![middleware_rate_limiter_example](images/middleware_rate_limiter_example.webp)
+
+	Figure 3
+
+Cloud microservices [4] have become widely popular and rate limiting is usually implemented within a component called API gateway. API gateway is a fully managed service that supports rate limiting, SSL termination, authentication, IP whitelisting, servicing static content, etc. For now, we only need to know that the API gateway is a middleware that supports rate limiting.
+
+While designing a rate limiter, an important question to ask ourselves is: where should the rater limiter be implemented, on the server-side or in a gateway? There is no absolute answer. It depends on your company’s current technology stack, engineering resources, priorities, goals, etc. Here are a few general guidelines:
+
+ * Evaluate your current technology stack, such as programming language, cache service, etc. Make sure your current programming language is efficient to implement rate limiting on the server-side.
+ * Identify the rate limiting algorithm that fits your business needs. When you implement everything on the server-side, you have full control of the algorithm. However, your choice might be limited if you use a third-party gateway.
+ * If you have already used microservice architecture and included an API gateway in the design to perform authentication, IP whitelisting, etc., you may add a rate limiter to the API gateway.
+ * Building your own rate limiting service takes time. If you do not have enough engineering resources to implement a rate limiter, a commercial API gateway is a better option.
+
+
+# Algorithms for rate limiting
+
+Rate limiting can be implemented using different algorithms, and each of them has distinct pros and cons. Even though this chapter does not focus on algorithms, understanding them at high-level helps to choose the right algorithm or combination of algorithms to fit our use cases. Here is a list of popular algorithms:
+
+ * Token bucket
+ * Leaking bucket
+ * Fixed window counter
+ * Sliding window log
+ * Sliding window counter
 
 ### Token bucket algorithm
-Simple, well understood and commonly used by popular companies. Amazon and Stripe use it for throttling their APIs.
-![token-bucket-algo](images/token-bucket-algo.png)
 
-It works as follows:
- * There's a container with predefined capacity
- * Tokens are periodically put in the bucket
- * Once full, no more tokens are added
- * Each request consumes a single token
- * If no tokens left, request is dropped
+The token bucket algorithm is widely used for rate limiting. It is simple, well understood and commonly used by internet companies. Both Amazon [5] and Stripe [6] use this algorithm to throttle their API requests.
 
-![token-bucket-algo-explained](images/token-bucket-algo-explained.png)
+The token bucket algorithm work as follows:
 
-There are two parameters for this algorithm:
- * Bucket size - maximum number of tokens allowed in the bucket
- * Refill rate - number of tokens put into the bucket every second
+ * A token bucket is a container that has pre-defined capacity. Tokens are put in the bucket at preset rates periodically. Once the bucket is full, no more tokens are added. As shown in Figure 4, the token bucket capacity is 4. The refiller puts 2 tokens into the bucket every second. Once the bucket is full, extra tokens will overflow.
 
-How many buckets do we need? - depends on the requirements:
- * We might need different buckets per API endpoints if we need to support 3 tweets per second, 5 posts per second, etc.
- * Different buckets per IP if we want to make IP-based throttling.
- * A single global bucket if we want to globally setup 10k requests per second max.
+![token_bucket_algo](images/token_bucket_algo.webp)
+
+	Figure 4
+
+ * Each request consumes one token. When a request arrives, we check if there are enough tokens in the bucket. Figure 5 explains how it works.
+ * If there are enough tokens, we take one token out for each request, and the request goes through.
+ * If there are not enough tokens, the request is dropped.
+
+![token_bucket_algo_explained](images/token_bucket_algo_explained.webp)
+
+	Figure 5
+
+Figure 6 illustrates how token consumption, refill, and rate limiting logic work. In this example, the token bucket size is 4, and the refill rate is 4 per 1 minute.
+
+![tokens_request](images/tokens_request.webp)
+
+	Figure 6
+
+The token bucket algorithm takes two parameters:
+
+ * Bucket size: the maximum number of tokens allowed in the bucket
+ * Refill rate: number of tokens put into the bucket every second
+
+How many buckets do we need? This varies, and it depends on the rate-limiting rules. Here are a few examples.
+
+ * It is usually necessary to have different buckets for different API endpoints. For instance, if a user is allowed to make 1 post per second, add 150 friends per day, and like 5 posts per second, 3 buckets are required for each user.
+ * If we need to throttle requests based on IP addresses, each IP address requires a bucket.
+ * If the system allows a maximum of 10,000 requests per second, it makes sense to have a global bucket shared by all requests.
 
 Pros:
- * Easy to implement
- * Memory efficient
- * Throttling gets activated in the event of sustained high traffic only. If bucket size is large, this algorithm supports short bursts in traffic as long as they're not prolonged.
+
+ * The algorithm is easy to implement.
+ * Memory efficient.
+ * Token bucket allows a burst of traffic for short periods. A request can go through as long as there are tokens left.
 
 Cons:
- * Parameters might be challenging to tune properly
+
+ * Two parameters in the algorithm are bucket size and token refill rate. However, it might be challenging to tune them properly.
 
 ### Leaking bucket algorithm
-Similar to token bucket algorithm, but requests are processed at a fixed rate.
 
-How it works:
- * When request arrives, system checks if queue is full. If not, request is added to the queue, otherwise, it is dropped.
+The leaking bucket algorithm is similar to the token bucket except that requests are processed at a fixed rate. It is usually implemented with a first-in-first-out (FIFO) queue. The algorithm works as follows:
+
+ * When a request arrives, the system checks if the queue is full. If it is not full, the request is added to the queue.
+ * Otherwise, the request is dropped.
  * Requests are pulled from the queue and processed at regular intervals.
-![leaking-bucket-algo](images/leaking-bucket-algo.png)
 
-Parameters:
- * Bucket size - aka the queue size. It specifies how many requests will be held to be processed at fixed intervals.
- * Outflow rate - how many requests to be processed at fixed intervals.
+![leaking_bucket_algo](images/leaking_bucket_algo.webp)
 
-Shopify uses leaking bucket for rate-limiting.
+	Figure 7
+	
+Leaking bucket algorithm takes the following two parameters:
+
+ * Bucket size: it is equal to the queue size. The queue holds the requests to be processed at a fixed rate.
+ * Outflow rate: it defines how many requests can be processed at a fixed rate, usually in seconds.
+
+Shopify, an ecommerce company, uses leaky buckets for rate-limiting [7].
 
 Pros:
- * Memory efficient
- * Requests processed at fixed interval. Useful for use-cases where a stable outflow rate is required.
+
+ * Memory efficient given the limited queue size.
+ * Requests are processed at a fixed rate therefore it is suitable for use cases that a stable outflow rate is needed.
 
 Cons:
- * A burst of traffic fills up the queue with old requests. Recent requests will be rate limited.
- * Parameters might not be easy to tune.
+
+ * A burst of traffic fills up the queue with old requests, and if they are not processed in time, recent requests will be rate limited.
+ * There are two parameters in the algorithm. It might not be easy to tune them properly.
 
 ### Fixed window counter algorithm
-How it works:
- * Time is divided in fix windows with a counter for each one
- * Each request increments the counter
- * Once the counter reaches the threshold, subsequent requests in that window are dropped
-![fixed-window-counter-algo](images/fixed-window-counter-algo.png)
 
-One major problem with this approach is that a burst of traffic in the edges can allow more requests than allowed to pass through:
-![traffic-burst-problem](images/traffic-burst-problem.png)
+Fixed window counter algorithm works as follows:
+
+ * The algorithm divides the timeline into fix-sized time windows and assign a counter for each window.
+ * Each request increments the counter by one.
+ * Once the counter reaches the pre-defined threshold, new requests are dropped until a new time window starts.
+
+![fixed_window_counter_algo](images/fixed_window_counter_algo.webp)
+
+	Figure 8
+
+A major problem with this algorithm is that a burst of traffic at the edges of time windows could cause more requests than allowed quota to go through. Consider the following case:
+
+![traffic_burst_problem](images/traffic_burst_problem.webp)
+
+	Figure 9
+
+In Figure 9, the system allows a maximum of 5 requests per minute, and the available quota resets at the human-friendly round minute. As seen, there are five requests between 2:00:00 and 2:01:00 and five more requests between 2:01:00 and 2:02:00. For the one-minute window between 2:00:30 and 2:01:30, 10 requests go through. That is twice as many as allowed requests.
 
 Pros:
- * Memory efficient
- * Easy to understand
- * Resetting available quota at the end of a unit of time fits certain use cases
+
+ * Memory efficient.
+ * Easy to understand.
+ * Resetting available quota at the end of a unit time window fits certain use cases.
 
 Cons:
- * Spike in traffic could cause more requests than allowed to go through a given time window
+
+ * Spike in traffic at the edges of a window could cause more requests than the allowed quota to go through.
 
 ### Sliding window log algorithm
-To resolve the previous algorithm's issue, we could use a sliding time window instead of a fixed one.
 
-How it works:
- * Algorithm keeps track of request timestamps. Timestamp data is usually kept in a cache, such as Redis sorted set.
- * When a request comes in, remove outdated timestamps.
- * Add timestamp of the new request in the log.
- * If the log size is same or lower than threshold, request is allowed, otherwise, it is rejected.
+As discussed previously, the fixed window counter algorithm has a major issue: it allows more requests to go through at the edges of a window. The sliding window log algorithm fixes the issue. It works as follows:
 
-Note that the 3rd request in this example is rejected, but timestamp is still recorded in the log:
-![sliding-window-log-algo](images/sliding-window-log-algo.png)
+ * The algorithm keeps track of request timestamps. Timestamp data is usually kept in cache, such as sorted sets of Redis [8].
+ * When a new request comes in, remove all the outdated timestamps. Outdated timestamps are defined as those older than the start of the current time window.
+ * Add timestamp of the new request to the log.
+ * If the log size is the same or lower than the allowed count, a request is accepted. Otherwise, it is rejected.
+
+We explain the algorithm with an example as revealed in Figure 10.
+
+![sliding_window_log_algo](images/sliding_window_log_algo.webp)
+
+	Figure 10
+
+In this example, the rate limiter allows 2 requests per minute. Usually, Linux timestamps are stored in the log. However, human-readable representation of time is used in our example for better readability.
+
+ * The log is empty when a new request arrives at 1:00:01. Thus, the request is allowed.
+ * A new request arrives at 1:00:30, the timestamp 1:00:30 is inserted into the log. After the insertion, the log size is 2, not larger than the allowed count. Thus, the request is allowed.
+ * A new request arrives at 1:00:50, and the timestamp is inserted into the log. After the insertion, the log size is 3, larger than the allowed size 2. Therefore, this request is rejected even though the timestamp remains in the log.
+ * A new request arrives at 1:01:40. Requests in the range [1:00:40,1:01:40) are within the latest time frame, but requests sent before 1:00:40 are outdated. Two outdated timestamps, 1:00:01 and 1:00:30, are removed from the log. After the remove operation, the log size becomes 2; therefore, the request is accepted.
 
 Pros:
- * Rate limiting accuracy is very high
+
+ * Rate limiting implemented by this algorithm is very accurate. In any rolling window, requests will not exceed the rate limit.
 
 Cons:
- * Memory footprint is very high
+
+ * The algorithm consumes a lot of memory because even if a request is rejected, its timestamp might still be stored in memory.
+
 
 ### Sliding window counter algorithm
-A hybrid approach which combines the fixed window + sliding window log algorithms.
-![sliding-window-counter-algo](images/sliding-window-counter-algo.png)
 
-How it works:
- * Maintain a counter for each time window. Increment for given time window on each request.
- * Derive sliding window counter = `prev_window * prev_window_overlap + curr_window * curr_window_overlap` (see screenshot above)
- * If counter exceeds threshold, request is rejected, otherwise it is accepted.
+The sliding window counter algorithm is a hybrid approach that combines the fixed window counter and sliding window log. The algorithm can be implemented by two different approaches. We will explain one implementation in this section and provide reference for the other implementation at the end of the section. Figure 11 illustrates how this algorithm works.
 
-Pros:
- * Smooths out spikes in traffic as rate is based on average rate of previous window
- * Memory efficient
+![sliding_window_counter_algo](images/sliding_window_counter_algo.webp)
 
-Cons:
- * Not very accurate rate limiting, as it's based on overlaps. But experiments show that only ~0.003% of requests are inaccurately accepted.
+	Figure 11
+
+Assume the rate limiter allows a maximum of 7 requests per minute, and there are 5 requests in the previous minute and 3 in the current minute. For a new request that arrives at a 30% position in the current minute, the number of requests in the rolling window is calculated using the following formula:
+
+ * Requests in current window + requests in the previous window * overlap percentage of the rolling window and previous window
+ * Using this formula, we get 3 + 5 * 0.7% = 6.5 request. Depending on the use case, the number can either be rounded up or down. In our example, it is rounded down to 6.
+
+Since the rate limiter allows a maximum of 7 requests per minute, the current request can go through. However, the limit will be reached after receiving one more request.
+
+Due to the space limitation, we will not discuss the other implementation here. Interested readers should refer to the reference material [9]. This algorithm is not perfect. It has pros and cons.
+
+Pros
+
+ * It smooths out spikes in traffic because the rate is based on the average rate of the previous window.
+ * Memory efficient.
+
+Cons
+
+ * It only works for not-so-strict look back window. It is an approximation of the actual rate because it assumes requests in the previous window are evenly distributed. However, this problem may not be as bad as it seems. According to experiments done by Cloudflare [10], only 0.003% of requests are wrongly allowed or rate limited among 400 million requests.
 
 ## High-level architecture
-We'll use an in-memory cache as it's more efficient than a database for storing the rate limiting buckets - eg Redis.
-![high-level-architecture](images/high-level-architecture.png)
 
-How it works:
- * Client sends request to rate limiting middleware
- * Rate limiter fetches counter from corresponding bucket & checks if request is to be let through
- * If request is let through, it reaches the API servers
+The basic idea of rate limiting algorithms is simple. At the high-level, we need a counter to keep track of how many requests are sent from the same user, IP address, etc. If the counter is larger than the limit, the request is disallowed.
+
+Where shall we store counters? Using the database is not a good idea due to slowness of disk access. In-memory cache is chosen because it is fast and supports time-based expiration strategy. For instance, Redis [11] is a popular option to implement rate limiting. It is an in-memory store that offers two commands: INCR and EXPIRE.
+
+ * INCR: It increases the stored counter by 1.
+ * EXPIRE: It sets a timeout for the counter. If the timeout expires, the counter is automatically deleted.
+
+Figure 12 shows the high-level architecture for rate limiting, and this works as follows:
+
+![high_level_architecture](images/high_level_architecture.webp)
+
+	Figure 12
+
+ * The client sends a request to rate limiting middleware.
+ * Rate limiting middleware fetches the counter from the corresponding bucket in Redis and checks if the limit is reached or not.
+ * If the limit is reached, the request is rejected.
+ * If the limit is not reached, the request is sent to API servers. Meanwhile, the system increments the counter and saves it back to Redis.
 
 # Step 3 - Design deep dive
-What wasn't answered in the high-level design:
- * How are rate limiting rules created?
- * How to handle rate-limited requests?
 
-Let's check those topics out, along with some other topics.
+The high-level design in Figure 12 does not answer the following questions:
+
+ * How are rate limiting rules created? Where are the rules stored?
+ * How to handle requests that are rate limited?
+
+In this section, we will first answer the questions regarding rate limiting rules and then go over the strategies to handle rate-limited requests. Finally, we will discuss rate limiting in distributed environment, a detailed design, performance optimization and monitoring.
 
 ## Rate limiting rules
-Example rate limiting rules, used by Lyft for 5 marketing messages per day:
-![lyft-rate-limiting-rules](images/lyft-rate-limiting-rules.png)
 
-Another example \w max login attempts in a minute:
-![lyft-rate-limiting-auth-rules](images/lyft-rate-limiting-auth-rules.png)
+Lyft open-sourced their rate-limiting component [12]. We will peek inside of the component and look at some examples of rate limiting rules:
 
-Rules like these are generally written in config files and saved on disk.
+![lyft_rate_limiting_rules](images/lyft_rate_limiting_rules.webp)
+
+In the above example, the system is configured to allow a maximum of 5 marketing messages per day. Here is another example:
+
+![lyft_rate_limiting_auth_rules](images/lyft_rate_limiting_auth_rules.webp)
+
+This rule shows that clients are not allowed to login more than 5 times in 1 minute. Rules are generally written in configuration files and saved on disk.
 
 ## Exceeding the rate limit
-When a request is rate limited, a 429 (too many requests) error code is returned.
 
-In some cases, the rate-limited requests can be enqueued for future processing.
+In case a request is rate limited, APIs return a HTTP response code 429 (too many requests) to the client. Depending on the use cases, we may enqueue the rate-limited requests to be processed later. For example, if some orders are rate limited due to system overload, we may keep those orders to be processed later.
 
-We could also include some additional HTTP headers to provide additional metadata info to clients:
+### Rate limiter headers
+
+How does a client know whether it is being throttled? And how does a client know the number of allowed remaining requests before being throttled? The answer lies in HTTP response headers. The rate limiter returns the following HTTP headers to clients:
+
 ```
 X-Ratelimit-Remaining: The remaining number of allowed requests within the window.
 X-Ratelimit-Limit: It indicates how many calls the client can make per time window.
 X-Ratelimit-Retry-After: The number of seconds to wait until you can make a request again without being throttled.
 ```
+When a user has sent too many requests, a 429 too many requests error and X-Ratelimit-Retry-After header are returned to the client.
 
 ## Detailed design
-![detailed-design](images/detailed-design.png)
 
- * Rules are stored on disk, workers populate them periodically in an in-memory cache.
- * Rate limiting middleware intercepts client requests.
- * Middleware loads the rules from the cache. It also fetches counters from the redis cache.
- * If request is allowed, it proceeds to API servers. If not, a 429 HTTP status code is returned. Then, request is either dropped or enqueued.
+Figure 13 presents a detailed design of the system.
+
+![detailed_design](images/detailed_design.webp)
+
+	Figure 13
+
+ * Rules are stored on the disk. Workers frequently pull rules from the disk and store them in the cache.
+ * When a client sends a request to the server, the request is sent to the rate limiter middleware first.
+ * Rate limiter middleware loads rules from the cache. It fetches counters and last request timestamp from Redis cache. Based on the response, the rate limiter decides:
+ * If the request is not rate limited, it is forwarded to API servers.
+ * If the request is rate limited, the rate limiter returns 429 too many requests error to the client. In the meantime, the request is either dropped or forwarded to the queue.
 
 ## Rate limiter in a distributed environment
-How will we scale the rate limited beyond a single server?
 
-There are several challenges to consider:
+Building a rate limiter that works in a single server environment is not difficult. However, scaling the system to support multiple servers and concurrent threads is a different story. There are two challenges:
+
  * Race condition
- * Synchronization
+ * Synchronization issue
 
-In case of race conditions, the counter might not be updated correctly when mutated by multiple instances:
-![race-condition](images/race-condition.png)
+### Race condition
 
-Locks are a typical way to solve this issue, but they are costly.
-Alternatively, one could use Lua scripts or Redis sorted sets, which solve the race conditions.
+As discussed earlier, rate limiter works as follows at the high-level:
 
-If we maintain user information within the application memory, the rate limiter is stateful and we'll need to use sticky sessions to make sure requests from the same user is handled by the same rate limiter instance.
-![synchronization-issue](images/synchronization-issue.png)
+ * Read the counter value from Redis.
+ * Check if (counter + 1) exceeds the threshold.
+ * If not, increment the counter value by 1 in Redis.
 
-To solve this issue, we can use a centralized data store (eg Redis) so that the rate limiter instances are stateless.
-![redis-centralized-data-store](images/redis-centralized-data-store.png)
+Race conditions can happen in a highly concurrent environment as shown in Figure 14.
+
+![race_condition](images/race_condition.webp)
+
+	Figure 14
+
+Assume the counter value in Redis is 3. If two requests concurrently read the counter value before either of them writes the value back, each will increment the counter by one and write it back without checking the other thread. Both requests (threads) believe they have the correct counter value 4. However, the correct counter value should be 5.
+
+Locks are the most obvious solution for solving race condition. However, locks will significantly slow down the system. Two strategies are commonly used to solve the problem: Lua script [13] and sorted sets data structure in Redis [8]. For readers interested in these strategies, refer to the corresponding reference materials [8] [13].
+
+### Synchronization issue
+
+Synchronization is another important factor to consider in a distributed environment. To support millions of users, one rate limiter server might not be enough to handle the traffic. When multiple rate limiter servers are used, synchronization is required. For example, on the left side of Figure 15, client 1 sends requests to rate limiter 1, and client 2 sends requests to rate limiter 2. As the web tier is stateless, clients can send requests to a different rate limiter as shown on the right side of Figure 15. If no synchronization happens, rate limiter 1 does not contain any data about client 2. Thus, the rate limiter cannot work properly.
+
+![synchronization_issue](images/synchronization_issue.webp)
+
+	Figure 15
+
+One possible solution is to use sticky sessions that allow a client to send traffic to the same rate limiter. This solution is not advisable because it is neither scalable nor flexible. A better approach is to use centralized data stores like Redis. The design is shown in Figure 16.
+
+![redis_centralized_data_store](images/redis_centralized_data_store.webp)
+
+	Figure 16
 
 ## Performance optimization
-There are two things we can do as a performance optimization for our rate limiters:
- * Multi-data center setup - so that users interact with instances geographically close to them.
- * Use eventual consistency as a synchronization model to avoid excessive locking.
+
+Performance optimization is a common topic in system design interviews. We will cover two areas to improve.
+
+First, multi-data center setup is crucial for a rate limiter because latency is high for users located far away from the data center. Most cloud service providers build many edge server locations around the world. For example, as of 5/20 2020, Cloudflare has 194 geographically distributed edge servers [14]. Traffic is automatically routed to the closest edge server to reduce latency.
+
+![performance_optimization](images/performance_optimization.webp)
+
+	Figure 17 (Source: [10])
+
+Second, synchronize data with an eventual consistency model. If you are unclear about the eventual consistency model, refer to the “Consistency” section in the “Design a Key-value Store” chapter.
 
 ## Monitoring
-After the rate limiter is deployed, we'd want to monitor if it's effective.
 
-To do so, we need to track:
- * If the rate limiting algorithm is effective
- * If the rate limiting rules are effective
+After the rate limiter is put in place, it is important to gather analytics data to check whether the rate limiter is effective. Primarily, we want to make sure:
 
-If too many requests are dropped, we might have to tune some of the rules or the algorithm parameters.
+ * The rate limiting algorithm is effective.
+ * The rate limiting rules are effective.
+
+For example, if rate limiting rules are too strict, many valid requests are dropped. In this case, we want to relax the rules a little bit. In another example, we notice our rate limiter becomes ineffective when there is a sudden increase in traffic like flash sales. In this scenario, we may replace the algorithm to support burst traffic. Token bucket is a good fit here.
 
 # Step 4 - Wrap up
-We discussed a bunch of rate-limiting algorithms:
- * Token bucket - good for supporting traffic bursts.
- * Leaking bucket - good for ensuring consistent inbound request flow to downstream services
- * Fixed window - good for specific use-cases where you want time divided in explicit windows
- * Sliding window log - good when you want high rate-limiting accuracy at the expense of memory footprint.
- * Sliding window counter - good when you don't want 100% accuracy with a very low memory footprint.
 
-Additional talking points if time permits:
- * Hard vs. soft rate limiting
-   * Hard - requests cannot exceed the specified threshold 
-   * Soft - requests can exceed threshold for some limited time
- * Rate limiting at different layers - L7 (application) vs L3 (network)
- * Client-side measures to avoid being rate limited:
-   * Client-side cache to avoid excessive calls
-   * Understand limit and avoid sending too many requests in a small time frame
-   * Gracefully handle exceptions due to being rate limited
-   * Add sufficient back-off and retry logic
+In this chapter, we discussed different algorithms of rate limiting and their pros/cons. Algorithms discussed include:
+
+ * Token bucket
+ * Leaking bucket
+ * Fixed window
+ * Sliding window log
+ * Sliding window counter
+
+Then, we discussed the system architecture, rate limiter in a distributed environment, performance optimization and monitoring. Similar to any system design interview questions, there are additional talking points you can mention if time allows:
+
+ * Hard vs soft rate limiting.
+ * Hard: The number of requests cannot exceed the threshold.
+ * Soft: Requests can exceed the threshold for a short period.
+ * Rate limiting at different levels. In this chapter, we only talked about rate limiting at the application level (HTTP: layer 7). It is possible to apply rate limiting at other layers. For example, you can apply rate limiting by IP addresses using Iptables [15] (IP: layer 3). Note: The Open Systems Interconnection model (OSI model) has 7 layers [16]: Layer 1: Physical layer, Layer 2: Data link layer, Layer 3: Network layer, Layer 4: Transport layer, Layer 5: Session layer, Layer 6: Presentation layer, Layer 7: Application layer.
+ * Avoid being rate limited. Design your client with best practices:
+ * Use client cache to avoid making frequent API calls.
+ * Understand the limit and do not send too many requests in a short time frame.
+ * Include code to catch exceptions or errors so your client can gracefully recover from exceptions.
+ * Add sufficient back off time to retry logic.
+
+Congratulations on getting this far! Now give yourself a pat on the back. Good job!
+
+# Reference materials
+
+[1] Rate-limiting strategies and techniques: https://cloud.google.com/solutions/rate-limiting-strategies-techniques
+
+[2] Twitter rate limits: https://developer.twitter.com/en/docs/basics/rate-limits
+
+[3] Google docs usage limits: https://developers.google.com/docs/api/limits
+
+[4] IBM microservices: https://www.ibm.com/cloud/learn/microservices
+
+[5] Throttle API requests for better throughput: https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html
+
+[6] Stripe rate limiters: https://stripe.com/blog/rate-limiters
+
+[7] Shopify REST Admin API rate limits: https://help.shopify.com/en/api/reference/rest-admin-api-rate-limits
+
+[8] Better Rate Limiting With Redis Sorted Sets: https://engineering.classdojo.com/blog/2015/02/06/rolling-rate-limiter/
+
+[9] System Design — Rate limiter and Data modelling: https://medium.com/@saisandeepmopuri/system-design-rate-limiter-and-data-modelling-9304b0d18250
+
+[10] How we built rate limiting capable of scaling to millions of domains: https://blog.cloudflare.com/counting-things-a-lot-of-different-things/
+
+[11] Redis website: https://redis.io/
+
+[12] Lyft rate limiting: https://github.com/lyft/ratelimit
+
+[13] Scaling your API with rate limiters: https://gist.github.com/ptarjan/e38f45f2dfe601419ca3af937fff574d#request-rate-limiter
+
+[14] What is edge computing: https://www.cloudflare.com/learning/serverless/glossary/what-is-edge-computing/
+
+[15] Rate Limit Requests with Iptables: https://blog.programster.org/rate-limit-requests-with-iptables
+
+[16] OSI model: https://en.wikipedia.org/wiki/OSI_model#Layer_architecture
