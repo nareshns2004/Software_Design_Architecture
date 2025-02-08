@@ -1,12 +1,47 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Constructing Sequence Diagrams
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+The following checklist shows the necessary steps for the construction of sequence diagrams. Subsequently, we will further explain the individual steps.
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+![Scene_1](images/Scene_1.jpg)
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+## Designate Actors and Business System—Who is Taking Part?
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
+Sequence diagrams illustrate the interactions between actors and the business system. Fundamentally we have a pool of interaction partners from the use case diagrams. Depending on the flow that is being depicted in the sequence diagram, the appropriate actors and business systems can be selected from this pool.
 
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+In our case study (see Figure 3.24), we find the interaction partners passenger and passenger services for the above sequence diagram (Figure 3.23):
+
+![Constructing](images/Constructing.jpg)
+
+	Figure 3.24 Constructing sequence diagrams
+	
+## Designate Initiators—Who Starts Interactions?
+
+For every sequence of interactions the actor who starts the interaction has to be identified. This actor is called the initiator. Since in the external view of the business model each business use case is initiated by an actor, we can here also select the actor from the pool of actors in the use case diagrams.
+
+In our sequence diagram passenger check-in, the passenger starts the interaction by utilizing the service check-in from passenger services.
+
+## Describe the Message Exchange between Actors and the Business System—Which Messages are being Exchanged?
+
+After the initiator has been defined, the subsequent progression of interactions has to be identified. For each communication step it has to be determined what information is exchanged. In this way the message will be defined. Messages are requests to do something directed toward a particular partner. The business objects that are exchanged with these messages also have to be defined.
+
+## Identify the Course of Interactions—What is the Order?
+
+All messages are exchanged in a chronological order that has to be identified. Messages are inserted along the y-axis in increasing chronological order, from top to bottom (see Figure 3.25):
+
+![Sequence](images/Sequence.jpg)
+
+	Figure 3.25 Constructing sequence diagrams
+	
+## Insert Additional Information—What Else is Important?
+
+Important activities of involved actors and business systems and important conditions can be inserted into the diagram as comments. Comments are inserted at the level of the appropriate message. Restrict this to important comments that have significance so that the diagram is not overcrowded with text (see Figure 3.26):
+
+![Diagrams](images/Diagrams.jpg)
+
+	Figure 3.26 Constructing sequence diagrams
+	
+## Verify the View—Is Everything Correct?
+
+Completed sequence diagrams can be verified with the following checklist:
+
+![Scene_2](images/Scene_2.jpg)
