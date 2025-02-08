@@ -1,12 +1,39 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Constructing Package Diagrams
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+The following checklist shows the steps that are necessary for the construction of package diagrams. Subsequently, we will further explain the individual steps.
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+## Develop an Initial Package Diagram of the Business System—Which Workers and Business Objects Make up the Business System?
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+![Scene_1](images/Scene_1.jpg)
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
+At first, the entire business system makes up the organization unit that is supposed to be depicted. In our case, this is passenger services (see Figure 3.32). Initially, we search for relevant worker roles (jobs) and business objects for this organization unit. Existing job descriptions and organization charts can be helpful for this:
 
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+![Boarding](images/Boarding.jpg)
+
+	Figure 3.32 Constructing a package diagram
+	
+## Find Additional Organization Units—Who Else is There?
+
+Potentially, the organization unit can be divided into further organization units (divisions, teams, groups). You can use organization charts and job descriptions as the basis and select the organization units that are relevant for the model. Relevant organization units and jobs are those that are directly integrated into the processing of goods and services.
+
+In our case study, we divide passenger service in further organization units: check-in and boarding. A further division is only wise if it is important for the illustration of business processes. For instance, a secretary pool is not important for the business processes under consideration.
+
+## Assign Workers and Business Objects to the Organization Units—Who Belongs Where?
+
+Employees and business objects have to be assigned to the additional organization units. You can see in Figure 3.33 that the business objects were divided. Because of this, structure and assignments are clearly recognizable.
+
+## Find Additional Organization Units, Workers, or Business Objects—What Else is There?
+
+UML package diagrams representing organization units should not be confused with organization charts. In fact, organization charts are related to package diagrams as they are shown here. However, package diagrams contain business objects in addition to employees. From organization charts we can derive hierarchical structure and the roles of the various workers, and use them as the basis for the construction of package diagrams:
+
+![Organization_Unit](images/Organization_Unit.jpg)
+
+	Figure 3.33 Organization unit “Passenger Services”
+	
+## Verify the View—Is Everything Correct?
+
+The completed package diagram can be checked with the following checklist:
+
+![Scene_2](images/Scene_2.jpg)
+
+

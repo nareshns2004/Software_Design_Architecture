@@ -1,12 +1,68 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Activity Diagram
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+Activity diagrams are suitable to show the internal processes of a business system. Contrary to activity diagrams of the external view, in activity diagrams of the internal view the relationships to actors are no longer the focal point.
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+Activity diagrams of the internal view are also suitable as a basis for instructions.
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+## Reading Activity Diagrams
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
+The reading instructions in previous Activity Diagrams section, can be used for activity diagrams of the internal view.
 
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+## Constructing Activity Diagrams
+
+Essentially, the construction of activity diagrams of the internal view takes place exactly like the construction of activity diagrams of the external view.
+
+The following checklist and the explanations of the individual steps are adapted to the modified view.
+
+![Scene_1](images/Scene_1.jpg)
+
+## Collect Information Sources—How am I Supposed to Know That?
+
+When constructing activity diagrams of the internal view, the same directions as in previous Constructing Use Case Diagrams section, hold true in order to obtain the necessary information.
+
+## Find Activities and Actions—Which Activities Have to be Performed so that the Goods and Services Utilized by Actors can be Provided and Delivered?
+
+Here, we can borrow from use cases and actions of activity diagrams of the external view. We have to ask the following question for the individual business processes that are depicted in the external view: How does the internal processing take place and what do the internal business processes look like? Answering the following questions will help you find activities and actions:
+
+ * Which work steps have to be performed by employees of the business system to provide and deliver a service?
+ * What does each employee do?
+ * Which outside events initiate which activities and actions?
+ 
+Often, we can find pre-existing documentation of flows, either informal or structured, that we can use to find activities.
+
+## Adopt Actors from Business Use Cases—Who is Responsible for Each Action?
+
+Predominantly, workers and organization units from the package diagram are responsible for the actions. Actors from use case diagrams are also used, as long as they are involved in the depicted business processes.
+
+Each worker, each organization unit, and each actor is responsible for certain activities and is inserted into an activity partition (swimlane) as the responsible party. The individual actions are assigned to these responsibilities.
+
+If activity diagrams are refined, it is possible that other areas of responsibility will be added, for example, individual positions or teams.
+
+## Connect Actions—In Which Order are Actions Processed?
+
+Connecting the individual actions in a flow generates an initial activity diagram, which describes internal business processes. The following questions help with the construction of the control flow:
+
+* In which order are actions processed?
+* Which conditions have to be met in order for an action to be executed?
+* Where are branches necessary?
+* Which actions occur simultaneously?
+* Is the completion of some actions necessary before the flow can proceed to other actions?
+
+## Refine Activities—Do any Other Activity Diagrams Have to be Added?
+
+It is possible that individual actions have to be further divided or refined with other activity diagrams. Different scenarios are also described in other activity diagrams.
+
+## Verify the View—Is Everything Correct?
+
+Activity diagrams of the internal view also have to be verified in terms of correctness of content. This should be done in collaboration with knowledge carriers.
+
+![Scene_2](images/Scene_2.jpg)
+
+In the following Figure 3.40 depicts an activity diagram that represents the internal processing of the activities accepting luggage during check-in by passenger services:
+
+![Accepting_Luggage](images/Accepting_Luggage.jpg)
+
+	Figure 3.40 Activity diagram of the internal activity “Accepting Luggage”
+	
+The activity accepting luggage, as shown in Figure 3.40, is carried out by passenger services. It is not important for the passenger or for baggage transportation which actions are performed in what way. The passenger is only interested in whether his or her carry-on is too big and if he or she has to pay for excess weight; baggage transportation needs labels on each piece of luggage. All other details that are shown in the diagram are internal processing details of passenger services and will therefore be labelled as ‘internal view’.
+

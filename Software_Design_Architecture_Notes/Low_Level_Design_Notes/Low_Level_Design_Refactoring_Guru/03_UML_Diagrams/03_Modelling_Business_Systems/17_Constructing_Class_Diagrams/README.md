@@ -1,12 +1,47 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Constructing Class Diagrams
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+The following steps have to be executed for the construction of class diagrams:
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+![Scene_1](images/Scene_1.jpg)
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+## Find Classes—Which Classes Exist in the Class Diagram?
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
+You can use the classes of package diagrams for the class diagram of the business system’s internal view, meaning workers and business objects. Actors from use case diagrams are also classes that can be adopted into this class diagram. In our example, you’ll find the classes that are displayed in Figure 3.37:
 
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+![Internal_View](images/Internal_View.jpg)
+
+	Figure 3.37 Classes of the internal view of the business system
+	
+# Create Associations Between Classes—Which Classes Deal with Each Other?
+
+In class diagrams, the relationships between the found classes as well as business rules are modeled as associations.
+
+The question is:
+
+![Scene_2](images/Scene_2.jpg)
+
+Even though we begin with the classes that have already been found, we usually find more classes in this work step through domain discussions.
+
+## Substantiate Associations—What do these Relationships Mean?
+
+Associations between individual classes have to be labeled with meaningful names, so that the class diagram can be understood easily and intuitively. Generally, a direction is added to the association, according to which it can be read (see Figure 3.38).
+
+## Insert Generalizations—Can Business Objects be Grouped?
+
+It might make sense to group business objects into another higher-ranking class. In our case study, it is helpful to illustrate that the list of checked-in passengers, the list of passengers on board, and the list of passengers not yet on board, are of the type Passenger List (see Figure 3.39):
+
+![Passenger](images/Passenger.jpg)
+
+	Figure 3.38 Class diagram of passenger services
+	
+This shows that the lists have the same structure (see also Generalization, Specialization, and Heredity):
+
+![Generalization](images/Generalization.jpg)
+
+	Figure 3.39 Generalization in the class diagram
+
+## Verify the View—Is Everything Correct?
+
+The completed class diagram can be verified with the following checklist:
+
+![Scene_3](images/Scene_3.jpg)
