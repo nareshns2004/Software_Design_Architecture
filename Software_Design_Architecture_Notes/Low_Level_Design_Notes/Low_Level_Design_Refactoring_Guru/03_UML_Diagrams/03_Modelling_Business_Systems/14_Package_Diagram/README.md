@@ -1,12 +1,60 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Package Diagram
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+The structure of organization units is important for the internal view of the business system. In UML, organization units are depicted as packages, which can contain employees, business objects, and other organization units. In our case study, we chose the organization unit passenger services (see Figure 3.30):
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+![Package_Diagram](images/Package_Diagram.jpg)
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+	Figure 3.30 A package diagram
+	
+Organization units can be responsible for the execution of business-process activities. Organization units are abstractions of individual jobs within an organization.
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
+In UML an organization unit spans workers, business objects, other organization units, and their relationships. As a basic principle, organization units are located within business systems. Organization units that are located outside business systems are actors.
 
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+In package diagrams we work with the following elements:
+
+## Package «Organization Unit»
+
+Organization units are depicted as packages. In the small box in the upper left the name of the organization unit is inserted below the stereotype «Organization Unit»:
+
+![Organization](images/Organization.jpg)
+
+The content of organization units is inserted into the main box. Most of the time, it is sufficient to list the most important elements (employees, business objects).
+
+## Class «Worker»
+
+The stereotype «Worker» is used to describe the roles of those people who execute business processes or who are involved in the execution of business processes:
+
+![Employee](images/Employee.jpg)
+
+We are not concerned with the ‘status’ of workers, such as salaried employee, free-lancer, or volunteer, but with their roles, meaning jobs. Workers are responsible for providing goods and services. They are located within a business system. Here, the following characteristics are important:
+
+ * Workers are people.
+ * Workers are located within the business system.
+ * Workers can communicate with other workers and with actors outside the business system.
+ 
+Workers can have their own symbol; below the worker symbol the role of the worker is inserted. The symbol shows an actor symbol that is surrounded by a circle—this is supposed to indicate that the worker is located within something. The worker symbol can also be omitted. In this case, the class symbol is used and the term «worker» is written as a stereotype in angle brackets.
+
+## «Business Object»
+
+Business objects are passive, meaning they do not initiate interactions. Business objects can be involved in several different business use cases and outlive individual interactions. This makes them a form of connecting link between business use cases or workers that are involved in various use cases:
+
+![Luggage](images/Luggage.jpg)
+
+Workers handle (utilize, control, manipulate, produce, etc) handle business objects. In our case study business objects are, for instance, a ticket, a piece of luggage, or a boarding pass. Business objects are also illustrated with their own symbol; the description of the business object is written below the business object symbol.
+
+The business object symbol can also be omitted. In this case, the class symbol is used and the term «Business Object» is written as a stereotype in angle brackets.
+
+## Reading Package Diagrams
+
+![Package](images/Package.jpg)
+
+	Figure 3.31 A package diagram
+
+Through the stereotype «Organization Unit» (1) you can see that the package (2) represents an organization unit. The name of this organization unit is passenger services (3). Within this organization unit you can find the check-in employee (4) and the business object: boarding pass (5). The graphic symbol (4) on the left represents a worker; the label (6) below the graphic symbol indicates the worker’s role within the organization. The graphic symbol (5) on the right represents a business object; the label (7) below the graphic symbol indicates the type of business object we are dealing with.
+
+There is only one symbol for the check-in employee. That doesn’t mean there is only one check-in employee, but rather the symbol represents a role that can be fulfilled by any number of real check-in employees. Surely, there are other worker roles within passenger services (manager, assistant, etc.). However, these are irrelevant for the illustration of our processes, and so do not have to be included in the package diagram (see Figure 3.31).
+
+
+
+
+

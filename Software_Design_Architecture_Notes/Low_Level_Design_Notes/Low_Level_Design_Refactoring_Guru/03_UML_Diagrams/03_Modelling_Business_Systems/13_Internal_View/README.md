@@ -1,12 +1,15 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Internal View
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+The internal view describes the internal processes and activities, relationships, and structures of the business system. IT systems and people within the business system are responsible for offering the goods and services of the business system. With that, we leave the environment of the business system and enter the black box. From now on, we do care about whether the processing within the business system occurs manually or is IT supported, whether employees of the organization have to fill out two or twenty forms, and whether suppliers are needed.
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+## The Elements of the View
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
+The following diagrams illustrate the internal view:
 
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
-
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+ * <b>Package diagrams</b> describe the organization units in the form of packages.
+ * <b>Class diagrams</b> describe the connections and relationships between co-workers and business objects.
+ * <b>Activity diagrams</b> describe the business processes within the business system. The subjects of the description are the goods and services that are provided by internal business system resources (see Figure 3.29):
+ 
+![Business_Systems](images/Business_Systems.jpg)
+ 
+ 	Figure 3.29 Diagram types of the internal view of the business system
