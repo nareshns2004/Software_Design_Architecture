@@ -8,7 +8,7 @@ Use case diagrams show business use cases, actors, and the relationships between
 	
 We use the following elements in use case diagrams:
 
-# Actor
+## Actor
 
 An actor represents a role that an outsider takes on when interacting with the business system. For instance, an actor can be a customer, a business partner, a supplier, or another business system.
 
@@ -18,7 +18,7 @@ Every actor has a name:
 
 Instead of a stick figure, other symbols can be used as well, if they fit the characteristics of the actor and lead to practical, easy-to-read diagrams.
 
-# Association
+## Association
 
 An association is the relationship between an actor and a business use case. It indicates that an actor can use a certain functionality of the business system—the business use case:
 
@@ -26,7 +26,7 @@ An association is the relationship between an actor and a business use case. It 
 
 Unfortunately, the association does not give any information about the way in which the functionality is used. If a business use case includes several actors, it is not apparent in the use case diagram if each actor can conduct the business use case alone, or if the actors conduct the business use case together. In fact, association only means that an actor is involved in the business use case.
 
-# Business Use Case
+## Business Use Case
 
 A business use case describes the interaction between an actor and a business system, meaning it describes the functionality of the business system that the actor utilizes:
 
@@ -34,7 +34,7 @@ A business use case describes the interaction between an actor and a business sy
 
 A business use case is described from the actor’s perspective. Apart from the special use of the business use case as a use case within a business system, there is no difference between the business use case and a ‘normal’ use case.
 
-# Include Relationship
+## Include Relationship
 
 The include relationship is a relationship between two business use cases that signifies that the business use case on the side to which the arrow points is included in the use case on the other side of the arrow. This means that for one functionality that the business system provides, another functionality of the business system is accessed.
 
@@ -44,7 +44,7 @@ In this way, functionalities that are accessed repeatedly can be depicted as ind
 
 At times, the direction of the arrow can be confusing; the relationship has to be read alongside the direction of the arrow (check-in includes issuing the boarding pass).
 
-# Subject
+## Subject
 
 A subject describes a business system that has one or more business use cases attached to it. A subject is represented by a rectangle that surrounds attached business use cases and is tagged with a name:
 
@@ -52,7 +52,7 @@ A subject describes a business system that has one or more business use cases at
 
 Depicting the subject (and with it the system limits) is optional.
 
-# Reading Use Case Diagrams
+## Reading Use Case Diagrams
 
 Figure 3.8 illustrates a use case diagram with the actors: the passenger (1) and the check-in representative (2), as well as the business use cases check-in (3) and express check-in (4):
 

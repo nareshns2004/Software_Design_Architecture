@@ -8,7 +8,7 @@ We deliberately chose the order in which the steps are performed. However, this 
 
 On one hand, a general understanding of the business system and business processes is important for the realization of each individual step. On the other hand, for many steps it is also necessary to consult knowledge carriers. It makes little sense to cling to the personal view of the analyst, who knows too little about the area of application.
 
-# Collecting Information Sources—How am I Supposed to Know That?
+## Collecting Information Sources—How am I Supposed to Know That?
 
 As a first step, it is important to find knowledge carriers, in order for analysts and knowledge carriers to work out the basic principles together. Such knowledge carriers are, for example:
 
@@ -37,7 +37,7 @@ Several helpful techniques have proven to be practical for the analysis and unde
 
 The result of this first step is often a collection of forms, work instructions, completed surveys, existing process descriptions, business objects such as tickets or boarding passes, etc. This overview is often not yet complete, and will be further extended during the modeling process.
 
-# Identifying Potential Actors—Which Partners and Customers Use the Goods and Services of the Business System?
+## Identifying Potential Actors—Which Partners and Customers Use the Goods and Services of the Business System?
 
 This step is all about identifying potential actors. Here, this rule applies: the more the merrier. You can work with these actors in later steps; or they can be reduced in number or combined.
 
@@ -56,7 +56,7 @@ As a first step, the previous explanations of our case study result in the follo
 	
 In addition to the passenger, who represents travelers, there is the check-in representative. The check-in representative is a person who is not the actual passenger, but an agent of the passenger. The check-in representative has the task of performing the check-in with the ticket of the passenger.
 
-# Identifying Potential Business Use Cases—Which Goods and Services can Actors Draw Upon?
+## Identifying Potential Business Use Cases—Which Goods and Services can Actors Draw Upon?
 
 This step is about finding potential business use cases. The rule—the more the merrier—applies here as well (in reasonable moderation). Potential business use cases can be found by answering the following questions:
 
@@ -80,11 +80,11 @@ Initially, the business use cases can only be described in a concise and informa
  * During boarding, the boarding pass of the passenger is verified at the gate.
  * Automated check-in is conducted without the help of a check-in clerk, directly at a machine (screen). Baggage cannot be checked in.
 	
-# Practical Tips
+## Practical Tips
 
 For us, in practice, the observation technique has proven effective for identifying business use cases. By observing people involved in the business processes, activity lists can be created. Following this, the activities can be grouped by events that lead to the first business use cases.
 
-# Connecting Business Use Cases—Who Can Make Use of What Goods and Services of the Business System?
+## Connecting Business Use Cases—Who Can Make Use of What Goods and Services of the Business System?
 
 By assigning business use cases to actors, a first draft of the use case diagram evolves (Figure 3.12). This is achieved by answering the following question:
 
@@ -98,13 +98,13 @@ With this first draft we obtain the basis from which we can further edit and ref
 
 The passenger can choose between a normal check-in, automated check-in, and express check-in. The passenger walks to the gate and presents his or her boarding pass. The check-in representative can perform a regular check-in, but is not able to perform express check-in and automated check-in.
 
-# Describing Actors—Who or What do the Actors Represent?
+## Describing Actors—Who or What do the Actors Represent?
 
 An actor in a diagram has to be named in a way that clarifies the role that is represented. Here, it is of utter importance that the terminology of the domain area, meaning a business-oriented term, is used. In addition to the name, an actor can be further defined with a description. The question to this end is:
 
 How can an actor be described further? For instance, this description can include an area of responsibility, requirements from the system, or a formal definition of his, her, or its role. Don’t be afraid to add job descriptions or organizational profiles (for example of a catering company)—even if these are not represented in UML.
 
-# Searching for More Business Use Cases—What else Needs to be Done?
+## Searching for More Business Use Cases—What else Needs to be Done?
 
 Once you have found several business use cases, they can be used as starting points for further questions. Starting from a particular business use case, the following questions can be asked:
 
@@ -124,7 +124,7 @@ This results in two new actors: baggage transportation and the customs authoriti
 
 	Figure 3.13 Extended use case diagram
 	
-# Editing Business Use Cases—What actually has to be Included in a Business Use Case?
+## Editing Business Use Cases—What actually has to be Included in a Business Use Case?
 
 Without a doubt, it is difficult to find the right amount of detail in the modeling of business systems. If almost all the activities of an actor in a business use case are combined, the use case diagram will lose practically all of its significance. If the activities are itemized too thoroughly, the use case diagram gets too complex and contains too many activities with interrelationships that are hardly recognizable.
 
@@ -138,13 +138,13 @@ Fortunately, some criteria will help you determine the optimal scope of a busine
 
 A review of the existing business use cases on the basis of these questions can lead to the consolidation or division of business use cases.
 
-# Documenting Business Use Cases—What Happens in a Business Use Case?
+## Documenting Business Use Cases—What Happens in a Business Use Case?
 
 To understand a business use case, the information from the use case diagram is not sufficient. The chain of interactions and of the various scenarios that are behind each business use case have to be described. This means that the goods and services that the business system provides have to be described, namely the chain of events from the perspective of the customer or business partner.
 
 In addition to purely verbal description, documentation in activity diagrams and sequence diagrams has proven to be especially valuable. The construction of these diagram types will be treated in the following sections: Activity Diagrams, and High-Level Sequence Diagrams.
 
-# Modeling Relationships between Business Use Cases—What Activities are Conducted Repeatedly?
+## Modeling Relationships between Business Use Cases—What Activities are Conducted Repeatedly?
 
 If you realize that certain parts of an interaction are the same in several business use cases, you can extract these similarities and combine them into their own business use case. This new business use case can be used in other business use cases with an include relationship.
 
@@ -154,7 +154,7 @@ In our case study, the business use case issuing boarding pass has not yet been 
 
 	Figure 3.14 Extended use case diagram
 	
-# Verifying the View—Is Everything Correct?
+## Verifying the View—Is Everything Correct?
 
 All diagrams and records have to be verified by the knowledge carriers. What we should ask the knowledge carriers for every diagram or view is:
 
@@ -165,7 +165,7 @@ The completed use case diagram can be verified with the following checklist:
 
 ![Scene_3](images/Scene_3.jpg)
 
-# Practical Tips
+## Practical Tips
 
 When using use case diagrams for modeling business systems and business processes, it is advisable to keep the level of abstraction low. For the comprehensibility of the diagrams and for communication between the involved parties, it is better to add redundancies than to abstract too much.
 

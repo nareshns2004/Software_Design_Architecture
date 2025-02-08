@@ -15,7 +15,7 @@ We don’t want to look only at the dynamic aspects of our model, but also at th
 
 # Business Processes and Business Systems
 
-# What is a Business Process?
+## What is a Business Process?
 
 Most people intuitively understand a business process to be a procedure or event with the purpose of reaching a goal. When looking at our UML Airport we can find many different business processes and goals:
 
@@ -39,13 +39,13 @@ Usually, the activities of a business process are interdependent. This interdepe
 
 ![Model_1](images/Model_1.jpg)
 	
-# Definition of the Workflow Management Coalition
+## Definition of the Workflow Management Coalition
 
 Official definitions of the terms process and business process were adopted by the Workflow Management Coalition. The following definitions can be found in the glossary of the Workflow Reference Model of the Workflow Management Coalition:
 
 ![Model_2](images/Model_2.jpg)
 
-# Business Systems
+## Business Systems
 
 So far, we have explained business processes. Business processes are dynamic in nature and involve activities. However, if we want to look at the entire business system, we also have to consider the static aspects. This involves, for instance, the organizational structures within which business processes are conducted. This also involves various business objects and information objects, such as tickets or orders. For the static and dynamic aspects as a whole, we use the term business system.
 
@@ -65,7 +65,7 @@ Passenger Services is a division within the UML Airport, with employees, organiz
 	
 We are not interested in any of the external business systems as a whole, but only in the interfaces between them and our business system. For instance, the staff of passenger services need to know that they have to transfer passengers’ luggage to baggage transportation, so that it can be loaded into the airplane. Of course, for this, passenger services have to know how baggage transportation accepts luggage, so that it can be made available accordingly. It is possible that the IT systems of passenger services and baggage transportation will have to be connected, meaning that interfaces will have to be created. On the other hand, passenger services are completely unconcerned with how baggage transportation is organized, and whether each suitcase is individually carried across the runway or carts are used to transport luggage to the airplane.
 
-# Using UML to Model Business Processes and Business Systems
+## Using UML to Model Business Processes and Business Systems
 
 Before we move on to the modeling of business processes and business systems with UML, we should ask ourselves whether UML is even suitable for the modeling of business processes and business systems. For this purpose we will take a look at UML’s definition by OMG (Object Management Group Inc.—the international association that promotes open standards for object-oriented applications, which publishes each version of UML that is submitted for standardization at www.omg.org):
 
@@ -83,7 +83,7 @@ This text is tailored toward projects with the goal of developing IT systems. Mo
  * Business-process modeling is not the focus of these projects. Instead, the model serves as the foundation for the construction and integration of IT systems. Business process integration can determine the success or failure of such a project; but the main task still is the construction of IT systems.
  * Because budgets are often tight, time investment in the methodology and language required for business-process modeling should not amount to more than 5-10% of the total project effort.
 	
-# Practical Tips for Modeling Business Processes
+## Practical Tips for Modeling Business Processes
 
 Often one is warned about the complexity of business process analysis and business-process modeling. However, in our experience most business processes are thoroughly understandable and controllable. Rather, the lack of clarity and transparency makes them seem more complex than they really are.
 

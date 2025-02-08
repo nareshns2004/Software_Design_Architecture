@@ -43,7 +43,7 @@ We would also like to point out a new possibility that UML 2.0 opens up. One of 
 
 However, a price has to be paid for these advantages. It becomes necessary to acquire a deep and accurate understanding of UML and considerable effort has to be invested in the development of the models.
 
-# Effects on the Business System Model
+## Effects on the Business System Model
 
 Some changes made in performance modeling enhanced the possibilities for modeling business systems. First, we’ll give examples of several of the changes and improvements.
 
@@ -61,7 +61,7 @@ One of the improvements made in the sequence diagram is the addition of so-calle
 
 OCL is now an inherent part of UML. It can be used to describe agreements, invariants, preconditions, and post conditions within UML models, which enables more precise modeling of business systems and business processes.
 
-# Effects on the IT System Model
+## Effects on the IT System Model
 
 The diagrams that we have used in this book in the different views of the IT system did not undergo any significant changes.
 
@@ -69,7 +69,7 @@ The biggest change occurred in the notation of the sequence diagram. Here, among
 
 Statechart diagrams underwent the most interesting changes for the modeling of IT systems: connection points allow, for example, better modulation of statechart diagrams. However, we decided not to use this language element in our simplified approach to UML.
 
-# Effects on the Systems Integration Model
+## Effects on the Systems Integration Model
 
 Of course, the improvements in behavioral modeling also had an effect on the process view in the systems integration model. A significant improvement is the ability to add input and output parameters to activities.
 
@@ -77,7 +77,7 @@ Hardly any changes were made in the area of static views, meaning the design of 
 
 In addition to the changes that were made within the framework of UML 2.0, the UML profile for Enterprise Application Integration (EAI) is of increasing importance in the field of system integration. Besides the basic operations needed in the field of system integration, it shows the data meta-models of various programming languages that are not object-oriented. However, this occurs at a more detailed level, which has no influence upon this text.
 
-# Conclusion
+## Conclusion
 
 For the normal user, UML 2.0 does not turn the previous versions of UML upside down, but represents an improvement on existing concepts. It is probably wise to use UML 2.0 for future models. On the other hand, it should be possible to continue using existing constructs and models based on earlier UML versions. For ongoing projects the advantages (more exact modeling) have to be weighed against the disadvantages (additional work).
 

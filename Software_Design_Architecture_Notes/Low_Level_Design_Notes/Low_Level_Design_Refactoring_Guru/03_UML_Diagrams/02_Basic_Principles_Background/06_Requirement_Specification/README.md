@@ -6,13 +6,13 @@ Models of the system to be developed make up an integral part of every requireme
  * For whom is it being specified?
  * What is being specified?
 	
-# Guidance for Decision Making
+## Guidance for Decision Making
 
 The models and views that are provided by this book are basically the building blocks from which you can choose the required models for a requirement specification. The following table will support you in making the proper choice of models and views:
 
 ![System_View](images/System_View.jpg)
 
-# Verification
+## Verification
 
 All the views introduced in this book describe a model that documents the requirements from the viewpoint of the user. This means that all utilized models and views:
 

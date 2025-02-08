@@ -12,7 +12,7 @@ The more information a model is supposed to give, the more complex and difficult
 	
 The same is true for the model of a building. If a new wing is added to an existing building various views are affected, including the floor plan, the different exterior views, and the 3D-model made from wood. Figure 2.3 illustrates this in a schematic manner. In The Models of our Case Study, we specifically address the relationships between the models we use in this book. The different views within each model are described in more detail in Modeling Business Systems, Modeling IT Systems and Modeling for System Integration.
 
-# Why do we Need Models?
+## Why do we Need Models?
 
 As a general rule, a model of a system has to perform the following tasks:
 
@@ -24,7 +24,7 @@ Verification of facts in terms of completeness, consistency, and correctness: A 
 
 ![Scene_2](images/Scene_2.jpg)
 	
-# Purpose and Target Group of a Model
+## Purpose and Target Group of a Model
 
 In real life we often observe that the results of cumbersome, tedious, and expensive modeling simply disappear in a stack of paper on someone’s desk. We might ask why this is so. Two factors greatly influence the result of modeling: for whom do we create the model and for what purpose is it supposed to be used. If we don’t discuss and define these aspects sufficiently, we run the risk of creating models that don’t contain what is important to the user. In other words, if details are not emphasized and omitted appropriately, the model is rendered worthless.
 
@@ -40,13 +40,13 @@ What language can be used in the model? Does the target group understand technic
 
 What level of abstraction should you choose? The less abstract a model, the more comprehensible, and clear it is for the user. This is because a less abstract model is closer to the user’s actual use and language. On the other hand, models with a high level of abstraction are more reusable and they are more easily converted into IT systems. We can also prove more accurately that they are correct. IT specialists probably manage highly abstract models best. Users, on the other hand, might pull their hair out if asked to deal with a model like that.
 
-# Practical Tips
+## Practical Tips
 
 Compromises have to be made between the level of abstraction, clarity, and the amount of detail used for a model. It is possible to develop several model components, differing in degree of formality and detail, in order to satisfy different target groups. In this way communication between model builders, customers, users, and developers can be facilitated much more easily. It is important not to ‘overdo’ it, but to adjust the model to its target groups and their uses.
 
 Analysis or design patterns are example models that describe common design and modeling methods.
 
-# Process of Analysis
+## Process of Analysis
 
 Figure 2.4 shows the process of analysis, which consists of obtaining, representing, and verifying facts:
 
@@ -60,7 +60,7 @@ This is the job of the analyst. The process of analysis produces a specification
  * Facts are represented in diagrams and documents, which are usually prepared by the analyst.
  * Facts are verified only by knowledge carriers, since they alone can decide if the presented facts are correct. Verification is absolutely essential. Without it we might have pretty diagrams, but the probability is high that the facts represented are faulty. In simple terms: development of a model without verification is absolutely worthless!
 	
-# Practical Tips
+## Practical Tips
 
 It is impossible to develop and verify a usable model without mastering the technical foundations of a topic. Where do we find these knowledge carriers who know something about the systems that we want to model? We have had good experiences with the following groups of people:
 
@@ -84,7 +84,7 @@ Several helpful techniques have proven to be useful for the analysis and underst
  * Reviewing existing forms, documentation, specifications, handbooks, and work tools
  * Describing the organizational structure and workflow management (organization charts, etc.)
 	
-# Diagrams as Views
+## Diagrams as Views
 
 Each particular UML diagram corresponds to one view of a model of a system. Depending on the type of diagram used, different aspects are either emphasized or omitted. All the different views combined result in a good model of a system. Most of the UML diagrams are graphs (as shown in Figure 2.5), implying that they consist of elements that are connected through lines:
 

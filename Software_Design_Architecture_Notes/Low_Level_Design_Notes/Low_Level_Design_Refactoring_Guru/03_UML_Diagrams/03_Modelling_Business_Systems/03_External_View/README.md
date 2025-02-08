@@ -14,7 +14,7 @@ In our case study, it is important for a passenger to know that he or she can ch
 
 In practice, we have observed that the external view is difficult to represent, if the employees of an organization, who are located within the business system, develop the model. It is difficult for a person within a business system, who knows all the internal transactions, to reconstruct the view of the customer, which does not consider internal transactions at all. If external and internal views are mixed, they inhibit the clear view from the outside of a business system and its business processes. (Thus, user-unfriendly systems are created!) Therefore, consult unbiased staff members, who can put themselves in the outsider’s place more easily, for instance, employees of other divisions or external consultants.
 
-# Business Use Cases
+## Business Use Cases
 
 Before we converge to the business usecases, we would like to take a look at the general definition of a use case in UML. A use case is the specification of a set of actions performed by a system, which yields an observable result that is typically of value for one or more actors or other stakeholders of the system (OMG: Unified Modeling Language: Superstructure, Version 2.0, Revised Final Adopted Specification, October 2004).
 
@@ -30,7 +30,7 @@ In our case study, manually conducted passenger services as well IT-assisted act
 
 A passenger who checks in at a machine does not even encounter a human being. The check-in machine performs the entire business use case.
 
-# Actors
+## Actors
 
 Outside of the business system are, for instance, customers or business partners, who use the output of the business system under consideration. It’s not necessary that these outsiders know in detail how a business case is conducted. For our passengers, it is important to know that they can buy a bottle of whiskey in the duty-free shop. The bottle of whiskey is a material good that the duty-free shop provides; selling the bottle to the customer, on the other hand, is a service. The passenger does not care how the duty-free shop employee conducts the sale. These outsiders are called actors (see Figure 3.5):
 

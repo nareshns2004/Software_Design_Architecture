@@ -11,6 +11,10 @@ There are several reasons to use UML as a modeling language:
  * UML builds upon widely used and proven approaches. UML was not devised in an ivory tower but was developed mainly from real-world problems and existing modeling languages. This guarantees usability and real-life functionality.
  * UML is widely supported.
  * UML-based bids for software systems can be compared much more easily.
+ 
+This book is based on UML version 2.0, as adopted by the Object Management Group “(OMG Unified Modeling Language: Superstructure, Version 2.0, Revised Final Adopted Specification, October 2004”, from http://www.omg.org).
+
+At the time this book was wrote, standardization of UML was not fully completed. However, subsequent changes to UML 2.0 will not affect the simplified approach that our book presents.
 
 At the time this book was wrote, standardization of UML was not fully completed. However, subsequent changes to UML 2.0 will not affect the simplified approach that our book presents.
 
