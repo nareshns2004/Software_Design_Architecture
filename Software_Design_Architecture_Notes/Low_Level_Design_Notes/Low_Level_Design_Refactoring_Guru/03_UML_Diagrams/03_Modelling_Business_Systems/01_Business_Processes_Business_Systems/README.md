@@ -6,8 +6,8 @@ To ensure smooth business transactions through the use of IT systems, it is indi
 
 Today, most IT systems are not only embedded in a business environment, but are also connected with other IT systems. Thus, every new IT system has to fit not into one, but two different target environments:
 
-	* Integration on the business-process level: Each IT system has to be assigned the activities of a business process in a way that enables correct and efficient execution of the entire business process with all involved components.
-	* Integration at the IT-system level: Communication with other IT systems involved in the business process has to go smoothly. This requires semantically and technically perfect interfaces. Integration on the IT-system level will be discussed in Modeling for System Integration.
+ * Integration on the business-process level: Each IT system has to be assigned the activities of a business process in a way that enables correct and efficient execution of the entire business process with all involved components.
+ * Integration at the IT-system level: Communication with other IT systems involved in the business process has to go smoothly. This requires semantically and technically perfect interfaces. Integration on the IT-system level will be discussed in Modeling for System Integration.
 
 ![Business_2](images/Business_2.jpg)
 	
