@@ -108,7 +108,7 @@ Approaches mentioned above give us some ideas about how different ID generation 
 
 Divide and conquer is our friend. Instead of generating an ID directly, we divide an ID into different sections. Figure 5 shows the layout of a 64-bit ID.
 
-![twitter_snowflake](images/twitter_snowflake.jpg)
+![twitter_snowflake](images/twitter_snowflake.png)
 
 	Figure 5
 	
@@ -126,7 +126,7 @@ Each section is explained below.
 
 In the high-level design, we discussed various options to design a unique ID generator in distributed systems. We settle on an approach that is based on the Twitter snowflake ID generator. Let us dive deep into the design. To refresh our memory, the design diagram is relisted below.
 
-![design](images/design.jpg)
+![design](images/design.png)
 
 	Figure 6
 	
@@ -136,7 +136,7 @@ Timestamp
 
 The most important 41 bits make up the timestamp section. As timestamps grow with time, IDs are sortable by time. Figure 7 shows an example of how binary representation is converted to UTC. You can also convert UTC back to binary representation using a similar method.
 
-![conversion](images/conversion.jpg)
+![conversion](images/conversion.png)
 
 	Figure 7
 	
