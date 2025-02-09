@@ -12,20 +12,20 @@ Here are a few examples of unique IDs:
 
 Asking clarification questions is the first step to tackle any system design interview question. Here is an example of candidate-interviewer interaction:
 
-<b>Candidate:</b> What are the characteristics of unique IDs?
-<b>Interviewer:</b> IDs must be unique and sortable.
+<p><b>Candidate:</b> What are the characteristics of unique IDs?</p>
+<p><b>Interviewer:</b> IDs must be unique and sortable.</p>
 
-<b>Candidate:</b> For each new record, does ID increment by 1?
-<b>Interviewer:</b> The ID increments by time but not necessarily only increments by 1. IDs created in the evening are larger than those created in the morning on the same day.
+<p><b>Candidate:</b> For each new record, does ID increment by 1?</p>
+<p><b>Interviewer:</b> The ID increments by time but not necessarily only increments by 1. IDs created in the evening are larger than those created in the morning on the same day.</p>
 
-<b>Candidate:</b> Do IDs only contain numerical values?
-<b>Interviewer:</b> Yes, that is correct.
+<p><b>Candidate:</b> Do IDs only contain numerical values?</p>
+<p><b>Interviewer:</b> Yes, that is correct.</p>
 
-<b>Candidate:</b> What is the ID length requirement?
-<b>Interviewer:</b> IDs should fit into 64-bit.
+<p><b>Candidate:</b> What is the ID length requirement?</p>
+<p><b>Interviewer:</b> IDs should fit into 64-bit.</p>
 
-<b>Candidate:</b> What is the scale of the system?
-<b>Interviewer:</b> The system should be able to generate 10,000 IDs per second.
+<p><b>Candidate:</b> What is the scale of the system?</p>
+<p><b>Interviewer:</b> The system should be able to generate 10,000 IDs per second.</p>
 
 Above are some of the sample questions that you can ask your interviewer. It is important to understand the requirements and clarify ambiguities. For this interview question, the requirements are listed as follows:
 
