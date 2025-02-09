@@ -12,7 +12,7 @@ In this chapter, you are asked to design a rate limiter. Before starting the des
  * Reduce cost. Limiting excess requests means fewer servers and allocating more resources to high priority APIs. Rate limiting is extremely important for companies that use paid third party APIs. For example, you are charged on a per-call basis for the following external APIs: check credit, make a payment, retrieve health records, etc. Limiting the number of calls is essential to reduce costs.
  * Prevent servers from being overloaded. To reduce server load, a rate limiter is used to filter out excess requests caused by bots or users’ misbehavior.
 
-# Step 1 - Understand the problem and establish design scope
+## Step 1 - Understand the problem and establish design scope
 
 Rate limiting can be implemented using different algorithms, each with its pros and cons. The interactions between an interviewer and a candidate help to clarify the type of rate limiters we are trying to build.
 
@@ -45,7 +45,7 @@ Here is a summary of the requirements for the system:
  * Exception handling. Show clear exceptions to users when their requests are throttled.
  * High fault tolerance. If there are any problems with the rate limiter (for example, a cache server goes offline), it does not affect the entire system.
 
-# Step 2 - Propose high-level design and get buy-in
+## Step 2 - Propose high-level design and get buy-in
 
 Let us keep things simple and use a basic client and server model for communication.
 
@@ -83,7 +83,7 @@ While designing a rate limiter, an important question to ask ourselves is: where
  * Building your own rate limiting service takes time. If you do not have enough engineering resources to implement a rate limiter, a commercial API gateway is a better option.
 
 
-# Algorithms for rate limiting
+## Algorithms for rate limiting
 
 Rate limiting can be implemented using different algorithms, and each of them has distinct pros and cons. Even though this chapter does not focus on algorithms, understanding them at high-level helps to choose the right algorithm or combination of algorithms to fit our use cases. Here is a list of popular algorithms:
 
@@ -276,7 +276,7 @@ Figure 12 shows the high-level architecture for rate limiting, and this works as
  * If the limit is reached, the request is rejected.
  * If the limit is not reached, the request is sent to API servers. Meanwhile, the system increments the counter and saves it back to Redis.
 
-# Step 3 - Design deep dive
+## Step 3 - Design deep dive
 
 The high-level design in Figure 12 does not answer the following questions:
 
@@ -386,7 +386,7 @@ After the rate limiter is put in place, it is important to gather analytics data
 
 For example, if rate limiting rules are too strict, many valid requests are dropped. In this case, we want to relax the rules a little bit. In another example, we notice our rate limiter becomes ineffective when there is a sudden increase in traffic like flash sales. In this scenario, we may replace the algorithm to support burst traffic. Token bucket is a good fit here.
 
-# Step 4 - Wrap up
+## Step 4 - Wrap up
 
 In this chapter, we discussed different algorithms of rate limiting and their pros/cons. Algorithms discussed include:
 
@@ -410,7 +410,7 @@ Then, we discussed the system architecture, rate limiter in a distributed enviro
 
 Congratulations on getting this far! Now give yourself a pat on the back. Good job!
 
-# Reference materials
+## Reference materials
 
 [1] Rate-limiting strategies and techniques: https://cloud.google.com/solutions/rate-limiting-strategies-techniques
 
