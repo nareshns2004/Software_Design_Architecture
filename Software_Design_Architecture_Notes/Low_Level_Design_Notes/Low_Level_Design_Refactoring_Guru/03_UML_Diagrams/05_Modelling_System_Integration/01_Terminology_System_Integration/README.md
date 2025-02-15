@@ -1,3 +1,13 @@
+# Modeling for System Integration
+
+![Step_1](images/Step_1.png)
+
+We understand system integration to be the embedding of existing and new IT systems into an existing IT environment. Embedding can take place in-house, where we generate interfaces to other IT systems within the organization. Embedding can also span several organizations, where we connect the IT systems of different organizations. Whether the IT systems that need to be integrated in existing infrastructure and processes are within the organization (in-house) or external plays a minor role from a modeling perspective.
+
+Integration of an IT system requires knowledge about the environment of the IT system and its borders. Since an IT system that needs to be integrated has to be embedded into a business environment, the surrounding business processes have to be known. The basis for this is the business system model, which we constructed and described in Modeling Business Systems. In order for an IT system to cooperate efficiently with other IT systems, interfaces have to be generated—to in-house IT systems, as well as to the IT systems of other organizations.
+
+In this chapter, we will discuss how to model the messages that are exchanged between the various IT systems, and the processes that are necessary to exchange these messages.
+
 # Terminology of System Integration
 
 ## Interfaces
