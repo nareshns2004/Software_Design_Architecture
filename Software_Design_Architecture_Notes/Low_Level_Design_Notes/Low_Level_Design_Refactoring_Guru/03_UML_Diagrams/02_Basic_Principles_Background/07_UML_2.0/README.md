@@ -2,9 +2,9 @@
 
 This book is based on the new version of UML—UML 2.0. In this version, the structure and documentation of UML was completely revised. There are now two documents available that describe UML:
 
- * UML 2.0 Infrastructure defines the basic constructs of the language on which UML is based. This section is not directly relevant to the users of UML (our readers), but is directed more towards the developers of modeling tools.
+ * <b>UML 2.0 Infrastructure</b> defines the basic constructs of the language on which UML is based. This section is not directly relevant to the users of UML (our readers), but is directed more towards the developers of modeling tools.
  
- * UML 2.0 Superstructure defines the user constructs of UML 2.0, meaning those elements of UML that users work with at the immediate level.
+ * <b>UML 2.0 Superstructure</b> defines the user constructs of UML 2.0, meaning those elements of UML that users work with at the immediate level.
 
 Among other things, this revision of UML was created to pursue the following goals:
 
