@@ -3,18 +3,19 @@
 This book is based on the new version of UML—UML 2.0. In this version, the structure and documentation of UML was completely revised. There are now two documents available that describe UML:
 
  * UML 2.0 Infrastructure defines the basic constructs of the language on which UML is based. This section is not directly relevant to the users of UML (our readers), but is directed more towards the developers of modeling tools.
+ 
  * UML 2.0 Superstructure defines the user constructs of UML 2.0, meaning those elements of UML that users work with at the immediate level.
 
 Among other things, this revision of UML was created to pursue the following goals:
 
  * To restructure and refine UML so that usability, implementation, and adaptation are simplified.		
  * The UML infrastructure is supposed to:
-		* Provide a reusable meta-language core, with which UML can define itself
-		* Provide mechanisms for the adjustment of language
+		<p>* Provide a reusable meta-language core, with which UML can define itself</p>
+		<p>* Provide mechanisms for the adjustment of language</p>
  * The UML superstructure is supposed to:
-		* Feature better support for component-based development
-		* Improve constructs for the specification of architecture
-		* Provide better options for the modeling of behavior
+		<p>* Feature better support for component-based development</p>
+		<p>* Improve constructs for the specification of architecture</p>
+		<p>* Provide better options for the modeling of behavior</p>
 
 In addition to the proposal of UML Infrastructure and UML Superstructure specifications, separate proposals were published for a new Object Constraint Language (OCL) as well as for Diagram Interchange. Together, they make up the complete UML 2.0 package, as shown in Figure 2.12:
 
