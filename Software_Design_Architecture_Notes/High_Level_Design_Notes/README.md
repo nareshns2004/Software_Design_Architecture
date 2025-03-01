@@ -1,4 +1,4 @@
-# [System Design Interview - An Insider's Guide (Vol 1 & 2)]
+# [System Design Byte Byte Go]
 
  * [Chapter 00 - Foreword](./00_Foreword)
  * [Chapter 01 - Join The Community](./01_Join_The_Community)
