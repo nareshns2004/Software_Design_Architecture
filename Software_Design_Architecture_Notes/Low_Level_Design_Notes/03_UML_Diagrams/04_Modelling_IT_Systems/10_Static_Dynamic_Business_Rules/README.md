@@ -10,6 +10,6 @@ Many requirements cannot be modeled as business rules. In addition to the IT sys
 
 Business rules can be divided into two categories:
 
-* Static business rules: Business rules that can be verified at any point in time. These business rules deal with the static structures of classes. These business rules can be documented in class diagrams of the structural view.
+* <b>Static business rules</b>: Business rules that can be verified at any point in time. These business rules deal with the static structures of classes. These business rules can be documented in class diagrams of the structural view.
 
-* Dynamic business rules: Business rules that can only be verified at a certain point in time, namely, when something happens. These business rules deal with the dynamic behavior of the objects of a class. These business rules can be documented in the statechart diagram of the behavioral view.
+* <b>Dynamic business rules</b>: Business rules that can only be verified at a certain point in time, namely, when something happens. These business rules deal with the dynamic behavior of the objects of a class. These business rules can be documented in the statechart diagram of the behavioral view.

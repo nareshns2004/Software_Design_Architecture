@@ -20,9 +20,9 @@ Because commercial airplanes are often sold long before construction begins, it 
 
 Because commercial airplanes are often sold on after a certain period of time, it is possible that the (logical) death of an object in the IT system occurs before the (physical) death of the original.
 
-Between birth and death the object is alive in the IT system, that is, it will be read and changed. It will be read as the result of a query event; it will be changed as the result of a mutation event (see Query Events and Mutation Events).
+Between birth and death the object is alive in the IT system, that is, it will be read and changed. It will be read as the result of a query event; it will be changed as the result of a mutation event (see <b>Query Events and Mutation Events</b>).
 
-As long as reading and modifying objects are not subject to any restrictions, this is not especially interesting. It can be described in a simple statechart diagram (see Figure 4.44). However, as soon as rules for modification have to be observed, it becomes important to document these rules somewhere. Here, we are talking about dynamic business rules (see Static and Dynamic Business Rules). Dynamic business rules are rules that only apply at a certain point in time, namely when a query event or a mutation event occurs. The behavior of objects is largely determined by such dynamic business rules.
+As long as reading and modifying objects are not subject to any restrictions, this is not especially interesting. It can be described in a simple statechart diagram (see Figure 4.44). However, as soon as rules for modification have to be observed, it becomes important to document these rules somewhere. Here, we are talking about dynamic business rules (see <b>Static and Dynamic Business Rules</b>). Dynamic business rules are rules that only apply at a certain point in time, namely when a query event or a mutation event occurs. The behavior of objects is largely determined by such dynamic business rules.
 
 Examples of dynamic business rules are:
 

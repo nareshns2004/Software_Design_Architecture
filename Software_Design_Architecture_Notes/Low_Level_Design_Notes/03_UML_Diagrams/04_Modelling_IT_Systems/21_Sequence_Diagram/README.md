@@ -60,7 +60,7 @@ Figure 4.64 shows a sequence diagram with objects of the classes flight number, 
 	
 The diagram can be read from top to bottom. The flow starts with the actor (1) sending the mutation event «M» flight number irrelevant (2) to an object of the class flight number (3).
 
-The background to this (just like the communication diagrams), is that the use case is the source of the mutation event. In the sequence diagram, the actor (1) represents the use case.How the event is processed within the flight number object cannot be seen in the sequence diagram. Clues can only be found in the comment (8). An exact description of the processing can be found in the statechart diagram (see The Behavioral View) of the class flight number.
+The background to this (just like the communication diagrams), is that the use case is the source of the mutation event. In the sequence diagram, the actor (1) represents the use case.How the event is processed within the flight number object cannot be seen in the sequence diagram. Clues can only be found in the comment (8). An exact description of the processing can be found in the statechart diagram (see <b>The Behavioral View</b>) of the class flight number.
 
 Further, it can be read in the diagram that the object of class flight number (3) forwards the mutation event «M» flight number irrelevant (4) to an object of the class plane model (5). Again, the processing of the event within the object remains invisible. The processing of the events is completed in the plane model object (5), and the control goes back to the sender of the event, so to the flight number object (3). No separate event arrow is inserted for the “reply”, after processing is completed.
 

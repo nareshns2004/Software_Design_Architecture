@@ -12,7 +12,7 @@ The order in which we present these steps was chosen deliberately. However, the 
 
 ## Collect Information Sources—How am I Supposed to Know That?
 
-For the construction of activity diagrams we can use information that has already been collected for the construction of use case diagrams. Otherwise, the same advice holds true as in Constructing Use Case Diagrams.
+For the construction of activity diagrams we can use information that has already been collected for the construction of use case diagrams. Otherwise, the same advice holds true as in <b>Constructing Use Case Diagrams</b>.
 
 ## Find Activities and Actions—What has to be Done When Actors Draw upon Offered Goods and Services?
 

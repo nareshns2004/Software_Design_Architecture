@@ -46,7 +46,7 @@ We distinguish between a flight and a flight number. For instance, a flight numb
 
 We differentiate between three options for check-in:
 
- * Normal check-in with luggage at a normal check-in counter
- * Expres scheck-in without luggage at a special check-in counter
- * Automated check-in without luggage at a machine
+ * <b>Normal check-in</b> with luggage at a normal check-in counter
+ * <b>Expres scheck-in</b> without luggage at a special check-in counter
+ * <b>Automated check-in</b> without luggage at a machine
 

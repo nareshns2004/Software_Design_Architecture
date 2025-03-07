@@ -6,13 +6,13 @@ The following checklist shows the steps necessary to construct the external view
 
 The order in which these steps are given makes sense. However, this order is not mandatory, since in practice, the individual steps often overlap heavily.
 
-Normally, these steps will be carried out by an analyst, who needs to have a general understanding of the IT system as well as of the business system as it was modeled in Modeling Business Systems. However, it is indispensable to consult additional knowledge carriers, such as users of the system. The result of these work steps is the external view, which has to be read and understood by domain experts.
+Normally, these steps will be carried out by an analyst, who needs to have a general understanding of the IT system as well as of the business system as it was modeled in <b>Modeling Business Systems</b>. However, it is indispensable to consult additional knowledge carriers, such as users of the system. The result of these work steps is the external view, which has to be read and understood by domain experts.
 
 ## Collect Information Sources—How Am I Supposed to Know That?
 
 Generally, there are quite a number of information sources that can be used for the formulation of the external view:
 
- * Certainly, the business system model is the first source that should be drawn upon. The business system’s actors, workers, and use cases are a good starting point from which it is possible to derive actors and use cases of the IT system (see Modeling Business Systems).
+ * Certainly, the business system model is the first source that should be drawn upon. The business system’s actors, workers, and use cases are a good starting point from which it is possible to derive actors and use cases of the IT system (see <b>Modeling Business Systems</b>).
  * Technical specifications, project specifications, and similar documents.
  * Future users are a very important source for this user-oriented external view.
  * Technical experts in the IT system’s area of application.

@@ -16,5 +16,5 @@ UML diagrams for the description of business use cases can be annotated with wri
 
 When refining business use cases and identifying the various scenarios, it becomes necessary to describe the various activities with activity diagrams.
 
-Sequence diagrams show the information exchange with partners and customers (see Modeling for System Integration). In our practical experience, sequence diagrams meet great acceptance in the field of business-process modeling. This is because they are easy to read and require only a few graphical elements. As long as some basic knowledge exists about the technical events, sequence diagrams are often more appropriate for an overview of the interactions of a business system than activity diagrams.
+Sequence diagrams show the information exchange with partners and customers (see <b>Modeling for System Integration</b>). In our practical experience, sequence diagrams meet great acceptance in the field of business-process modeling. This is because they are easy to read and require only a few graphical elements. As long as some basic knowledge exists about the technical events, sequence diagrams are often more appropriate for an overview of the interactions of a business system than activity diagrams.
 

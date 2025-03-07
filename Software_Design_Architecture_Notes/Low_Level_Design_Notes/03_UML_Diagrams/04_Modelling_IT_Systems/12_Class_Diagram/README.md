@@ -90,7 +90,7 @@ However, in UML it is also possible to insert any values as the lower and upper 
 
 The association’s name is necessary for understanding the domain meaning of the association. In contrast to the association itself, which applies to both directions, the name of the association applies to only one direction, which is indicated by a black triangle. If the association is not labeled, its meaning has to be derived from the domain context, or it takes on a general meaning such as has or belongs to. In case of doubt it is better to label associations too much than too little. Many diagrams that we have encountered in our practical experience were incomprehensible because associations were not labeled.
 
-Associations can also be viewed as the implementation of static business rules (see Static and Dynamic Business Rules). Statements such as “a ticket belongs to exactly one customer” are documented in the class diagram by associations.
+Associations can also be viewed as the implementation of static business rules (see <b>Static and Dynamic Business Rules</b>). Statements such as “a ticket belongs to exactly one customer” are documented in the class diagram by associations.
 
 Roles are another possible way in UML to give relationships between classes a domain meaning. In this way, we can state what role an object of one class plays for the objects of another class:
 

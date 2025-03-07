@@ -34,7 +34,7 @@ It might make sense to group business objects into another higher-ranking class.
 
 	Figure 3.38 Class diagram of passenger services
 	
-This shows that the lists have the same structure (see also Generalization, Specialization, and Heredity):
+This shows that the lists have the same structure (see also <b>Generalization, Specialization, and Heredity</b>):
 
 ![Generalization](images/Generalization.jpg)
 

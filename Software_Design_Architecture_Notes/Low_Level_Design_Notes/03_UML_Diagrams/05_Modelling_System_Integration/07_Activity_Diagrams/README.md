@@ -1,6 +1,6 @@
 # Activity Diagrams
 
-We explained the basic elements of activity diagrams in Activity Diagrams. Therefore, here we will only go into the special interpretations and supplemental uses of activity diagrams for system integration.
+We explained the basic elements of activity diagrams in <b>Activity Diagrams</b>. Therefore, here we will only go into the special interpretations and supplemental uses of activity diagrams for system integration.
 
 From the activity diagram in Figure 5.5, we can already extract some initial information for the integration of IT systems for the process no boarding. For example, we can learn which business objects are exchanged, etc.
 
@@ -40,7 +40,7 @@ The receiving activity accepts the signal with the action accepting a signal and
 
 ## Business Object
 
-A business object consists of structured data that is exchanged between actions (see Messages in UML). Generally, the business object that is the output of one action is simultaneously the input of another action:
+A business object consists of structured data that is exchanged between actions (see <b>Messages in UML</b>). Generally, the business object that is the output of one action is simultaneously the input of another action:
 
 ![List](images/List.jpg)
 

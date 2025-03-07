@@ -1,6 +1,6 @@
 # The Static View
 
-The static view describes the structure of business objects that are sent as message arguments from the sender to the receiver of the message (see also Messages in UML).
+The static view describes the structure of business objects that are sent as message arguments from the sender to the receiver of the message (see also <b>Messages in UML</b>).
 
 The following points should be taken into consideration when modeling business objects:
 

@@ -24,7 +24,7 @@ In sequence diagrams, messages are understood as operations of events. Informati
 
 ![Message](images/Message.jpg)
 
-Arguments can be business objects (see Messages in UML).
+Arguments can be business objects (see <b>Messages in UML</b>).
 
 ## Message Flow
 

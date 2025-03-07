@@ -4,7 +4,7 @@
 
 	Figure 4.13 Elements of the use case sequence diagram
 	
-The use case sequence diagram is a special use of UML sequence diagrams that we advocate (see Figure 4.13). We will discuss the sequence diagram in detail in Interaction View. In the use case sequence diagram, we work with the following elements:
+The use case sequence diagram is a special use of UML sequence diagrams that we advocate (see Figure 4.13). We will discuss the sequence diagram in detail in <b>Interaction View</b>. In the use case sequence diagram, we work with the following elements:
 
 ## Comment
 
@@ -34,19 +34,19 @@ Because a use case can have different actors we use the actor “somebody”. Th
 
 ![Event](images/Event.jpg)
 
-A query event is an event that is sent to the IT system with the goal of reading information (see Query Events and Mutation Events).
+A query event is an event that is sent to the IT system with the goal of reading information (see <b>Query Events and Mutation Events</b>).
 
 ## Mutation Event
 
 ![Mutation](images/Mutation.jpg)
 
-A mutation event is an event that is sent to the IT system with the goal of modifying information (again, see Query Events and Mutation Events).
+A mutation event is an event that is sent to the IT system with the goal of modifying information (again, see <b>Query Events and Mutation Events</b>).
 
 ## Interaction Reference
 
 ![Interaction](images/Interaction.jpg)
 
-An interaction reference shows that at this point the use case sequence diagram of another use case is called (see the explanation of include relationships in Use Case Diagrams).
+An interaction reference shows that at this point the use case sequence diagram of another use case is called (see the explanation of include relationships in <b>Use Case Diagrams</b>).
 
 ## IT System
 

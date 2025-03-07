@@ -6,8 +6,8 @@ To ensure smooth business transactions through the use of IT systems, it is indi
 
 Today, most IT systems are not only embedded in a business environment, but are also connected with other IT systems. Thus, every new IT system has to fit not into one, but two different target environments:
 
- * Integration on the business-process level: Each IT system has to be assigned the activities of a business process in a way that enables correct and efficient execution of the entire business process with all involved components.
- * Integration at the IT-system level: Communication with other IT systems involved in the business process has to go smoothly. This requires semantically and technically perfect interfaces. Integration on the IT-system level will be discussed in Modeling for System Integration.
+ * <b>Integration on the business-process level</b>: Each IT system has to be assigned the activities of a business process in a way that enables correct and efficient execution of the entire business process with all involved components.
+ * <b>Integration at the IT-system level</b>: Communication with other IT systems involved in the business process has to go smoothly. This requires semantically and technically perfect interfaces. Integration on the IT-system level will be discussed in <b>Modeling for System Integration</b>.
 
 ![Business_2](images/Business_2.jpg)
 	
@@ -41,7 +41,7 @@ Usually, the activities of a business process are interdependent. This interdepe
 	
 ## Definition of the Workflow Management Coalition
 
-Official definitions of the terms process and business process were adopted by the Workflow Management Coalition. The following definitions can be found in the glossary of the Workflow Reference Model of the Workflow Management Coalition:
+Official definitions of the terms process and business process were adopted by the Workflow Management Coalition. The following definitions can be found in the glossary of the <b>Workflow Reference Model</b> of the Workflow Management Coalition:
 
 ![Model_2](images/Model_2.jpg)
 
@@ -67,7 +67,7 @@ We are not interested in any of the external business systems as a whole, but on
 
 ## Using UML to Model Business Processes and Business Systems
 
-Before we move on to the modeling of business processes and business systems with UML, we should ask ourselves whether UML is even suitable for the modeling of business processes and business systems. For this purpose we will take a look at UML’s definition by OMG (Object Management Group Inc.—the international association that promotes open standards for object-oriented applications, which publishes each version of UML that is submitted for standardization at www.omg.org):
+Before we move on to the modeling of business processes and business systems with UML, we should ask ourselves whether UML is even suitable for the modeling of business processes and business systems. For this purpose we will take a look at UML’s definition by OMG (Object Management Group Inc.—the international association that promotes open standards for object-oriented applications, which publishes each version of UML that is submitted for standardization at <b>www.omg.org</b>):
 
 ![Model_3](images/Model_3.jpg)
 	

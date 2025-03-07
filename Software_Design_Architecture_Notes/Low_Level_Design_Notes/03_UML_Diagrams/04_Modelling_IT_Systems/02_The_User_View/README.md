@@ -45,7 +45,7 @@ An actor:
 
 For the IT system, this means that the actor is always the one who directly operates the IT system.
 
-Even in higher-ranking business systems (see Modeling Business Systems) actors are located on the outside. They can be, for example, customers or partners.
+Even in higher-ranking business systems (see <b>Modeling Business Systems</b>) actors are located on the outside. They can be, for example, customers or partners.
 
 The worker who operates the IT system, on the other hand, is part of the business system. Because of this, he or she cannot be an actor of the business system:
 

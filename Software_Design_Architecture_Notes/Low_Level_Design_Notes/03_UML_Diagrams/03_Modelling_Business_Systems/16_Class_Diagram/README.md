@@ -2,7 +2,7 @@
 
 The class diagram can be used to illustrate the structural parts of a business system, meaning the relationships between individual employees, business objects, and outside parties. We significantly simplify class diagrams on the business-model level and use only very few elements. It still holds true: less is often more!
 
-When the manifold options of class diagrams are used, these diagrams are no longer easy to read. On the business-system level we have to act on the assumption that involved parties have little or no IT expertise and know nothing about class terminology and class diagrams. The expected advantage of UML, namely easier communication between the various involved parties, would be significantly impaired. For a deeper explanation of class diagrams, refer to Modeling IT Systems:
+When the manifold options of class diagrams are used, these diagrams are no longer easy to read. On the business-system level we have to act on the assumption that involved parties have little or no IT expertise and know nothing about class terminology and class diagrams. The expected advantage of UML, namely easier communication between the various involved parties, would be significantly impaired. For a deeper explanation of class diagrams, refer to <b>Modeling IT Systems</b>:
 
 ![List](images/List.jpg)
 
@@ -67,4 +67,4 @@ The small triangle (8) next to the name of the association (7) indicates the dir
 
 We do not use any multiplicities in class diagrams of the business-system model, meaning, for the benefit of clarity, we do not make any statements about the number of objects in classes that are involved in associations.
 
-It is not yet important if a check-in employee issues one or several boarding passes. Important quantities can be included as comments. Quantities will be of interest later: in the IT-system model, which will be described in Modeling IT Systems.
+It is not yet important if a check-in employee issues one or several boarding passes. Important quantities can be included as comments. Quantities will be of interest later: in the IT-system model, which will be described in <b>Modeling IT Systems</b>.

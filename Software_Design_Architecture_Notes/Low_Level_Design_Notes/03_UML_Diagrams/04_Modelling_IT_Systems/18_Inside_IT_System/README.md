@@ -39,7 +39,7 @@ The cooperation of objects shown in Figure 4.56 is based on the mechanism of sen
 
 	Figure 4.57 Associations in a class diagram
 	
-The excerpt from the class diagram shown in Figure 4.57 states that a customer (1) owns (4) zero, one, or several (2) tickets (3), and that a ticket is owned by exactly one (5) customer (see Class Diagram). For the objects that are generated from the classes of this diagram this means:
+The excerpt from the class diagram shown in Figure 4.57 states that a customer (1) owns (4) zero, one, or several (2) tickets (3), and that a ticket is owned by exactly one (5) customer (see <b>Class Diagram</b>). For the objects that are generated from the classes of this diagram this means:
 
  * Each customer object “knows” the ticket objects that are assigned to it.
  * Each ticket object “knows” the coupon objects that are assigned to it.

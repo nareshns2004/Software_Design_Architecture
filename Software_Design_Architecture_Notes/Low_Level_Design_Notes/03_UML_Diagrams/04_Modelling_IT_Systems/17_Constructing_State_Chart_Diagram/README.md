@@ -40,7 +40,7 @@ As a first draft, you can always construct a very simple statechart diagram, con
 	
 Starting with this simple diagram, the obtained mutation events can be added. Here, the following questions should be asked for each event:
 
- * Is the mutation event permitted in all cases, meaning, for all states, or are there states in which the mutation event is not permitted? The various cases that decide if a mutation event is permitted are depicted as states. Behind these cases are the dynamic business rules, which we already mentioned in Static and Dynamic Business Rules.
+ * Is the mutation event permitted in all cases, meaning, for all states, or are there states in which the mutation event is not permitted? The various cases that decide if a mutation event is permitted are depicted as states. Behind these cases are the dynamic business rules, which we already mentioned in <b>Static and Dynamic Business Rules</b>.
 
  * In which state is the object after the occurrence of a mutation event? The new state depends on the state of the object before the occurrence of the mutation event.
  

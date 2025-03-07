@@ -10,17 +10,17 @@ The more information a model is supposed to give, the more complex and difficult
 	
 	Figure 2.3 Different views of an object
 	
-The same is true for the model of a building. If a new wing is added to an existing building various views are affected, including the floor plan, the different exterior views, and the 3D-model made from wood. Figure 2.3 illustrates this in a schematic manner. In The Models of our Case Study, we specifically address the relationships between the models we use in this book. The different views within each model are described in more detail in Modeling Business Systems, Modeling IT Systems and Modeling for System Integration.
+The same is true for the model of a building. If a new wing is added to an existing building various views are affected, including the floor plan, the different exterior views, and the 3D-model made from wood. Figure 2.3 illustrates this in a schematic manner. In <b>The Models of our Case Study</b>, we specifically address the relationships between the models we use in this book. The different views within each model are described in more detail in <b>Modeling Business Systems</b>, <b>Modeling IT Systems</b> and <b>Modeling for System Integration</b>.
 
 ## Why do we Need Models?
 
 As a general rule, a model of a system has to perform the following tasks:
 
-Communication between all involved parties: In order to build the right system, it is essential that all involved parties think along the same lines. It is particularly important that everyone understands the terminology used, that customers agree upon the same requirements, that developers understand these requirements, and that the decisions made can still be understood months later.
+<b>Communication</b> between all involved parties: In order to build the right system, it is essential that all involved parties think along the same lines. It is particularly important that everyone understands the terminology used, that customers agree upon the same requirements, that developers understand these requirements, and that the decisions made can still be understood months later.
 
-Visualization of all facts for customers, experts, and users: All accumulated facts relevant to the system need to be presented in such a way that everyone concerned can understand them. However, according to our real-life experience, we often hit a wall of resistance when we want to communicate with diagrams instead of text. It is necessary to overcome this resistance. Behind it is often a fear of the unknown; and the diagrams might look a bit complicated at first. Therefore, this book contains directions on how to read each diagram.
+<b>Visualization</b> of all facts for customers, experts, and users: All accumulated facts relevant to the system need to be presented in such a way that everyone concerned can understand them. However, according to our real-life experience, we often hit a wall of resistance when we want to communicate with diagrams instead of text. It is necessary to overcome this resistance. Behind it is often a fear of the unknown; and the diagrams might look a bit complicated at first. Therefore, this book contains directions on how to read each diagram.
 
-Verification of facts in terms of completeness, consistency, and correctness: A (more or less) formal model makes it possible to verify the facts obtained for completeness, consistency, and correctness. In particular, the clear depiction of interrelationships makes it possible to ask specific questions, and to answer them. We will list these questions with each diagram.
+<b>Verification</b> of facts in terms of completeness, consistency, and correctness: A (more or less) formal model makes it possible to verify the facts obtained for completeness, consistency, and correctness. In particular, the clear depiction of interrelationships makes it possible to ask specific questions, and to answer them. We will list these questions with each diagram.
 
 ![Scene_2](images/Scene_2.jpg)
 	
@@ -30,21 +30,21 @@ In real life we often observe that the results of cumbersome, tedious, and expen
 
 To define the purpose and target group the following questions should be answered:
 
-How much business expertise can we expect? Can we assume basic knowledge of the subject, or do we have to explain the fundamentals of the model’s events and processes?
+<b>How much business expertise can we expect?</b> Can we assume basic knowledge of the subject, or do we have to explain the fundamentals of the model’s events and processes?
 
-What amount of detail does the target group need? What level of complexity does the model permit? If processes and systems are subject to constant changes, a highly detailed model might be unrealistic. This is because, most of the time, it is not possible to maintain those models in a satisfactory manner. A less detailed model requires less effort to develop and update, but it is also less precise.
+<b>What amount of detail does the target group need?</b> What level of complexity does the model permit? If processes and systems are subject to constant changes, a highly detailed model might be unrealistic. This is because, most of the time, it is not possible to maintain those models in a satisfactory manner. A less detailed model requires less effort to develop and update, but it is also less precise.
 
-How much time does the target group have to read and interpret the model? Prevent your model from disappearing in a stack of paper on someone’s desk by choosing the appropriate level of detail and complexity; otherwise, nobody might have enough time to read it.
+<b>How much time does the target group have to read and interpret the model?</b> Prevent your model from disappearing in a stack of paper on someone’s desk by choosing the appropriate level of detail and complexity; otherwise, nobody might have enough time to read it.
 
-What language can be used in the model? Does the target group understand technical business terms? Do they understand IT terminology? Let’s clarify with an easy example: If a bottle filled with water is labeled ‘water', virtually anyone who can read will understand the bottle’s content. However, if the bottle is labeled 'H2O'—even though this is correct—we reach a much smaller group of people, for example, the workers of a chemistry lab. Yet, the additional benefit is that it shows the composition of the content: hydrogen and oxygen. In either case, you will have to decide what 'label’ is most appropriate for your target group.
+<b>What language can be used in the model?</b> Does the target group understand technical business terms? Do they understand IT terminology? Let’s clarify with an easy example: If a bottle filled with water is labeled ‘water', virtually anyone who can read will understand the bottle’s content. However, if the bottle is labeled 'H2O'—even though this is correct—we reach a much smaller group of people, for example, the workers of a chemistry lab. Yet, the additional benefit is that it shows the composition of the content: hydrogen and oxygen. In either case, you will have to decide what 'label’ is most appropriate for your target group.
 
-What level of abstraction should you choose? The less abstract a model, the more comprehensible, and clear it is for the user. This is because a less abstract model is closer to the user’s actual use and language. On the other hand, models with a high level of abstraction are more reusable and they are more easily converted into IT systems. We can also prove more accurately that they are correct. IT specialists probably manage highly abstract models best. Users, on the other hand, might pull their hair out if asked to deal with a model like that.
+<b>What level of abstraction should you choose?</b> The less abstract a model, the more comprehensible, and clear it is for the user. This is because a less abstract model is closer to the user’s actual use and language. On the other hand, models with a high level of abstraction are more reusable and they are more easily converted into IT systems. We can also prove more accurately that they are correct. IT specialists probably manage highly abstract models best. Users, on the other hand, might pull their hair out if asked to deal with a model like that.
 
 ## Practical Tips
 
-Compromises have to be made between the level of abstraction, clarity, and the amount of detail used for a model. It is possible to develop several model components, differing in degree of formality and detail, in order to satisfy different target groups. In this way communication between model builders, customers, users, and developers can be facilitated much more easily. It is important not to ‘overdo’ it, but to adjust the model to its target groups and their uses.
+<b>Compromises</b> have to be made between the level of abstraction, clarity, and the amount of detail used for a model. It is possible to develop several model components, differing in degree of formality and detail, in order to satisfy different target groups. In this way communication between model builders, customers, users, and developers can be facilitated much more easily. It is important not to ‘overdo’ it, but to adjust the model to its target groups and their uses.
 
-Analysis or design patterns are example models that describe common design and modeling methods.
+<b>Analysis or design patterns</b> are example models that describe common design and modeling methods.
 
 ## Process of Analysis
 
@@ -56,9 +56,9 @@ Figure 2.4 shows the process of analysis, which consists of obtaining, represent
 	
 This is the job of the analyst. The process of analysis produces a specification that comes from the model and other representations. The analyst works with knowledge carriers, such as customers, users, and domain experts:
 
- * Facts are obtained by collaboration between analysts and domain experts in which knowledge carriers contribute domain knowledge and analysts contribute methodological knowledge.
- * Facts are represented in diagrams and documents, which are usually prepared by the analyst.
- * Facts are verified only by knowledge carriers, since they alone can decide if the presented facts are correct. Verification is absolutely essential. Without it we might have pretty diagrams, but the probability is high that the facts represented are faulty. In simple terms: development of a model without verification is absolutely worthless!
+ * Facts are <b>obtained</b> by collaboration between analysts and domain experts in which knowledge carriers contribute domain knowledge and analysts contribute methodological knowledge.
+ * Facts are <b>represented</b> in diagrams and documents, which are usually prepared by the analyst.
+ * Facts are <b>verified</b> only by knowledge carriers, since they alone can decide if the presented facts are correct. Verification is absolutely essential. Without it we might have pretty diagrams, but the probability is high that the facts represented are faulty. In simple terms: development of a model without verification is absolutely worthless!
 	
 ## Practical Tips
 
@@ -102,7 +102,7 @@ Even computer-aided software engineering (CASE) tools treat UML diagrams as view
 
 The model database is what fundamentally differentiates a CASE tool from a graphical program (Figure 2.6). Any UML diagram can be generated easily with paper and pencil or a graphical program. In this case, however, the various diagrams are nothing more than drawings. Only the use of a CASE tool with a database, according to UML specifications, permits consistent collection, management, and modification of model information.
 
-UML provides its own database model: the UML meta-model, a component of the UML specifications (“OMG: Unified Modeling Language: Infrastructure, Version 2.0, Final Adopted Specification, September 2003, and OMG: Unified Modeling Language: Superstructure, Version 2.0, Revised Final Adopted Specification, October 2004”: http://www.omg.org). All elements found in UML diagrams, as well as the descriptions of these elements, are contained in the UML meta-model. It states, for example, that a class can have attributes and methods. This “data model” of UML as a language, is the foundation of the model databases of all UML CASE tools. Unfortunately, many CASE tools are hungry for resources, expensive, poorly developed, cumbersome, and require extensive training. Despite this, except for very small projects, their use is worthwhile.
+UML provides its own database model: the UML meta-model, a component of the UML specifications (“OMG: Unified Modeling Language: Infrastructure, Version 2.0, Final Adopted Specification, September 2003, and OMG: Unified Modeling Language: Superstructure, Version 2.0, Revised Final Adopted Specification, October 2004”: <b>http://www.omg.org</b>). All elements found in UML diagrams, as well as the descriptions of these elements, are contained in the UML meta-model. It states, for example, that a class can have attributes and methods. This “data model” of UML as a language, is the foundation of the model databases of all UML CASE tools. Unfortunately, many CASE tools are hungry for resources, expensive, poorly developed, cumbersome, and require extensive training. Despite this, except for very small projects, their use is worthwhile.
 
 
 

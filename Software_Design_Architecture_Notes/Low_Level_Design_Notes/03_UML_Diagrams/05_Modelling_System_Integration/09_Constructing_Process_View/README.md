@@ -8,7 +8,7 @@ The following checklist shows the necessary steps from constructing activity dia
 
 ## Determine Interfaces—Between Which IT Systems Should Communication Take Place?
 
-To carry out the activity no boarding (Figure 5.11) those business processes or business use cases that require an interaction with the IT system of passenger services in order to be processed are chosen from the business system model. In our case study, this applies to the use case request passenger list, which has an interface each to baggage transportation and customs at the destination airport. To illustrate the following steps, we will look at the interface to baggage transportation (see Figure 5.3).
+To carry out the activity no boarding (Figure 5.11) those business processes or business use cases that require an interaction with the IT system of passenger services in order to be processed are chosen from the <b>business system model</b>. In our case study, this applies to the use case request passenger list, which has an interface each to baggage transportation and customs at the destination airport. To illustrate the following steps, we will look at the interface to baggage transportation (see Figure 5.3).
 
 We select the actions from the activity no boarding that are connected to the exchange of messages:
 
@@ -62,7 +62,7 @@ The following questions will help identify actions and the control flow:
  * Do all prior actions have to be completed before the next one can be completed?
  * Who is responsible for processing the actions? In which partition do the actions belong?
 
-The action ...					...is processed by actor...
+<b>The action ...					...is processed by actor...</b>
 Request passenger list (1)			Baggage transportation
 Accept request for passenger list (2)		Passenger services
 Send passenger list (3)				Passenger services
@@ -107,7 +107,7 @@ You can see in Figure 5.17 that the object flow, which runs just like the contro
 	
 ## Define Rules—What Influences Actions?
 
-Generally, contracts exist for inter-organization message exchange, which record agreements about responsibilities, regulations, etc. International treaties and statutes further influence this kind of message exchange. On the technical as well as statutory level, standards committees regulate rules about data exchange. (As an example, we recommend the relevant specification Collaboration-Protocol Profile and Agreement Specification Version 2.0 by ebXML.)
+Generally, contracts exist for inter-organization message exchange, which record agreements about responsibilities, regulations, etc. International treaties and statutes further influence this kind of message exchange. On the technical as well as statutory level, standards committees regulate rules about data exchange. (As an example, we recommend the relevant specification <b>Collaboration-Protocol Profile and Agreement Specification Version 2.0</b> by ebXML.)
 
 As another example, we want to mention International Air Transport Association (IATA), which among other things defines messages and their uses for the entire aerospace industry. Such agreements are also becoming more frequent within organizations. The question is:
 

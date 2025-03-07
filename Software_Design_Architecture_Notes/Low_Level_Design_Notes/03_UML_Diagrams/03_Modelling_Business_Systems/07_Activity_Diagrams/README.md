@@ -55,7 +55,7 @@ At a definite point in time, this action starts a flow in the activity diagram. 
 
 ![Month](images/Month.jpg)
 
-A typical example of a time event is triggering reminders after the deadline for payment has passed. We will discuss an example in Modeling for System Integration.
+A typical example of a time event is triggering reminders after the deadline for payment has passed. We will discuss an example in <b>Modeling for System Integration</b>.
 
 ## Sending Signals (Action)
 

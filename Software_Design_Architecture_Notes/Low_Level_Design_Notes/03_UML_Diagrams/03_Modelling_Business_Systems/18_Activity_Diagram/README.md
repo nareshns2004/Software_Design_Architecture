@@ -6,7 +6,7 @@ Activity diagrams of the internal view are also suitable as a basis for instruct
 
 ## Reading Activity Diagrams
 
-The reading instructions in previous Activity Diagrams section, can be used for activity diagrams of the internal view.
+The reading instructions in previous <b>Activity Diagrams</b> section, can be used for activity diagrams of the internal view.
 
 ## Constructing Activity Diagrams
 
@@ -18,7 +18,7 @@ The following checklist and the explanations of the individual steps are adapted
 
 ## Collect Information Sources—How am I Supposed to Know That?
 
-When constructing activity diagrams of the internal view, the same directions as in previous Constructing Use Case Diagrams section, hold true in order to obtain the necessary information.
+When constructing activity diagrams of the internal view, the same directions as in previous <b>Constructing Use Case Diagrams</b> section, hold true in order to obtain the necessary information.
 
 ## Find Activities and Actions—Which Activities Have to be Performed so that the Goods and Services Utilized by Actors can be Provided and Delivered?
 

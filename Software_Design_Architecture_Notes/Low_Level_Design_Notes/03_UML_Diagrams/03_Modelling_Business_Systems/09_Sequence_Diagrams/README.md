@@ -9,7 +9,7 @@ If a customer or business partner uses an offered service, partners communicate 
 
 Like the activity diagrams, sequence diagrams can be modeled spanning several use cases, as well as being used to refine business use cases. A sequence diagram illustrates the various scenarios of a business use case.
 
-Sequence diagrams can be used as the basis for message exchange between the business system and outside parties (Figure 3.22). We will treat this topic in Modeling for System Integration:
+Sequence diagrams can be used as the basis for message exchange between the business system and outside parties (Figure 3.22). We will treat this topic in <b>Modeling for System Integration</b>:
 
 ![Sequence](images/Sequence.jpg)
 

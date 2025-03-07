@@ -6,7 +6,7 @@ The following checklist shows the necessary steps for constructing a sequence di
 
 ## Identify Involved Classes—What is Affected by Mutation Events?
 
-The classes that a mutation event affects have to be identified. This occurs on the basis of statechart diagrams (see The Behavioral View). The questions are:
+The classes that a mutation event affects have to be identified. This occurs on the basis of statechart diagrams (see <b>The Behavioral View</b>). The questions are:
 
  * Which classes are already affected by a certain mutation event? To answer this question you will have to look up which statechart diagrams contain the mutation event. If the mutation event is present in a statechart diagram of a class, this class is affected by the mutation event, meaning that the mutation event has to be sent to this class.
 

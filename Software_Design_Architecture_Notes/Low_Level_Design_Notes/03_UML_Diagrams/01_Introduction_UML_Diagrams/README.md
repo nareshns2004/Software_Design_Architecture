@@ -1,6 +1,6 @@
 # Introduction
 
-Unified Modeling Language (UML) makes it possible to describe systems with words and pictures. It can be used to model a variety of systems: software systems, business systems, or any other system. Especially notable are the various graphical charts—use case diagrams with their stick figures or the widely used class diagrams. While these diagrams aren’t fundamentally new, the worldwide unification of modeling languages is new with UML, which was standardized by the Object Management Group (OMG), an international association that promotes open standards for object-oriented applications.
+<b>Unified Modeling Language</b> (UML) makes it possible to describe systems with words and pictures. It can be used to model a variety of systems: software systems, business systems, or any other system. Especially notable are the various graphical charts—use case diagrams with their stick figures or the widely used class diagrams. While these diagrams aren’t fundamentally new, the worldwide unification of modeling languages is new with UML, which was standardized by the <b>Object Management Group</b> (OMG), an international association that promotes open standards for object-oriented applications.
 
 Most books about UML describe it almost in its entirety. However, our experience has shown that in reality there is often a lack of time, previous knowledge, or motivation to deal with the topic with the necessary intensity. In these cases, the material can’t be completely understood and put into action. This book is meant for exactly these cases. We put together those parts of UML whose application has proven to be practical. With a little effort, anybody should be able to make use of UML.
 
@@ -12,7 +12,7 @@ There are several reasons to use UML as a modeling language:
  * UML is widely supported.
  * UML-based bids for software systems can be compared much more easily.
  
-This book is based on UML version 2.0, as adopted by the Object Management Group “(OMG Unified Modeling Language: Superstructure, Version 2.0, Revised Final Adopted Specification, October 2004”, from http://www.omg.org).
+This book is based on UML version 2.0, as adopted by the Object Management Group “(OMG Unified Modeling Language: Superstructure, Version 2.0, Revised Final Adopted Specification, October 2004”, from <b>http://www.omg.org</b>).
 
 At the time this book was wrote, standardization of UML was not fully completed. However, subsequent changes to UML 2.0 will not affect the simplified approach that our book presents.
 
@@ -33,7 +33,7 @@ Experience shows that mastering only a few elements of UML leads to better resul
 
 In this book we have emphasized these aspects through the use of profiles, while defining the language elements (vocabulary/terminology) of UML 2.0. We will refer to these profiles at the appropriate places throughout this book.
 
-We have structured this book so that it can be read while working on a project. We begin with the modeling of a business system and its business processes in Chapter 3, Modeling Business Systems. Then we go on to specify an IT system that is to be embedded into the business system (Chapter 4, Modeling IT Systems) and lastly describe the integration of the IT system into its environment (Chapter 5, Modeling for System Integration). These three chapters are independent entities. You can read only those chapters that you require for your project. But in any case, you should first read Chapter 2, Basic Principles and Background, where we introduce the case study. This chapter also explains several basic terms and concepts that the following chapters build on.
+We have structured this book so that it can be read while working on a project. We begin with the modeling of a business system and its business processes in Chapter 3, <b>Modeling Business Systems</b>. Then we go on to specify an IT system that is to be embedded into the business system (Chapter 4, <b>Modeling IT Systems</b>) and lastly describe the integration of the IT system into its environment (Chapter 5, <b>Modeling for System Integration</b>). These three chapters are independent entities. You can read only those chapters that you require for your project. But in any case, you should first read Chapter 2, Basic Principles and Background, where we introduce the case study. This chapter also explains several basic terms and concepts that the following chapters build on.
 
 We use a case study throughout this book to convey the theoretical knowledge about UML. This case study serves the sole purpose of illustrating UML, since much can be explained and understood through the use of examples rather than abstract definitions. The reader is supposed to get a ‘feel’ for UML. Of course it is not possible to use every diagram and every piece of documentation of the entire case study: that would have been well beyond the scope of this book and is not necessary for the comprehension of UML. The case study—passenger services at the fictional UML Airport—does not always accurately represent real passenger services: we have simplified it in parts. However, this does not have a negative effect on understanding UML.
 

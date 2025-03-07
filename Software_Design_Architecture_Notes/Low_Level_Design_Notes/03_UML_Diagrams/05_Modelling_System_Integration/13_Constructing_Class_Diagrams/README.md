@@ -12,7 +12,7 @@ The top-down approach creates business objects that can be used by many differen
 
 If an existing IT system serves as the foundation for modeling business objects, content can be derived from the classes of the IT system. It is not always possible to derive all information from the underlying IT system. Values that are important for a business object are not necessarily relevant for the underlying IT system. An example for this is the number of pieces of luggage that a passenger checks in: in the business object this information is attached as a control element, but in the IT system this information is meaningless. The class diagram of the IT system depicts the information from another perspective than the one we need for the class diagram of the business object. In turn, internal identification characteristics that serve the identification of objects within IT systems are out of place in a system-spanning business object.
 
-Where a standard is mandatory for a business object, we use standard messages from the appropriate catalogue. (On this topic, also see UN/ECE, ebXML and many other industry-specific suppliers of messages.) Even when standard messages do not have to be used, taking a look at these catalogues can be worth it. The content of standard messages can make suggestions for the content of the business objects that you need to design.
+Where a standard is mandatory for a business object, we use standard messages from the appropriate catalogue. (On this topic, also see <b>UN/ECE, ebXML</b> and many other industry-specific suppliers of messages.) Even when standard messages do not have to be used, taking a look at these catalogues can be worth it. The content of standard messages can make suggestions for the content of the business objects that you need to design.
 
 The following question should be asked when designing business objects:
 
@@ -74,7 +74,7 @@ In the class diagram of the business object, relationships among classes have to
 
  * How can we transform classes from the IT system into the business object? As we mentioned above, the classes of a business object can be derived in part or even completely from the classes of the IT system. Since the requirements on the classes of the IT system are different from the requirements on the classes of the business object, a transformation of classes and attributes from the IT system into the business object becomes necessary.
  
-Figure 5.21 shows the class diagram of the passenger services IT system. As examples for the transformation steps, we will transform the data concerning flight and passengers on the basis of this class diagram, or rather show how they should be transformed. However, we have left the necessary activities for the transformation of the various types and formats of data completely unconsidered in this example. You can find more information to this topic in UML Profile for Enterprise Application Integration.
+Figure 5.21 shows the class diagram of the passenger services IT system. As examples for the transformation steps, we will transform the data concerning flight and passengers on the basis of this class diagram, or rather show how they should be transformed. However, we have left the necessary activities for the transformation of the various types and formats of data completely unconsidered in this example. You can find more information to this topic in <b>UML Profile for Enterprise Application Integration</b>.
 
 ![System](images/System.jpg)
 
