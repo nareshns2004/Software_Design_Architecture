@@ -142,7 +142,7 @@ A review of the existing business use cases on the basis of these questions can 
 
 To understand a business use case, the information from the use case diagram is not sufficient. The chain of interactions and of the various scenarios that are behind each business use case have to be described. This means that the goods and services that the business system provides have to be described, namely the chain of events from the perspective of the customer or business partner.
 
-In addition to purely verbal description, documentation in activity diagrams and sequence diagrams has proven to be especially valuable. The construction of these diagram types will be treated in the following sections: Activity Diagrams, and High-Level Sequence Diagrams.
+In addition to purely verbal description, documentation in activity diagrams and sequence diagrams has proven to be especially valuable. The construction of these diagram types will be treated in the following sections: <b>Activity Diagrams,</b> and <b>High-Level Sequence Diagrams</b>.
 
 ## Modeling Relationships between Business Use Cases—What Activities are Conducted Repeatedly?
 

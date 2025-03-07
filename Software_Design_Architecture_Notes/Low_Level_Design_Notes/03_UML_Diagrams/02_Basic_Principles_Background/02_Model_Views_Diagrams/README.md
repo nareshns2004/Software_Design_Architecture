@@ -86,7 +86,7 @@ Several helpful techniques have proven to be useful for the analysis and underst
 	
 ## Diagrams as Views
 
-Each particular UML diagram corresponds to one view of a model of a system. Depending on the type of diagram used, different aspects are either emphasized or omitted. All the different views combined result in a good model of a system. Most of the UML diagrams are graphs (as shown in Figure 2.5), implying that they consist of elements that are connected through lines:
+Each particular UML diagram corresponds to one <b>view</b> of a model of a system. Depending on the type of diagram used, different aspects are either emphasized or omitted. All the different views combined result in a good model of a system. Most of the UML diagrams are graphs (as shown in Figure 2.5), implying that they consist of elements that are connected through lines:
 
 ![Diagram_Graphs](images/Diagram_Graphs.jpg)
 	
@@ -94,7 +94,7 @@ Each particular UML diagram corresponds to one view of a model of a system. Depe
 	
 To read diagrams, you have to know what types of elements and lines are allowed and what they mean. We’ll explain this for the diagrams we use in the following chapters.
 
-Even computer-aided software engineering (CASE) tools treat UML diagrams as views. They use a database in which the information about the model is stored. Each diagram shows—as a view—a part of that information. In this way, the CASE tool helps to preserve the consistency of each view. If, for example, the name of a class is changed in a class diagram, the statechart diagram of that class is automatically updated:
+Even computer-aided software engineering (CASE) tools treat UML diagrams as views. They use a <b>database</b> in which the information about the model is stored. Each diagram shows—as a view—a part of that information. In this way, the CASE tool helps to preserve the consistency of each view. If, for example, the name of a class is changed in a class diagram, the statechart diagram of that class is automatically updated:
 
 ![CASE](images/CASE.jpg)
 	

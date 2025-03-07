@@ -12,7 +12,7 @@ In class diagrams we work with only a few elements:
 
 ## Class «Worker»
 
-We have already described the class worker in Package Diagram. Those are exactly the same classes as the ones we use here in the class diagram; just as in the package diagram, they can be depicted with the worker symbol or the class symbol:
+We have already described the class worker in <b>Package Diagram</b>. Those are exactly the same classes as the ones we use here in the class diagram; just as in the package diagram, they can be depicted with the worker symbol or the class symbol:
 
 ![Worker](images/Worker.jpg)
 
@@ -20,7 +20,7 @@ As you can see in Figure 3.34, you can state the entire path name of a class to 
 
 ## Class «Business Object»
 
-We have already described the class business object in Package Diagram. Those are exactly the same classes as the ones we use here in the class diagram:
+We have already described the class business object in <b>Package Diagram</b>. Those are exactly the same classes as the ones we use here in the class diagram:
 
 ![Business](images/Business.jpg)
 

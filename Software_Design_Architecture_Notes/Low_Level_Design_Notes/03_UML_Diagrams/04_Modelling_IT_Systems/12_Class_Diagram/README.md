@@ -28,7 +28,7 @@ Generalization is a relationship between two classes: a general class and a spec
 
 ![Generalization](images/Generalization.jpg)
 
-Refer to Generalization, Specialization, and Inheritance.
+Refer to <b>Generalization, Specialization, and Inheritance</b>.
 
 ## Association
 

@@ -66,7 +66,7 @@ In this first work step of bottom-up analysis, the individual queries and inputs
  * What information does the IT system have to be able to provide??
  * What information does the IT system have to be able to accept?
  
-When answering these questions, you can build upon the use cases already found. Which queries and mutations occur in a use case is already drafted in the use case sequence diagram. Another source of information are the business processes of the business system (see Modeling Business Systems). The result of this work step is a list of information requirements, as illustrated in Figure 4.39:
+When answering these questions, you can build upon the use cases already found. Which queries and mutations occur in a use case is already drafted in the use case sequence diagram. Another source of information are the business processes of the business system (see <b>Modeling Business Systems</b>). The result of this work step is a list of information requirements, as illustrated in Figure 4.39:
 
 ![List](images/List.jpg)
 

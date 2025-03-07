@@ -30,7 +30,7 @@ Edges, which are depicted as arrows, connect the individual components of the ac
 
 The object flow in an activity diagram shows the path of one or more business objects between the various activities.
 
-## Acceptinga Signal (Action)
+## Acceptinga Signal (Action) The Behavioral View
 
 The sending of signals means that a signal is sent to a receiving activity:
 

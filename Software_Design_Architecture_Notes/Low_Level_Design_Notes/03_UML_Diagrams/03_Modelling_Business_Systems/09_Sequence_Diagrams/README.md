@@ -39,7 +39,7 @@ The messages that objects send and receive are shown on the y-axis. Messages are
 
 ![Message](images/Message.jpg)
 
-The business object is listed in parenthesis. Business objects are conveyed together with messages. Some examples of business objects are tickets, boarding passes, and luggage. These examples will be treated in more detail in Package Diagram.
+The business object is listed in parenthesis. Business objects are conveyed together with messages. Some examples of business objects are tickets, boarding passes, and luggage. These examples will be treated in more detail in <b>Package Diagram</b>.
 
 ## Reading Sequence Diagrams
 

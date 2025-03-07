@@ -2,9 +2,9 @@
 
 A business system can be viewed from different perspectives. Because of this, our business system model consists of two different views. Each of the views emphasizes certain aspects of the business system, and each of them is linked to the other. We clarify the different views in Figure 3.3.
 
-Viewing a business system from the outside, we take on the role of a customer, a business partner, a supplier, or another business system. From this external view, only those business processes that involve outsiders are of interest. The external view describes the environment of a business system. The business system itself remains a black box.
+Viewing a business system from the outside, we take on the role of a customer, a business partner, a supplier, or another business system. From this external view, only those business processes that involve outsiders are of interest. The <b>external view</b> describes the environment of a business system. The business system itself remains a black box.
 
-Within the business system, we find employees and tools that are responsible for fulfilling the demands of the environment, and for handling the necessary business processes. Behind the business processes are workflows and IT systems. Each individual employee is part of the organizational structure. Normally this internal view remains hidden to outsiders.
+Within the business system, we find employees and tools that are responsible for fulfilling the demands of the environment, and for handling the necessary business processes. Behind the business processes are workflows and IT systems. Each individual employee is part of the organizational structure. Normally this <b>internal view</b> remains hidden to outsiders.
 
 ![Scene_1](images/Scene_1.jpg)
 
