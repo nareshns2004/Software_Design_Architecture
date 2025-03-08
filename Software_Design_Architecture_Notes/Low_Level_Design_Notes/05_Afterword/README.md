@@ -1,12 +1,15 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# Afterword
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+## Congrats on reaching the last page!
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
+Now that you know so much about refactoring, what are you planning to do? Here’s a bunch of ideas, if you still haven’t decided:
 
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
-
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
-
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
+ * Read Joshua Kerievsky’s book <b><a href="https://refactoring.guru/ref-to-patterns-book">“Refactoring to Patterns”</a></b>.
+ 
+ * What? Don’t you know what are the design patterns? <b><a href="https://refactoring.guru/design-patterns">Read our section about design patterns</a></b>
+ 
+ * Print out the <b><a href="https://refactoring.guru/files/refactoring-cheat-sheet.pdf">refactoring cheat sheet</a></b> and pin it somewhere you’ll always see it.
+ 
+ * <b><a href="https://refactoring.guru/refactoring/feedback">Submit your feedback</a></b>. about this book and the full course.
+ 
+ * I’d be glad to hear any feedback, even if it’s negative
