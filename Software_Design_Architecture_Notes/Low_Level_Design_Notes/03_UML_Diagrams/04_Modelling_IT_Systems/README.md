@@ -1,12 +1,26 @@
-# Foreword
-We are delighted that you have decided to join us in learning the system design interviews. System design interview questions are the most difficult to tackle among all the technical interviews. The questions require the interviewees to design an architecture for a software system, which could be a news feed, Google search, chat system, etc. These questions are intimidating, and there is no certain pattern to follow. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer.
+# [Modelling_IT_Systems]
 
-Companies widely adopt system design interviews because the communication and problem-solving skills tested in these interviews are similar to those required by a software engineer's daily work. An interviewee is evaluated based on how she analyzes a vague problem and how she solves the problem step by step. The abilities tested also involve how she explains the idea, discusses with others, and evaluates and optimizes the system. In English, using "she" flows better than "he or she" or jumping between the two. To make reading easier, we use the feminine pronoun throughout this course. No disrespect is intended for male engineers.
+ * [Chapter 01 - External_View](./01_External_View)
+ * [Chapter 02 - The_User_View](./02_The_User_View)
+ * [Chapter 03 - The_Elements_Of_View](./03_The_Elements_Of_View)
+ * [Chapter 04 - Use_Case_Diagram](./04_Use_Case_Diagram)
+ * [Chapter 05 - Query_Events_Mutation_Events](./05_Query_Events_Mutation_Events)
+ * [Chapter 06 - Use_Case_Sequence_Diagram](./06_Use_Case_Sequence_Diagram)
+ * [Chapter 07 - Constructing_External_View](./07_Constructing_External_View)
+ * [Chapter 08 - Objects_Classes](./08_Objects_Classes)
+ * [Chapter 09 - Generalization_Specialization_Inheritance](./09_Generalization_Specialization_Inheritance)
+ * [Chapter 10 - Static_Dynamic_Business_Rules](./10_Static_Dynamic_Business_Rules)
+ * [Chapter 11 - Elements_View](./11_Elements_View)
+ * [Chapter 12 - Class_Diagram](./12_Class_Diagram)
+ * [Chapter 13 - Constructing_Class_Diagram](./13_Constructing_Class_Diagram)
+ * [Chapter 14   The_Life_Of_Object](./14_The_Life_Of_Object)
+ * [Chapter 15 - The_Elements_View](./15_The_Elements_View)
+ * [Chapter 16 - State_Chart_Diagram](./16_State_Chart_Diagram)
+ * [Chapter 17 - Constructing_State_Chart_Diagram](./17_Constructing_State_Chart_Diagram)
+ * [Chapter 18 - Inside_IT_System](./18_Inside_IT_System)
+ * [Chapter 19   Elements_View](./19_Elements_View)
+ * [Chapter 20 - Communication_Diagram](./20_Communication_Diagram)
+ * [Chapter 21 - Sequence_Diagram](./21_Sequence_Diagram)
+ * [Chapter 22 - Constructing_Communication_Diagram](./22_Constructing_Communication_Diagram)
+ * [Chapter 23 - Constructing_Sequence_Diagram](./23_Constructing_Sequence_Diagram)
 
-The system design questions are open-ended. Just like in the real world, there are many differences and variations in the system. The desired outcome is to come up with an architecture to achieve system design goals. The discussions could go in different ways depending on the interviewer. Some interviewers may choose high-level architecture to cover all aspects; whereas some might choose one or more areas to focus on. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee.
-
-The objective of this course is to provide a reliable strategy to approach the system design questions. The right strategy and knowledge are vital to the success of an interview.
-
-This course provides solid knowledge in building a scalable system. The more knowledge gained from reading this course, the better you are equipped in solving the system design questions.
-
-This course also provides a step by step framework on how to tackle a system design question. It provides many examples to illustrate the systematic approach with detailed steps that you can follow. With constant practice, you will be well-equipped to tackle system design interview questions.
