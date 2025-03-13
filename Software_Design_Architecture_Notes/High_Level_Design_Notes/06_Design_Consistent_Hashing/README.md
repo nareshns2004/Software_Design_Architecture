@@ -34,13 +34,13 @@ Quoted from Wikipedia: "Consistent hashing is a special kind of hashing such tha
 
 Now we understand the definition of consistent hashing, let us find out how it works. Assume SHA-1 is used as the hash function f, and the output range of the hash function is: x0, x1, x2, x3, …, xn. In cryptography, SHA-1’s hash space goes from 0 to 2^160 - 1. That means x0 corresponds to 0, xn corresponds to 2^160 – 1, and all the other hash values in the middle fall between 0 and 2^160 - 1. Figure 3 shows the hash space.
 
-![hash_ring_1](images/hash_ring_1.jpg)
+![hash_ring_1](images/hash_ring_1.png)
 
 	Figure 3
 	
 By collecting both ends, we get a hash ring as shown in Figure 4:
 
-![hash_ring_2](images/hash_ring_2.jpg)
+![hash_ring_2](images/hash_ring_2.png)
 
 	Figure 4
 
@@ -48,7 +48,7 @@ By collecting both ends, we get a hash ring as shown in Figure 4:
 
 Using the same hash function f, we map servers based on server IP or name onto the ring. Figure 5 shows that 4 servers are mapped on the hash ring.
 
-![hash_servers](images/hash_servers.jpg)
+![hash_servers](images/hash_servers.png)
 
 	Figure 5
 
@@ -56,7 +56,7 @@ Using the same hash function f, we map servers based on server IP or name onto t
 
 One thing worth mentioning is that hash function used here is different from the one in “the rehashing problem,” and there is no modular operation. As shown in Figure 6, 4 cache keys (key0, key1, key2, and key3) are hashed onto the hash ring
 
-![hash_keys](images/hash_keys.jpg)
+![hash_keys](images/hash_keys.png)
 
 	Figure 6
 
@@ -64,7 +64,7 @@ One thing worth mentioning is that hash function used here is different from the
 
 To determine which server a key is stored on, we go clockwise from the key position on the ring until a server is found. Figure 7 explains this process. Going clockwise, key0 is stored on server 0; key1 is stored on server 1; key2 is stored on server 2 and key3 is stored on server 3.
 
-![server_lookup](images/server_lookup.jpg)
+![server_lookup](images/server_lookup.png)
 
 	Figure 7
 
@@ -74,7 +74,7 @@ Using the logic described above, adding a new server will only require redistrib
 
 In Figure 8, after a new server 4 is added, only key0 needs to be redistributed. k1, k2, and k3 remain on the same servers. Let us take a close look at the logic. Before server 4 is added, key0 is stored on server 0. Now, key0 will be stored on server 4 because server 4 is the first server it encounters by going clockwise from key0’s position on the ring. The other keys are not redistributed based on consistent hashing algorithm.
 
-![add_server_scenario](images/add_server_scenario.jpg)
+![add_server_scenario](images/add_server_scenario.png)
 
 	Figure 8
 
