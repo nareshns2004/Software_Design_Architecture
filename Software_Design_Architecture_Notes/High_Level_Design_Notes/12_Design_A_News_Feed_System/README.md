@@ -112,7 +112,7 @@ The high-level design briefly covered two flows: feed publishing and news feed b
 
 Figure 4 outlines the detailed design for feed publishing. We have discussed most of components in high-level design, and we will focus on two components: web servers and fanout service.
 
-![publishing_deep_dive](images/publishing_deep_dive.png)
+![publishing_deep_dive](images/publishing_deep_dive.webp)
 
 	Figure 4
 
@@ -180,7 +180,7 @@ The fanout service works as follows:
 
 Figure 7 illustrates the detailed design for news feed retrieval.
 
-![retrieval](images/retrieval.png)
+![retrieval](images/retrieval.webp)
 
 	Figure 7
 
