@@ -255,7 +255,7 @@ It is interesting to understand the end-to-end flow of a chat system. In this se
 
 Figure 12 explains what happens when User A sends a message to User B.
 
-![chat_flow](images/chat_flow.png)
+![chat_flow](images/chat_flow.webp)
 
 	Figure 12
 	
@@ -271,7 +271,7 @@ Figure 12 explains what happens when User A sends a message to User B.
 
 5.b. If User B is offline, a push notification is sent from push notification (PN) servers.
 
-6. Chat server 2 forwards the message to User B. There is a persistent WebSocket connection between User B and Chat server 2.
+6. Chat server 2 forwards the message to User B. There is a persistent WebSocket connection between User B & Chat server 2.
 
 #### Message synchronization across devices
 
