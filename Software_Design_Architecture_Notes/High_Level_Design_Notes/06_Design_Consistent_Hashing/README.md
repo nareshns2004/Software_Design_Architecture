@@ -82,7 +82,7 @@ In Figure 8, after a new server 4 is added, only key0 needs to be redistributed.
 
 When a server is removed, only a small fraction of keys require redistribution with consistent hashing. In Figure 9, when server 1 is removed, only key1 must be remapped to server 2. The rest of the keys are unaffected.
 
-![remove_server_scenario](images/remove_server_scenario.jpg)
+![remove_server_scenario](images/remove_server_scenario.png)
 
 	Figure 9
 
@@ -95,13 +95,13 @@ The consistent hashing algorithm was introduced by Karger et al. at MIT [1]. The
 
 Two problems are identified with this approach. First, it is impossible to keep the same size of partitions on the ring for all servers considering a server can be added or removed. A partition is the hash space between adjacent servers. It is possible that the size of the partitions on the ring assigned to each server is very small or fairly large. In Figure 10, if s1 is removed, s2’s partition (highlighted with the bidirectional arrows) is twice as large as s0 and s3’s partition.
 
-![hash_partitions](images/hash_partitions.jpg)
+![hash_partitions](images/hash_partitions.png)
 
 	Figure 10
 	
 Second, it is possible to have a non-uniform key distribution on the ring. For instance, if servers are mapped to positions listed in Figure 11, most of the keys are stored on server 2. However, server 1 and server 3 have no data.
 
-![uneven_request_distribution](images/uneven_request_distribution.jpg)
+![uneven_request_distribution](images/uneven_request_distribution.png)
 
 	Figure 11
 	
@@ -111,7 +111,7 @@ A technique called virtual nodes or replicas is used to solve these problems.
 
 A virtual node refers to the real node, and each server is represented by multiple virtual nodes on the ring. In Figure 12, both server 0 and server 1 have 3 virtual nodes. The 3 is arbitrarily chosen; and in real-world systems, the number of virtual nodes is much larger. Instead of using s0, we have s0_0, s0_1, and s02 to represent _server 0 on the ring. Similarly, s1_0, s1_1, and s1_2 represent server 1 on the ring. With virtual nodes, each server is responsible for multiple partitions. Partitions (edges) with label s0 are managed by server 0. On the other hand, partitions with label s1 are managed by server 1.
 
-![virtual_nodes](images/virtual_nodes.jpg)
+![virtual_nodes](images/virtual_nodes.png)
 
 	Figure 12
 	
@@ -130,13 +130,13 @@ When a server is added or removed, a fraction of data needs to be redistributed.
 
 In Figure 14, server 4 is added onto the ring. The affected range starts from s4 (newly added node) and moves anticlockwise around the ring until a server is found (s3). Thus, keys located between s3 and s4 need to be redistributed to s4.
 
-![find_keys_1](images/find_keys_1.jpg)
+![find_keys_1](images/find_keys_1.png)
 
 	Figure 14
 	
 When a server (s1) is removed as shown in Figure 15, the affected range starts from s1 (removed node) and moves anticlockwise around the ring until a server is found (s0). Thus, keys located between s0 and s1 must be redistributed to s2.
 
-![find_keys_2](images/find_keys_2.jpg)
+![find_keys_2](images/find_keys_2.png)
 
 	Figure 15
 
