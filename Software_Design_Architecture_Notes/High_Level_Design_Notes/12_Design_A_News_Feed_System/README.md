@@ -22,8 +22,8 @@ The first set of clarification questions are to understand what the interviewer 
 <p><b>Candidate</b>: How many friends can a user have?</p>
 <p><b>Interviewer</b>: 5000</p>
 
-<p><b>Candidate: What is the traffic volume?</p>
-<p><b>Interviewer: 10 million DAU</p>
+<p><b>Candidate</b>: What is the traffic volume?</p>
+<p><b>Interviewer</b>: 10 million DAU</p>
 
 <p><b>Candidate</b>: Can feed contain images, videos, or just text?</p>
 <p><b>Interviewer</b>: It can contain media files, including both images and videos.</p>
