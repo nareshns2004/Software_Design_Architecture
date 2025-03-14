@@ -61,17 +61,17 @@ Here is a summary of the requirements:
 
  * For every character entered into the search box, a client sends a request to the backend for autocomplete suggestions. On average, 20 requests are sent for each search query. For example, the following 6 requests are sent to the backend by the time you finish typing “dinner”.
 
-search?q=d
+	search?q=d
 
-search?q=di
+	search?q=di
 
-search?q=din
+	search?q=din
 
-search?q=dinn
+	search?q=dinn
 
-search?q=dinne
+	search?q=dinne
 
-search?q=dinner
+	search?q=dinner
 
  * ~24,000 query per second (QPS) = 10,000,000 users * 10 queries / day * 20 characters / 24 hours / 3600 seconds.
 
@@ -333,7 +333,7 @@ Option 2: Update individual trie node directly. We try to avoid this operation b
 
 We have to remove hateful, violent, sexually explicit, or dangerous autocomplete suggestions. We add a filter layer (Figure 14) in front of the Trie Cache to filter out unwanted suggestions. Having a filter layer gives us the flexibility of removing results based on different filter rules. Unwanted suggestions are removed physically from the database asynchronically so the correct data set will be used to build trie in the next update cycle.
 
-![filter_layer](images/filter_layer.png)
+![filter_layer](images/filter_layer.webp)
 
 	Figure 14
 
