@@ -148,7 +148,7 @@ After enumerating challenges in the initial design, we improve the design as lis
 
 Figure 10 shows the improved high-level design.
 
-![high_level_design_improved](images/high_level_design_improved.png)
+![high_level_design_improved](images/high_level_design_improved.webp)
 
 	Figure 10
 	
