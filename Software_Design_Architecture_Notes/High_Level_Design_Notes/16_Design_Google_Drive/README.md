@@ -80,7 +80,7 @@ Other than clarifying requirements, it is important to understand non-functional
 
  * Peak QPS = QPS * 2 = 480
 
-# Step 2 - propose high-level design and get buy-in
+# Step 2 - Propose high-level design and get buy-in
 
 Instead of showing the high-level design diagram from the beginning, we will use a slightly different approach. We will start with something simple: build everything in a single server. Then, gradually scale it up to support millions of users. By doing this exercise, it will refresh your memory about some important topics covered in the course.
 
