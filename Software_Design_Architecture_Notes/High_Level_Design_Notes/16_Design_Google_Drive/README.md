@@ -258,7 +258,7 @@ In our system, block servers do the heavy lifting work for uploading files. Bloc
 
 Figure 11 shows how a block server works when a new file is added.
 
-![block_servers_deep_dive](images/block_servers_deep_dive.png)
+![block_servers_deep_dive](images/block_servers_deep_dive.webp)
 
 	Figure 11
 	
