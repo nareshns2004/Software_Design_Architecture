@@ -1,264 +1,564 @@
 # Design YouTube
-This chapter is about designing a video sharing platform such as youtube. Its solution can be applied to also eg designing Netflix, Hulu.
 
-# Step 1 - Understand the problem and establish design scope
- * C: What features are important?
- * I: Upload video + watch video
- * C: What clients do we need to support?
- * I: Mobile apps, web apps, smart TV
- * C: How many DAUs do we have?
- * I: 5mil
- * C: Average time per day spend on YouTube?
- * I: 30m
- * C: Do we need to support international users?
- * I: Yes
- * C: What video resolutions do we need to support?
- * I: Most of them
- * C: Is encryption required?
- * I: Yes
- * C: File size requirement for videos?
- * I: Max file size is 1GB
- * C: Can we leverage existing cloud infra from Google, Amazon, Microsoft?
- * I: Yes, building everything from scratch is not a good idea.
+In this chapter, you are asked to design YouTube. The solution to this question can be applied to other interview questions like designing a video sharing platform such as Netflix and Hulu. Figure 1 shows the YouTube homepage.
 
-Features, we'll focus on:
- * Upload videos fast
+![youtube](images/youtube.webp)
+
+	Figure 1
+	
+YouTube looks simple: content creators upload videos and viewers click play. Is it really that simple? Not really. There are lots of complex technologies underneath the simplicity. Let us look at some impressive statistics, demographics, and fun facts of YouTube in 2020 [1] [2].
+
+ * Total number of monthly active users: 2 billion.
+
+ * Number of videos watched per day: 5 billion.
+
+ * 73% of US adults use YouTube.
+
+ * 50 million creators on YouTube
+
+ * YouTube’s Ad revenue was $15.1 billion for the full year 2019, up 36% from 2018.
+
+ * YouTube is responsible for 37% of all mobile internet traffic.
+
+ * YouTube is available in 80 different languages.
+
+From these statistics, we know YouTube is enormous, global and makes a lot of money.
+
+## Step 1 - Understand the problem and establish design scope
+
+As revealed in Figure 1, besides watching a video, you can do a lot more on YouTube. For example, comment, share, or like a video, save a video to playlists, subscribe to a channel, etc. It is impossible to design everything within a 45- or 60-minute interview. Thus, it is important to ask questions to narrow down the scope.
+
+<p><b>Candidate</b>: What features are important?</p>
+<p><b>Interviewer</b>: Ability to upload a video and watch a video.</p>
+
+<p><b>Candidate</b>: What clients do we need to support?</p>
+<p><b>Interviewer</b>: Mobile apps, web browsers, and smart TV.</p>
+
+<p><b>Candidate</b>: How many daily active users do we have?</p>
+<p><b>Interviewer</b>: 5 million</p>
+
+<p><b>Candidate</b>: What is the average daily time spent on the product?</p>
+<p><b>Interviewer</b>: 30 minutes.</p>
+
+<p><b>Candidate</b>: Do we need to support international users?</p>
+<p><b>Interviewer</b>: Yes, a large percentage of users are international users.</p>
+
+<p><b>Candidate</b>: What are the supported video resolutions?</p>
+<p><b>Interviewer</b>: The system accepts most of the video resolutions and formats.</p>
+
+<p><b>Candidate</b>: Is encryption required?</p>
+<p><b>Interviewer</b>: Yes</p>
+
+<p><b>Candidate</b>: Any file size requirement for videos?</p>
+<p><b>Interviewer</b>: Our platform focuses on small and medium-sized videos. The maximum allowed video size is 1GB.</p>
+
+<p><b>Candidate</b>: Can we leverage some of the existing cloud infrastructures provided by Amazon, Google, or Microsoft?</p>
+<p><b>Interviewer</b>: That is a great question. Building everything from scratch is unrealistic for most companies, it is recommended to leverage some of the existing cloud services.</p>
+
+In the chapter, we focus on designing a video streaming service with the following features:
+
+ * Ability to upload videos fast
+
  * Smooth video streaming
+
  * Ability to change video quality
+
  * Low infrastructure cost
- * High availability, scalability, reliability
- * Supported clients - web, mobile, smart TV
 
-## Back of the envelope estimation
- * Assume product has 5mil DAU
- * Users watch 5 videos per day
- * 10% of users upload 1 video per day
- * Average video size is 300mb
- * Daily storage cost needed - 5mil * 10% * 300mb = 150TB
- * CDN Cost, assuming 0.02$ per GB - 5mil * 5 videos * 0.3GB * 0.02$ = USD 150k per day
+ * High availability, scalability, and reliability requirements
 
-# Step 2 - Propose high-level design and get buy-in
-As previously discussed, we won't be building everything from scratch.
+ * Clients supported: mobile apps, web browser, and smart TV
 
-Why?
- * In a system design interview, choosing the right technology is more important than explaining how the technology works.
- * Building scalable blob storage over CDN is complex and costly. Even big tech don't build everything from scratch. Netflix uses AWS and Facebook uses Akamai's CDN.
+### Back of the envelope estimation
 
-Here's our system design at a high-level:
-![high-level-sys-design](images/high-level-sys-design.png)
- * Client - you can watch youtube on web, mobile and TV.
- * CDN - videos are stored in CDN.
- * API Servers - Everything else, except video streaming goes through the API servers. Feed recommendation, generating video URL, updating metadata db and cache, user signup.
+The following estimations are based on many assumptions, so it is important to communicate with the interviewer to make sure she is on the same page.
 
-Let's explore high-level design of video streaming and uploading.
+ * Assume the product has 5 million daily active users (DAU).
 
-## Video uploading flow
-![video-uploading-flow](images/video-uploading-flow.png)
- * Users watch videos on a supported client
- * Load balancer evenly distributes requests across API servers
- * All user requests go through API servers, except video streaming
- * Metadata DB - sharded and replicated to meet performance and availability requirements
- * Metadata cache - for better performance, video metadata and user objects are cached
- * A blob storage system is used to store the actual videos
- * Transcoding/encoding servers - transform videos to various formats (eg MPEG, HLS, etc) which are suitable for different devices and bandwidth
- * Transcoded storage stores result files from transcoding
- * Videos are cached in CDN - clicking play streams the video from CDN
- * Completion queue - stores events about video transcoding results
- * Completion handler - a set of workers which pull event data from completion queue and update metadata cache and database
+ * Users watch 5 videos per day.
 
-Let's now explore the flow of uploading videos and video metadata. Metadata includes info about video URL, size, resolution, format, etc.
+ * 10% of users upload 1 video per day.
 
-Here's how the video uploading flow works:
-![video-uploading-flow](images/video-uploading-flow.png)
- * Videos are uploaded to original storage
- * Transcoding servers fetch videos from storage and start transcoding
- * Once transcoding is complete, two steps are executed in parallel:
-   * Transcoded videos are sent to transcoded storage and distributed to CDN
-   * Transcoding completion events are queued in completion queue, workers pick up the events and update metadata database & cache
- * API servers inform user that uploading is complete
+ * Assume the average video size is 300 MB.
 
-Here's how the metadata update flow works:
-![metadata-update-flow](images/metadata-update-flow.png)
- * While file is being uploaded, user sends a request to update the video metadata - file name, size, format, etc.
- * API servers update metadata database & cache
+ * Total daily storage space needed: 5 million * 10% * 300 MB = 150TB
 
-## Video streaming flow
-![video-streaming-flow](images/video-streaming-flow.png)
+ * CDN cost.
 
-Whenever users watch videos on YouTube, they don't download the whole video at once. Instead, they download a little and start watching it while downloading the rest.
-This is referred to as streaming. Stream is served from closest CDN server for lowest latency.
+ * When cloud CDN serves a video, you are charged for data transferred out of the CDN.
 
-Some popular streaming protocols:
- * MPEG-DASH - "Moving Picture Experts Group"-"Dynamic Adaptive Streaming over HTTP"
- * Apple HLS - "HTTP Live Streaming"
- * Microsoft Smooth Streaming
- * Adobe HTTP Dynamic Streaming (HDS)
+ * Let us use Amazon’s CDN CloudFront for cost estimation (Figure 2) [3]. Assume 100% of traffic is served from the United States. The average cost per GB is $0.02. For simplicity, we only calculate the cost of video streaming.
 
-You don't need to understand those protocols in detail. It is important to understand, though, that different streaming protocols support different video encodings and playback players.
+ * 5 million * 5 videos * 0.3GB * 0.02 = 0.02 = 150,000 per day.
 
-We need to choose the right streaming protocol to support our use-case.
+From the rough cost estimation, we know serving videos from the CDN costs lots of money. Even though cloud providers are willing to lower the CDN costs significantly for big customers, the cost is still substantial. We will discuss ways to reduce CDN costs in deep dive.
 
-# Step 3 - Design deep dive
-In this part, we'll deep dive into the video uploading and video streaming flows.
+![envelope](images/envelope.webp)	
+	
+	Figure 2
 
-## Video transcoding
-Video transcoding is important for a few reasons:
- * Raw video consumes a lot of storage space.
- * Many browsers have constraints on the type of videos they can support. It is important to encode a video for compatibility reasons.
- * To ensure good UX, you ought to serve HD videos to users with good network connection and lower-quality formats for the ones with slower connection.
- * Network conditions can change, especially on mobile. It is important to be able to automatically switch video formats at runtime for smooth UX.
+## Step 2 - Propose high-level design and get buy-in
 
-Most transcoding formats consist of two parts:
- * Container - the basket which contains the video file. Recognized by the file extension, eg .avi, .mov, .mp4
- * Codecs - Compression and decompression algorithms, which reduce video size while preserving quality. Most popular ones - H.264, VP9, HEVC.
+As discussed previously, the interviewer recommended leveraging existing cloud services instead of building everything from scratch. CDN and blob storage are the cloud services we will leverage. Some readers might ask why not building everything by ourselves? Reasons are listed below:
 
-## Directed Acyclic Graph (DAG) model
-Transcoding video is computationally expensive and time-consuming. 
-In addition to that, different creators have different inputs - some provide thumbnails, others do not, some upload HD, others don't.
+ * System design interviews are not about building everything from scratch. Within the limited time frame, choosing the right technology to do a job right is more important than explaining how the technology works in detail. For instance, mentioning blob storage for storing source videos is enough for the interview. Talking about the detailed design for blob storage could be an overkill.
 
-In order to support video processing pipelines, dev customisations, high parallelism, we adopt a DAG model:
-![dag-model](images/dag-model.png)
+ * Building scalable blob storage or CDN is extremely complex and costly. Even large companies like Netflix or Facebook do not build everything themselves. Netflix leverages Amazon’s cloud services [4], and Facebook uses Akamai’s CDN [5].
 
-Some of the tasks applied on a video file:
- * Ensure video has good quality and is not malformed
- * Video is encoded to support different resolutions, codecs, bitrates, etc.
- * Thumbnail is automatically added if a user doesn't specify it.
- * Watermark - image overlay on video if specified by creator
-![video-encodings](images/video-encodings.png)
+At the high-level, the system comprises three components (Figure 3).
 
-## Video transcoding architecture
-![video-transcoding-architecture](images/video-transcoding-architecture.png)
+![high_design](images/high_design.webp)
 
-### Preprocessor
+	Figure 3
+	
+<b>Client</b>: You can watch YouTube on your computer, mobile phone, and smartTV.
+
+<b>CDN</b>: Videos are stored in CDN. When you press play, a video is streamed from the CDN.
+
+<b>API servers</b>: Everything else except video streaming goes through API servers. This includes feed recommendation, generating video upload URL, updating metadata database and cache, user signup, etc.
+
+In the question/answer session, the interviewer showed interests in two flows:
+
+ * Video uploading flow
+
+ * Video streaming flow
+
+We will explore the high-level design for each of them.
+
+### Video uploading flow
+
+Figure 4 shows the high-level design for the video uploading.
+
+![video_uploading](images/video_uploading.webp)
+
+	Figure 4
+
+It consists of the following components:
+
+ * User: A user watches YouTube on devices such as a computer, mobile phone, or smart TV.
+
+ * Load balancer: A load balancer evenly distributes requests among API servers.
+
+ * API servers: All user requests go through API servers except video streaming.
+
+ * Metadata DB: Video metadata are stored in Metadata DB. It is sharded and replicated to meet performance and high availability requirements.
+
+ * Metadata cache: For better performance, video metadata and user objects are cached.
+
+ * Original storage: A blob storage system is used to store original videos. A quotation in Wikipedia regarding blob storage shows that: “A Binary Large Object (BLOB) is a collection of binary data stored as a single entity in a database management system” [6].
+
+ * Transcoding servers: Video transcoding is also called video encoding. It is the process of converting a video format to other formats (MPEG, HLS, etc), which provide the best video streams possible for different devices and bandwidth capabilities.
+
+ * Transcoded storage: It is a blob storage that stores transcoded video files.
+
+ * CDN: Videos are cached in CDN. When you click the play button, a video is streamed from the CDN.
+
+ * Completion queue: It is a message queue that stores information about video transcoding completion events.
+
+ * Completion handler: This consists of a list of workers that pull event data from the completion queue and update metadata cache and database.
+
+Now that we understand each component individually, let us examine how the video uploading flow works. The flow is broken down into two processes running in parallel.
+
+a. Upload the actual video.
+
+b. Update video metadata. Metadata contains information about video URL, size, resolution, format, user info, etc.
+
+#### Flow a: upload the actual video
+
+![uploading_flow](images/uploading_flow.webp)
+
+	Figure 5
+	
+Figure 5 shows how to upload the actual video. The explanation is shown below:
+
+1. Videos are uploaded to the original storage.
+
+2. Transcoding servers fetch videos from the original storage and start transcoding.
+
+3. Once transcoding is complete, the following two steps are executed in parallel:
+
+ * 3a. Transcoded videos are sent to transcoded storage.
+
+ * 3b. Transcoding completion events are queued in the completion queue.
+
+   3a.1. Transcoded videos are distributed to CDN.
+
+   3b.1. Completion handler contains a bunch of workers that continuously pull event data from the queue.
+
+   3b.1.a. and 3b.1.b. Completion handler updates the metadata database and cache when video transcoding is complete.
+
+4. API servers inform the client that the video is successfully uploaded and is ready for streaming.
+
+#### Flow b: update the metadata
+
+While a file is being uploaded to the original storage, the client in parallel sends a request to update the video metadata as shown in Figure 6. The request contains video metadata, including file name, size, format, etc. API servers update the metadata cache and database.
+
+![metadata_flow](images/metadata_flow.webp)
+
+	Figure 6
+
+### Video streaming flow
+
+Whenever you watch a video on YouTube, it usually starts streaming immediately and you do not wait until the whole video is downloaded. Downloading means the whole video is copied to your device, while streaming means your device continuously receives video streams from remote source videos. When you watch streaming videos, your client loads a little bit of data at a time so you can watch videos immediately and continuously.
+
+Before we discuss video streaming flow, let us look at an important concept: streaming protocol. This is a standardized way to control data transfer for video streaming. Popular streaming protocols are:
+
+ * MPEG–DASH. MPEG stands for “Moving Picture Experts Group” and DASH stands for "Dynamic Adaptive Streaming over HTTP".
+ 
+ * Apple HLS. HLS stands for “HTTP Live Streaming”.
+
+ * Microsoft Smooth Streaming.
+
+ * Adobe HTTP Dynamic Streaming (HDS).
+
+You do not need to fully understand or even remember those streaming protocol names as they are low-level details that require specific domain knowledge. The important thing here is to understand that different streaming protocols support different video encodings and playback players. When we design a video streaming service, we have to choose the right streaming protocol to support our use cases. To learn more about streaming protocols, here is an excellent article [7].
+
+Videos are streamed from CDN directly. The edge server closest to you will deliver the video. Thus, there is very little latency. Figure 7 shows a high level of design for video streaming.
+
+![video_streaming_flow](images/video_streaming_flow.webp)
+
+	Figure 7
+
+## Step 3 - Design deep dive
+
+In the high-level design, the entire system is broken down in two parts: video uploading flow and video streaming flow. In this section, we will refine both flows with important optimizations and introduce error handling mechanisms.
+
+### Video transcoding
+
+When you record a video, the device (usually a phone or camera) gives the video file a certain format. If you want the video to be played smoothly on other devices, the video must be encoded into compatible bitrates and formats. Bitrate is the rate at which bits are processed over time. A higher bitrate generally means higher video quality. High bitrate streams need more processing power and fast internet speed.
+
+Video transcoding is important for the following reasons:
+
+ * Raw video consumes large amounts of storage space. An hour-long high definition video recorded at 60 frames per second can take up a few hundred GB of space.
+
+ * Many devices and browsers only support certain types of video formats. Thus, it is important to encode a video to different formats for compatibility reasons.
+
+ * To ensure users watch high-quality videos while maintaining smooth playback, it is a good idea to deliver higher resolution video to users who have high network bandwidth and lower resolution video to users who have low bandwidth.
+
+ * Network conditions can change, especially on mobile devices. To ensure a video is played continuously, switching video quality automatically or manually based on network conditions is essential for smooth user experience.
+
+Many types of encoding formats are available; however, most of them contain two parts:
+
+ * Container: This is like a basket that contains the video file, audio, and metadata. You can tell the container format by the file extension, such as .avi, .mov, or .mp4.
+
+ * Codecs: These are compression and decompression algorithms aim to reduce the video size while preserving the video quality. The most used video codecs are H.264, VP9, and HEVC.
+
+### Directed Acyclic Graph (DAG) model
+
+Transcoding a video is computationally expensive and time-consuming. Besides, different content creators may have different video processing requirements. For instance, some content creators require watermarks on top of their videos, some provide thumbnail images themselves, and some upload high definition videos, whereas others do not.
+
+To support different video processing pipelines and maintain high parallelism, it is important to add some level of abstraction and let client programmers define what tasks to execute. For example, Facebook’s streaming video engine uses a directed acyclic graph (DAG) programming model, which defines tasks in stages so they can be executed sequentially or parallelly [8]. In our design, we adopt a similar DAG model to achieve flexibility and parallelism. Figure 8 represents a DAG for video transcoding.
+
+![dag_model](images/dag_model.png)
+
+	Figure 8
+
+In Figure 8, the original video is split into video, audio, and metadata. Here are some of the tasks that can be applied on a video file:
+
+ * Inspection: Make sure videos have good quality and are not malformed.
+
+ * Video encodings: Videos are converted to support different resolutions, codec, bitrates, etc. Figure 9 shows an example of video encoded files.
+
+ * Thumbnail. Thumbnails can either be uploaded by a user or automatically generated by the system.
+
+ * Watermark: An image overlay on top of your video contains identifying information about your video.
+
+![video_encodings](images/video_encodings.png)
+
+	Figure 9
+
+### Video transcoding architecture
+
+The proposed video transcoding architecture that leverages the cloud services, is shown in Figure 10.
+
+![video_transcoding_architecture](images/video_transcoding_architecture.png)
+
+	Figure 10
+	
+The architecture has six main components: preprocessor, DAG scheduler, resource manager, task workers, temporary storage, and encoded video as the output. Let us take a close look at each component.
+
+#### Preprocessor
+
 ![preprocessor](images/preprocessor.png)
 
-The preprocessor's responsibilities:
- * Video splitting - video is split in group of pictures (GOP) alignment, ie arranged groups of chunks which can be played independently
- * Cache - intermediary steps are stored in persistent storage in order to retry on failure.
- * DAG generation - DAG is generated based on config files specified by programmers.
+	Figure 11
+	
+The preprocessor has 4 responsibilities:
 
-Example DAG configuration with two steps:
-![dag-config-example](images/dag-config-example.png)
+1. Video splitting. Video stream is split or further split into smaller Group of Pictures (GOP) alignment. GOP is a group/chunk of frames arranged in a specific order. Each chunk is an independently playable unit, usually a few seconds in length.
 
-### DAG Scheduler
-![dag-scheduler](images/dag-scheduler.png)
+2. Some old mobile devices or browsers might not support video splitting. Preprocessor split videos by GOP alignment for old clients.
 
-DAG scheduler splits a DAG into stages of tasks and puts them in a task queue, managed by a resource manager:
-![dag-split-example](images/dag-split-example.png)
+3. DAG generation. The processor generates DAG based on configuration files client programmers write. Figure 12 is a simplified DAG representation which has 2 nodes and 1 edge:
 
-In this example, a video is split into video, audio and metadata stages which are processed in parallel.
+![dag_config_example](images/dag_config_example.png)
 
-### Resource manager
-![resource-manager](images/resource-manager.png)
+	Figure 12
+	
+This DAG representation is generated from the two configuration files below (Figure 13):
 
-Resource manager is responsible for optimizing resource allocation.
-![resource-manager-deep-dive](images/resource-manager-deep-dive.png)
- * Task queue is a priority queue of tasks to be executed
- * Worker queue is a queue of available workers and worker utilization info
- * Running queue contains info about currently running tasks and which workers they're assigned to
+![dag_config](images/dag_config.webp)
 
-How it works:
- * task scheduler gets highest-priority task from queue
- * task scheduler gets optimal task worker to run the task
- * task scheduler instructs worker to start working on the task
- * task scheduler binds worker to task & puts task/worker info in running queue
- * task scheduler removes the job from the running queue once the job is done
+	Figure 13 (source: [9])
+	
+4. Cache data. The preprocessor is a cache for segmented videos. For better reliability, the preprocessor stores GOPs and metadata in temporary storage. If video encoding fails, the system could use persisted data for retry operations.
 
-### Task workers
-![task-workers](images/task-workers.png)
+#### DAG Scheduler
 
-The workers execute the tasks in the DAG. Different workers are responsible for different tasks and can be scaled independently.
-![task-workers-example](images/task-workers-example.png)
+![dag_scheduler](images/dag_scheduler.png)
 
-### Temporary storage
-![temporary-storage](images/temporary-storage.png)
+	Figure 14
+	
+The DAG scheduler splits a DAG graph into stages of tasks and puts them in the task queue in the resource manager. Figure 15 shows an example of how the DAG scheduler works.
 
-Multiple storage systems are used for different types of data. Eg temporary images/video/audio is put in blob storage. Metadata is put in an in-memory cache as data size is small.
+![dag_split_example](images/dag_split_example.png)
 
-Data is freed up once processing is complete.
+	Figure 15
+	
+As shown in Figure 15, the original video is split into three stages: Stage 1: video, audio, and metadata. The video file is further split into two tasks in stage 2: video encoding and thumbnail. The audio file requires audio encoding as part of the stage 2 tasks.
+
+#### Resource manager
+
+![resource_manager](images/resource_manager.png)
+
+	Figure 16
+	
+The resource manager is responsible for managing the efficiency of resource allocation. It contains 3 queues and a task scheduler as shown in Figure 17.
+
+ * Task queue: It is a priority queue that contains tasks to be executed.
+
+ * Worker queue: It is a priority queue that contains worker utilization info.
+
+ * Running queue: It contains info about the currently running tasks and workers running the tasks.
+
+Task scheduler: It picks the optimal task/worker, and instructs the chosen task worker to execute the job.
+
+![resource_deep_dive](images/resource_deep_dive.png)
+	
+	Figure 17
+	
+ * The resource manager works as follows:
+
+ * The task scheduler gets the highest priority task from the task queue.
+
+ * The task scheduler gets the optimal task worker to run the task from the worker queue.
+
+ * The task scheduler instructs the chosen task worker to run the task.
+
+ * The task scheduler binds the task/worker info and puts it in the running queue.
+
+ * The task scheduler removes the job from the running queue once the job is done.
+
+#### Task workers
+
+![task_workers](images/task_workers.png)
+
+	Figure 18
+	
+Task workers run the tasks which are defined in the DAG. Different task workers may run different tasks as shown in Figure 19.
+
+![task_workers_example](images/task_workers_example.png)
+
+	Figure 19
+
+#### Temporary storage
+
+![temporary_storage](images/temporary_storage.png)
+
+	Figure 20
+	
+Multiple storage systems are used here. The choice of storage system depends on factors like data type, data size, access frequency, data life span, etc. For instance, metadata is frequently accessed by workers, and the data size is usually small. Thus, caching metadata in memory is a good idea. For video or audio data, we put them in blob storage. Data in temporary storage is freed up once the corresponding video processing is complete.
 
 ### Encoded video
-![encoded-video](images/encoded-video.png)
 
-Final output of the DAG. Example output - `funny_720p.mp4`.
+![encoded_video](images/encoded_video.png)
 
-## System Optimizations
-Now it's time to introduce some optimizations for speed, safety, cost-saving.
+	Figure 21
+	
+Encoded video is the final output of the encoding pipeline. Here is an example of the output: funny_720p.mp4.
 
-### Speed optimization - parallelize video uploading
-We can split video uploading into separate units via GOP alignment:
-![video-uploading-optimization](images/video-uploading-optimization.png)
+### System Optimizations
 
-This enables fast resumable uploads if something goes wrong. Splitting the video file is done by the client.
+At this point, you ought to have good understanding about the video uploading flow, video streaming flow and video transcoding. Next, we will refine the system with optimizations, including speed, safety, and cost-saving.
 
-### Speed optimization - place upload centers close to users
-![upload-centers](images/upload-centers.png)
+#### Speed optimization: parallelize video uploading
 
-This can be achieved by leveraging CDNs.
+Uploading a video as a whole unit is inefficient. We can split a video into smaller chunks by GOP alignment as shown in Figure 22.
 
-### Speed optimization - parallelism everywhere
-We can build a loosely coupled system and enable high parallelism.
+![video_uploading_optimization](images/video_uploading_optimization.png)
 
-Currently, components rely on inputs from previous components in order to produce outputs:
-![no-parralelism-components](images/no-parralelism-components.png)
+	Figure 22
+	
+This allows fast resumable uploads when the previous upload failed. The job of splitting a video file by GOP can be implemented by the client to improve the upload speed as shown in Figure 23
 
-We can introduce message queues so that components can start doing their task independently of previous one once events are available:
-![parralelism-components](images/parralelism-components.png)
+![speed_optimization](images/speed_optimization.png)
 
-### Safety optimization - pre-signed upload URL
-To avoid unauthorized users from uploading videos, we introduce pre-signed upload URLs:
-![presigned-upload-url](images/presigned-upload-url.png)
+	Figure 23
 
-How it works:
- * client makes request to API server to fetch upload URL
- * API servers generate the URL and return it to the client
- * Client uploads the video using the URL
+#### Speed optimization: place upload centers close to users
 
-### Safety optimization - protect your videos
-To protect creators from having their original content stolen, we can introduce some safety options:
- * Digital right management (DRM) systems - Apple FairPlay, Google Widevine, Microsoft PlayReady
- * AES encryption - you can encrypt a video and configure an authorization policy. It is decrypted on playback.
- * Visual watermarking - image overlay on top of video which contains your identifying information, eg company name.
+Another way to improve the upload speed is by setting up multiple upload centers across the globe (Figure 24). People in the United States can upload videos to the North America upload center, and people in China can upload videos to the Asian upload center. To achieve this, we use CDN as upload centers.
+
+![upload_centers](images/upload_centers.png)
+
+	Figure 24
+
+#### Speed optimization: parallelism everywhere
+
+Achieving low latency requires serious efforts. Another optimization is to build a loosely coupled system and enable high parallelism.
+
+Our design needs some modifications to achieve high parallelism. Let us zoom in to the flow of how a video is transferred from original storage to the CDN. The flow is shown in Figure 25, revealing that the output depends on the input of the previous step. This dependency makes parallelism difficult.
+
+![no_parralelism_components](images/no_parralelism_components.png)
+
+	Figure 25
+	
+To make the system more loosely coupled, we introduced message queues as shown in Figure 26. Let us use an example to explain how message queues make the system more loosely coupled.
+
+ * Before the message queue is introduced, the encoding module must wait for the output of the download module.
+
+ * After the message queue is introduced, the encoding module does not need to wait for the output of the download module anymore. If there are events in the message queue, the encoding module can execute those jobs in parallel.
+
+![parralelism_components](images/parralelism_components.png)
+
+	Figure 26
+
+#### Safety optimization: pre-signed upload URL
+
+Safety is one of the most important aspects of any product. To ensure only authorized users upload videos to the right location, we introduce pre-signed URLs as shown in Figure 27.
+
+![presigned_upload_url](images/presigned_upload_url.png)
+	
+	Figure 27
+
+The upload flow is updated as follows:
+
+1. The client makes a HTTP request to API servers to fetch the pre-signed URL, which gives the access permission to the object identified in the URL. The term pre-signed URL is used by uploading files to Amazon S3. Other cloud service providers might use a different name. For instance, Microsoft Azure blob storage supports the same feature, but call it “Shared Access Signature” [10].
+
+2. API servers respond with a pre-signed URL.
+
+3. Once the client receives the response, it uploads the video using the pre-signed URL.
+
+#### Safety optimization: protect your videos
+
+Many content makers are reluctant to post videos online because they fear their original videos will be stolen. To protect copyrighted videos, we can adopt one of the following three safety options:
+
+ * Digital rights management (DRM) systems: Three major DRM systems are Apple FairPlay, Google Widevine, and Microsoft PlayReady.
+
+ * AES encryption: You can encrypt a video and configure an authorization policy. The encrypted video will be decrypted upon playback. This ensures that only authorized users can watch an encrypted video.
+
+ * Visual watermarking: This is an image overlay on top of your video that contains identifying information for your video. It can be your company logo or company name.
 
 ### Cost-saving optimization
-CDN is expensive, as we've seen in our back of the envelope estimation.
 
-We can piggyback on the fact that video streams follow a long-tail distribution - ie a few popular videos are accessed frequently, but everything else is not.
+CDN is a crucial component of our system. It ensures fast video delivery on a global scale. However, from the back of the envelope calculation, we know CDN is expensive, especially when the data size is large. How can we reduce the cost?
 
-Hence, we can store popular videos in CDN and serve everything else from high capacity storage servers:
-![cdn-optimization](images/cdn-optimization.png)
+Previous research shows that YouTube video streams follow long-tail distribution [11] [12]. It means a few popular videos are accessed frequently but many others have few or no viewers. Based on this observation, we implement a few optimizations:
 
-Other cost-saving optimizations:
- * We might not need to store many encoded versions for less popular videos. Short videos can be encoded on-demand.
- * Some videos are only popular in certain regions. We can avoid distributing them in all regions.
- * Build your own CDN. Can make sense for large streaming companies like Netflix.
+1. Only serve the most popular videos from CDN and other videos from our high capacity storage video servers (Figure 28).
 
-## Error Handling
-For a large-scale system, errors are unavoidable. To make a fault-tolerant system, we need to handle errors gracefully and recover from them.
+![cdn_optimization](images/cdn_optimization.png)
 
-There are two types of errors:
- * Recoverable error - can be mitigated by retrying a few times. If retrying fails, a proper error code is returned to the client.
- * Non-recoverable error - system stops running related tasks and returns proper error code to the client.
+	Figure 28
+	
+2. For less popular content, we may not need to store many encoded video versions. Short videos can be encoded on-demand.
 
-Other typical errors and their resolution:
- * Upload error - retry a few times
- * Split video error - entire video is passed to server if older clients don't support GOP alignment.
- * Transcoding error - retry
- * Preprocessor error - regenerate DAG
- * DAG scheduler error - retry scheduling
- * Resource manager queue down - use a replica
- * Task worker down - retry task on different worker
- * API server down - they're stateless so requests can be redirected to other servers
- * Metadata db/cache server down - replicate data across multiple nodes
- * Master is down - Promote one of the slaves to become master
- * Slave is down - If slave goes down, you can use another slave for reads and bring up another slave instance
+3. Some videos are popular only in certain regions. There is no need to distribute these videos to other regions.
 
-# Step 4 - Wrap up
-Additional talking points:
- * Scaling the API layer - easy to scale horizontally as API layer is stateless
- * Scale the database - replication and sharding
- * Live streaming - our system is not designed for live streams, but it shares some similarities, eg uploading, encoding, streaming. Notable differences:
-   * Live streaming has higher latency requirements so it might demand a different streaming protocol
-   * Lower requirement for parallelism as small chunks of data are already processed in real time
-   * different error handling, as there is a timeout after which we need to stop retrying
-   * Video takedowns - videos that violate copyrights, pornography, any other illegal acts need to be removed either during upload flow or based on user flagging.
+4. Build your own CDN like Netflix and partner with Internet Service Providers (ISPs). Building your CDN is a giant project; however, this could make sense for large streaming companies. An ISP can be Comcast, AT&T, Verizon, or other internet providers. ISPs are located all around the world and are close to users. By partnering with ISPs, you can improve the viewing experience and reduce the bandwidth charges.
+
+All those optimizations are based on content popularity, user access pattern, video size, etc. It is important to analyze historical viewing patterns before doing any optimization. Here are some of the interesting articles on this topic: [12] [13].
+
+### Error Handling
+
+For a large-scale system, system errors are unavoidable. To build a highly fault-tolerant system, we must handle errors gracefully and recover from them fast. Two types of errors exist:
+
+ * Recoverable error. For recoverable errors such as video segment fails to transcode, the general idea is to retry the operation a few times. If the task continues to fail and the system believes it is not recoverable, it returns a proper error code to the client.
+
+ * Non-recoverable error. For non-recoverable errors such as malformed video format, the system stops the running tasks associated with the video and returns the proper error code to the client.
+
+Typical errors for each system component are covered by the following playbook:
+
+ * Upload error: retry a few times.
+
+ * Split video error: if older versions of clients cannot split videos by GOP alignment, the entire video is passed to the server. The job of splitting videos is done on the server-side.
+
+ * Transcoding error: retry.
+
+ * Preprocessor error: regenerate DAG diagram.
+
+ * DAG scheduler error: reschedule a task.
+
+ * Resource manager queue down: use a replica.
+
+ * Task worker down: retry the task on a new worker.
+
+ * API server down: API servers are stateless so requests will be directed to a different API server.
+
+ * Metadata cache server down: data is replicated multiple times. If one node goes down, you can still access other nodes to fetch data. We can bring up a new cache server to replace the dead one.
+
+ * Metadata DB server down:
+
+ * Master is down. If the master is down, promote one of the slaves to act as the new master.
+
+ * Slave is down. If a slave goes down, you can use another slave for reads and bring up another database server to replace the dead one.
+
+## Step 4 - Wrap up
+
+In this chapter, we presented the architecture design for video streaming services like YouTube. If there is extra time at the end of the interview, here are a few additional points:
+
+ * Scale the API tier: Because API servers are stateless, it is easy to scale API tier horizontally.
+
+ * Scale the database: You can talk about database replication and sharding.
+
+ * Live streaming: It refers to the process of how a video is recorded and broadcasted in real time. Although our system is not designed specifically for live streaming, live streaming and non-live streaming have some similarities: both require uploading, encoding, and streaming. The notable differences are:
+
+ * Live streaming has a higher latency requirement, so it might need a different streaming protocol.
+
+ * Live streaming has a lower requirement for parallelism because small chunks of data are already processed in real-time.
+
+ * Live streaming requires different sets of error handling. Any error handling that takes too much time is not acceptable.
+
+ * Video takedowns: Videos that violate copyrights, pornography, or other illegal acts shall be removed. Some can be discovered by the system during the upload process, while others might be discovered through user flagging.
+
+Congratulations on getting this far! Now give yourself a pat on the back. Good job!
+
+# Reference materials
+
+[1] YouTube by the numbers:
+https://www.omnicoreagency.com/youtube-statistics/
+
+[2] 2019 YouTube Demographics:
+
+https://blog.hubspot.com/marketing/youtube-demographics
+
+[3] Cloudfront Pricing:
+https://aws.amazon.com/cloudfront/pricing/
+
+[4] Netflix on AWS: https://aws.amazon.com/solutions/case-studies/netflix/
+
+[5] Akamai homepage: https://www.akamai.com/
+
+[6] Binary large object:
+https://en.wikipedia.org/wiki/Binary_large_object
+
+[7] Here’s What You Need to Know About Streaming Protocols:
+https://www.dacast.com/blog/streaming-protocols/
+
+[8] SVE: Distributed Video Processing at Facebook Scale:
+https://www.cs.princeton.edu/~wlloyd/papers/sve-sosp17.pdf
+
+[9] Weibo video processing architecture (in Chinese):
+https://www.upyun.com/opentalk/399.html
+
+[10] Delegate access with a shared access signature:
+https://docs.microsoft.com/en-us/rest/api/storageservices/delegate-access-with-shared-access-signature
+
+[11] YouTube scalability talk by early YouTube employee:
+https://www.youtube.com/watch?v=w5WVu624fY8
+
+[12] Understanding the characteristics of internet short video sharing: A youtube-based measurement study.
+https://arxiv.org/pdf/0707.3670.pdf
+
+[13] Content Popularity for Open Connect:
+https://netflixtechblog.com/content-popularity-for-open-connect-b86d56f613b
