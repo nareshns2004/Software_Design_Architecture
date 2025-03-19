@@ -259,7 +259,7 @@ However, the reverse is not true: two locations can be very close but have no sh
 	
 Because of this boundary issue, a simple prefix SQL query below would fail to fetch all nearby businesses.
 
-	SELECT * FROM geohash_index WHERE geohash LIKE `9q8zn%`
+![nearby](images/nearby.png)
 	
 <b>Boundary issue 2</b>
 
@@ -281,9 +281,7 @@ Option 2: increase the search radius. We can remove the last digit of the geohas
 
 ![process](images/process.webp)
 
-Figure 12 Expand the search process
-
-
+	Figure 12 Expand the search process
 
 #### Option 4: Quadtree
 
