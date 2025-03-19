@@ -16,8 +16,8 @@ Yelp supports many features and it is not feasible to design all of them in an i
 <p><b>Candidate</b>: What’s the maximal radius allowed? Can I assume it’s 20 km (12.5 miles)?</p>
 <p><b>Interviewer</b>: That’s a reasonable assumption.</p>
 
-<p><b>Candidate: Can a user change the search radius on the UI?</p>
-<p><b>Interviewer: Yes, we have the following options: 0.5km (0.31 mile), 1km (0.62 mile), 2km (1.24 mile), 5km (3.1 mile), and 20km (12.42 mile).</p>
+<p><b>Candidate</b>: Can a user change the search radius on the UI?</p>
+<p><b>Interviewer</b>: Yes, we have the following options: 0.5km (0.31 mile), 1km (0.62 mile), 2km (1.24 mile), 5km (3.1 mile), and 20km (12.42 mile).</p>
 
 <p><b>Candidate</b>: How does business information get added, deleted, or updated? Do we need to reflect these operations in real-time?</p>
 <p><b>Interviewer</b>: Business owners can add, delete or update a business. Assume we have a business agreement upfront that newly added/updated businesses will be effective the next day.</p>
