@@ -169,7 +169,7 @@ The most intuitive but naive way to get nearby businesses is to draw a circle wi
 	
 This process can be translated into the following pseudo SQL query:
 
-	![radius](images/radius.png)
+![radius](images/radius.png)
 
 This query is not efficient because we need to scan the whole table. What if we build indexes on longitude and latitude columns? Would this improve the efficiency? The answer is not by much. The problem is that we have two-dimensional data and the dataset returned from each dimension could still be huge. For example, as shown in Figure 4, we can quickly retrieve dataset 1 and dataset 2, thanks to indexes on longitude and latitude columns. But to fetch businesses within the radius, we need to perform an intersect operation on those two datasets. This is not efficient because each dataset contains lots of data.
 
@@ -209,7 +209,7 @@ Geohash is better than the evenly divided grid option. It works by reducing the 
 
 First, divide the planet into four quadrants along with the prime meridian and equator.
 
-![geohash](images/geohash.png)
+![geohash](images/geohash.webp)
 
 	Figure 7 Geohash
 	
@@ -223,19 +223,13 @@ Longitude range [0, 180] is represented by 1
 
 Second, divide each grid into four smaller grids. Each grid can be represented by alternating between longitude bit and latitude bit.
 
-![divide](images/divide.png)
+![divide](images/divide.webp)
 
 	Figure 8 Divide grid
 	
 Repeat this subdivision until the grid size is within the precision desired. Geohash usually uses base32 representation [15]. Let’s take a look at two examples.
 
- * Geohash of the Google headquarter (length = 6):
-
-	1001 10110 01001 10000 11011 11010 (base32 in binary) → 9q9hvu (base32)
-	
- * Geohash of the Facebook headquarter (length = 6):
-
-	1001 10110 01001 10001 10000 10111 (base32 in binary) → 9q9jhr (base32)
+![quarter](images/quarter.png)
 	
 Geohash has 12 precisions (also called levels) as shown in Table 4. The precision factor determines the size of the grid. We are only interested in geohashes with lengths between 4 and 6. This is because when it’s longer than 6, the grid size is too small, while if it is smaller than 4, the grid size is too large (see Table 4).
 
@@ -397,7 +391,7 @@ Before we conclude this section, let’s do a quick comparison between geohash a
 
  * Updating the index is easy. For example, to remove a business from the index, we just need to remove it from the corresponding row with the same geohash and business_id. See Figure 18 for a concrete example.
  
-![remove](images/remove.png)
+![remove](images/remove.webp)
 
 	Figure 18 Remove a business
 	
@@ -531,7 +525,7 @@ We deploy a location-based service to multiple regions and availability zones as
 
  * Privacy laws. Some countries may require user data to be used and stored locally. In this case, we could set up a region in that country and employ DNS routing to restrict all requests from the country to only that region.
 
-![deploy](images/deploy.png)
+![deploy](images/deploy.webp)
 
 	Figure 20 Deploy LBS closer to the user
 
