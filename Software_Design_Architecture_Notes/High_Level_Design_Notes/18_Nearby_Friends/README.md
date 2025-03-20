@@ -1,85 +1,125 @@
 # Nearby Friends
-This chapter focuses on designing a scalable backend for an application which enables user to share their location and discover friends who are nearby.
+In this chapter, we design a scalable backend system for a new mobile app feature called "Nearby Friends''. For an opt-in user who grants permission to access their location, the mobile client presents a list of friends who are geographically nearby. If you are looking for a real-world example, please refer to this article [1] about a similar feature in the Facebook app.
 
-The major difference with the proximity chapter is that in this problem, locations constantly change, whereas in that one, business addresses more or less stay the same.
+![nearby](images/nearby.webp)
 
-# Step 1 - Understand the Problem and Establish Design Scope
-Some questions to drive the interview:
- * C: How geographically close is considered to be "nearby"?
- * I: 5 miles, this number should be configurable
- * C: Is distance calculated as straight-line distance vs. taking into consideration eg a river in-between friends
- * I: Yes, that is a reasonable assumption
- * C: How many users does the app have?
- * I: 1bil users and 10% of them use the nearby friends feature
- * C: Do we need to store location history?
- * I: Yes, it can be valuable for eg machine learning
- * C: Can we assume inactive friends will disappear from the feature in 10min
- * I: Yes
- * C: Do we need to worry about GDPR, etc?
- * I: No, for simlicity's sake
+	Figure 1 Facebook’s nearby friends
+	
+If you read the Proximity Service chapter, you may wonder why we need a separate chapter for designing “nearby friends” since it looks similar to proximity services. If you think carefully though, you will find major differences. In proximity services, the addresses for businesses are static as their locations do not change, while in "nearby friends", data is more dynamic because user locations change frequently.
 
-## Functional requirements
- * Users should be able to see nearby friends on their mobile app. Each friend has a distance and timestamp, indicating when the location was updated
- * Nearby friends list should be updated every few seconds
+## Step 1 - Understand the Problem and Establish Design Scope
 
-## Non-functional requirements
- * Low latency - it's important to receive location updates without too much delay
- * Reliability - Occassional data point loss is acceptable, but system should be generally available
- * Eventual consistency - Location data store doesn't need strong consistency. Few seconds delay in receiving location data in different replicas is acceptable
+Any backend system at the Facebook scale is complicated. Before starting with the design, we need to ask clarification questions to narrow down the scope.
 
-## Back-of-the-envelope
-Some estimations to determine potential scale:
- * Nearby friends are friends within 5mile radius
- * Location refresh interval is 30s. Human walking speed is slow, hence, no need to update location too frequently.
- * On average, 100mil users use the feature every day \w 10% concurrent users, ie 10mil
- * On average, a user has 400 friends, all of them use the nearby friends feature
- * App displays 20 nearby friends per page
- * Location Update QPS = 10mil / 30 == ~334k updates per second
+<p><b>Candidate</b>: How geographically close is considered to be “nearby”?</p>
+<p><b>Interviewer</b>: 5 miles. This number should be configurable.</p>
 
-# Step 2 - Propose High-Level Design and Get Buy-In
-Before exploring API and data model design, we'll study the communication protocol we'll use as it's less ubiquitous than traditional request-response communication model.
+<p><b>Candidate</b>: Can I assume the distance is calculated as the straight-line distance between two users? In real life, there could be, for example, a river in between the users, resulting in a longer travel distance.</p>
+<p><b>Interviewer</b>: Yes, that’s a reasonable assumption.</p>
 
-## High-level design
-At a high-level we'd want to establish effective message passing between peers. This can be done via a peer-to-peer protocol, but that's not practical for a mobile app with flaky connection and tight power consumption constraints.
+<p><b>Candidate</b>: How many users does the app have? Can I assume 1 billion users and 10% of them use the nearby friends feature?</p>
+<p><b>Interviewer</b>: Yes, that’s a reasonable assumption.</p>
 
-A more practical approach is to use a shared backend as a fan-out mechanism towards friends you want to reach:
-![fan-out-backend](images/fan-out-backend.png)
+<p><b>Candidate</b>: Do we need to store location history?</p>
+<p><b>Interviewer</b>: Yes, location history can be valuable for different purposes such as machine learning.</p>
 
-What does the backend do?
- * Receives location updates from all active users
- * For each location update, find all active users which should receive it and forward it to them
- * Do not forward location data if distance between friends is beyond the configured threshold
+<p><b>Candidate</b>: Could we assume if a friend is inactive for more than 10 minutes, that friend will disappear from the nearby friend list? Or should we display the last known location?</p>
+<p><b>Interviewer</b>: We can assume inactive friends will no longer be shown.</p>
 
-This sounds simple but the challenge is to design the system for the scale we're operating with.
+<p><b>Candidate</b>: Do we need to worry about privacy and data laws such as GDPR or CCPA?</p>
+<p><b>Interviewer</b>: Good question. For simplicity, don’t worry about it for now.</p>
 
-We'll start with a simpler design at first and discuss a more advanced approach in the deep dive:
-![simple-high-level-design](images/simple-high-level-design.png)
- * The load balancer spreads traffic across rest API servers as well as bidirectional web socket servers
- * The rest API servers handles auxiliary tasks such as managing friends, updating profiles, etc
- * The websocket servers are stateful servers, which forward location update requests to respective clients. It also manages seeding the mobile client with nearby friends locations at initialization (discussed in detail later).
- * Redis location cache is used to store most recent location data for each active user. There is a TTL set on each entry in the cache. When the TTL expires, user is no longer active and their data is removed from the cache.
- * User database stores user and friendship data. Either a relational or NoSQL database can be used for this purpose.
- * Location history database stores a history of user location data, not necessarily used directly within nearby friends feature, but instead used to track historical data for analytical purposes
- * Redis pubsub is used as a lightweight message bus which enables different topics for each user channel for location updates.
-![redis-pubsub-usage](images/redis-pubsub-usage.png)
+### Functional requirements
 
-In the above example, websocket servers subscribe to channels for the users which are connected to them & forward location updates whenever they receive them to appropriate users.
+ * Users should be able to see nearby friends on their mobile apps. Each entry in the nearby friend list has a distance and a timestamp indicating when the distance was last updated.
 
-## Periodic location update
-Here's how the periodic location update flow works:
-![periodic-location-update](images/periodic-location-update.png)
- * Mobile client sends a location update to the load balancer
- * Load balancer forwards location update to the websocket server's persistent connection for that client
- * Websocket server saves location data to location history database
- * Location data is updated in location cache. Websocket server also saves location data in-memory for subsequent distance calculations for that user
- * Websocket server publishes location data in user's channel via redis pub sub
- * Redis pubsub broadcasts location update to all subscribers for that user channel, ie servers responsible for the friends of that user
- * Subscribed web socket servers receive location update, calculate which users the update should be sent to and sends it
+ * Nearby friend lists should be updated every few seconds.
 
-Here's a more detailed version of the same flow:
-![detailed-periodic-location-update](images/detailed-periodic-location-update.png)
+### Non-functional requirements
 
-On average, there's going to be 40 location updates to forward as a user has 400 friends on average and 10% of them are online at a time.
+ * Low latency. It’s important to receive location updates from friends without too much delay.
+
+ * Reliability. The system needs to be reliable overall, but occasional data point loss is acceptable.
+
+ * Eventual consistency. The location data store doesn’t need strong consistency. A few seconds delay in receiving location data in different replicas is acceptable.
+
+### Back-of-the-envelope estimation
+
+Let’s do a back-of-the-envelope estimation to determine the potential scale and challenges our solution will need to address. Some constraints and assumptions are listed below:
+
+ * Nearby friends are defined as friends whose locations are within a 5-mile radius.
+
+ * The location refresh interval is 30 seconds. The reason for this is that human walking speed is slow (average 3-4 miles per hour). The distance traveled in 30 seconds does not make a significant difference on the “nearby friends” feature.
+
+ * On average, 100 million users use the “nearby friends” feature every day.
+
+ * Assume the number of concurrent users is 10% of DAU, so the number of concurrent users is 10 million.
+
+ * On average, a user has 400 friends. Assume all of them use the “nearby friends” feature.
+
+ * The app displays 20 nearby friends per page and may load more nearby friends upon request.
+ 
+![calculate](images/calculate.png)
+
+## Step 2 - Propose High-Level Design and Get Buy-In
+
+In this section, we will discuss the following:
+
+ * High-level design
+
+ * API design
+
+ * Data model
+
+In other chapters, we usually discuss API design and data model before the high-level design. However, for this problem, the communication protocol between client and server might not be a straightforward HTTP protocol, as we need to push location data to all friends. Without understanding the high-level design, it’s difficult to know what the APIs look like. Therefore, we discuss the high-level design first.
+
+### High-level design
+
+At a high level, this problem calls for a design with efficient message passing. Conceptually, a user would like to receive location updates from every active friend nearby. It could in theory be done purely peer-to-peer, that is, a user could maintain a persistent connection to every other active friend in the vicinity (Figure 2).
+
+![peer](images/peer.png)
+
+	Figure 2 Peer-to-peer
+	
+This solution is not practical for a mobile device with sometimes flaky connections and a tight power consumption budget, but the idea sheds some light on the general design direction.
+
+A more practical design would have a shared backend and look like this:
+
+![shared](images/shared.png)
+
+	Figure 3 Shared backend
+	
+What are the responsibilities of the backend in Figure 3?
+
+ * Receive location updates from all active users.
+
+ * For each location update, find all the active friends who should receive it and forward it to those users’ devices.
+
+ * If the distance between two users is over a certain threshold, do not forward it to the recipient’s device.
+
+This sounds pretty simple. What is the issue? Well, to do this at scale is not easy. We have 10 million active users. With each user updating the location information every 30 seconds, there are 334K updates per second. If on average each user has 400 friends, and we further assume that roughly 10% of those friends are online and nearby, every second the backend forwards 334K * 400 * 10% = 14 million location updates per second. That is a lot of updates to forward.
+
+#### Proposed design
+
+We will first come up with a high-level design for the backend at a lower scale. Later in the deep dive section, we will optimize the design for scale.
+
+Figure 4 shows the basic design that should satisfy the functional requirements. Let’s go over each component in the design.
+
+![level_design](images/level_design.png)
+
+	Figure 4 High-level design
+
+#### Load balancer
+
+The load balancer sits in front of the RESTful API servers and the stateful, bi-directional WebSocket servers. It distributes traffic across those servers to spread out load evenly.
+
+#### RESTful API servers
+
+This is a cluster of stateless HTTP servers that handles the typical request/response traffic. The API request flow is highlighted in Figure 5. This API layer handles auxiliary tasks like adding/removing friends, updating user profiles, etc. These are very common and we will not go into more detail.
+
+![request_flow](images/request_flow.png)
+
+	Figure 5 RESTful API request flow
 
 ## API Design
 Websocket Routines we'll need to support:
