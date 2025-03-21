@@ -135,10 +135,10 @@ HTTP API - traditional request/response payloads for auxiliary responsibilities.
  * The location cache will store a mapping between `user_id` and `lat,long,timestamp`. Redis is a great choice for this cache as we only care about current location and it supports TTL eviction which we need for our use-case.
  * Location history table stores the same data but in a relational table \w the four columns stated above. Cassandra can be used for this data as it is optimized for write-heavy loads.
 
-# Step 3 - Design Deep Dive
+## Step 3 - Design Deep Dive
 Let's discuss how we scale the high-level design so that it works at the scale we're targetting.
 
-## How well does each component scale?
+### How well does each component scale?
  * API servers - can be easily scaled via autoscaling groups and replicating server instances
  * Websocket servers - we can easily scale out the ws servers, but we need to ensure we gracefully shutdown existing connections when tearing down a server. Eg we can mark a server as "draining" in the load balancer and stop sending connections to it, prior to being finally removed from the server pool
  * Client initialization - when a client first connects to a server, it fetches the user's friends, subscribes to their channels on redis pubsub, fetches their location from cache and finally forwards to client
