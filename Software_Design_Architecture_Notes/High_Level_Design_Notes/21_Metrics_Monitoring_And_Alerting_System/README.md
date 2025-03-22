@@ -4,7 +4,7 @@ In this chapter, we explore the design of a scalable metrics monitoring and aler
 
 Figure 1 shows some of the most popular metrics monitoring and alerting services in the marketplace. In this chapter, we design a similar service that can be used internally by a large company.
 
-![monitoring_alerting](images/monitoring_alerting.png)
+![monitoring_alerting](images/monitoring_alerting.webp)
 
 	Figure 1 Popular metrics monitoring and alerting services
 
@@ -86,7 +86,7 @@ In this section, we discuss some fundamentals of building the system, the data m
 
 A metrics monitoring and alerting system generally contains five components, as illustrated in Figure 2.
 
-![metrics_components](images/metrics_components.png)
+![metrics_components](images/metrics_components.webp)
 
 	Figure 2 Five components of the system
 	
@@ -256,7 +256,7 @@ One potential approach is to designate each collector to a range in a consistent
 
 As shown in Figure 11, there are four collectors and six metrics source servers. Each collector is responsible for collecting metrics from a distinct set of servers. Collector 2 is responsible for collecting metrics from server 1 and server 5.
 
-![consistent_hashing](images/consistent_hashing.png)
+![consistent_hashing](images/consistent_hashing.webp)
 
 	Figure 11 Consistent hashing
 
@@ -490,7 +490,7 @@ Congratulations on getting this far! Now give yourself a pat on the back. Good j
 
 ## Chapter Summary
 
-![chapter_summary](images/chapter_summary.png)
+![chapter_summary](images/chapter_summary.webp)
 
 # Reference Materials
 
