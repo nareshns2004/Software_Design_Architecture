@@ -394,7 +394,7 @@ Level 0 is the most zoomed-out level. The entire map is represented by a single 
 
 With each increment of the zoom level, the number of map tiles doubles in both north-south and east-west directions, while each tile stays at 256 * 256 pixels. As shown in Figure 16, at zoom level 1, there are 2 x 2 tiles, with a total combined resolution of 512 * 512 pixels. At zoom level 2, there are 4 x 4 tiles, with a total combined resolution of 1024 * 1024 pixels. With each increment, the entire set of tiles has 4x as many pixels as the previous level. The increased pixel count provides an increasing level of detail to the user. This allows the client to render the map at the best granularities depending on the client’s zoom level, without consuming excessive bandwidth to download tiles in excessive detail.
 
-![zoom_levels](images/zoom_levels.webp)
+![zoom_levels_2](images/zoom_levels_2.webp)
 
 	Figure 16 Zoom levels
 	
