@@ -844,7 +844,7 @@ Congratulations on getting this far! Now give yourself a pat on the back. Good j
 
 ## Chapter summary
 
-![chapter_summary](images/chapter_summary.png)
+![chapter_summary](images/chapter_summary.webp)
 
 # Reference Materials
 
