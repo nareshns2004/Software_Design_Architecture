@@ -70,7 +70,7 @@ There are different ways to do map projection, and each comes with its own stren
 
 ![map_projections](images/map_projections.webp)
 
-Figure 2 Map projections (source: Wikipedia [6] [7] [8] [9])
+	Figure 2 Map projections (source: Wikipedia [6] [7] [8] [9])
 
 Google Maps selected a modified version of Mercator projection called Web Mercator. For more details on positioning systems and projections, please refer to [5].
 
@@ -88,7 +88,7 @@ Geohashing is an encoding system that encodes a geographic area into a short str
 
 Let’s assume the initial flattened surface is of size 20,000 km * 10,000 km. After the first division, we would have 4 grids of size 10,000 km * 5,000 km. We represent them as 00, 01, 10, and 11 as shown in Figure 3. We further divide each grid into 4 grids and use the same naming strategy. Each sub-grid is now of size 5,000 km*2,500 km. We recursively divide the grids until each grid reaches a certain size threshold.
 
-![geohashing](images/geohashing.png)
+![geohashing](images/geohashing.webp)
 
 	Figure 3 Geohashing
 	
@@ -269,7 +269,7 @@ In the diagram above, the mobile user makes an HTTP request to fetch a tile from
 
 This approach is more scalable and performant because the map tiles are served from the nearest point of presence (POP) to the client, as shown in Figure 11. The static nature of the map tiles makes them highly cacheable.
 
-![without_cdn](images/without_cdn.png)
+![without_cdn](images/without_cdn.webp)
 
 	Figure 11 Without CDN vs with CDN
 
@@ -394,7 +394,7 @@ Level 0 is the most zoomed-out level. The entire map is represented by a single 
 
 With each increment of the zoom level, the number of map tiles doubles in both north-south and east-west directions, while each tile stays at 256 * 256 pixels. As shown in Figure 16, at zoom level 1, there are 2 x 2 tiles, with a total combined resolution of 512 * 512 pixels. At zoom level 2, there are 4 x 4 tiles, with a total combined resolution of 1024 * 1024 pixels. With each increment, the entire set of tiles has 4x as many pixels as the previous level. The increased pixel count provides an increasing level of detail to the user. This allows the client to render the map at the best granularities depending on the client’s zoom level, without consuming excessive bandwidth to download tiles in excessive detail.
 
-![zoom_levels](images/zoom_levels.png)
+![zoom_levels](images/zoom_levels.webp)
 
 	Figure 16 Zoom levels
 	
