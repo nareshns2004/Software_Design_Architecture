@@ -32,8 +32,8 @@ In a nutshell, the basic functionality of a message queue is straightforward: pr
 <p><b>Candidate</b>: Can messages be repeatedly consumed?</p>
 <p><b>Interviewer</b>: Yes, messages can be repeatedly consumed by different consumers. Note that this is an added feature. A traditional distributed message queue does not retain a message once it has been successfully delivered to a consumer. Therefore, a message cannot be repeatedly consumed in a traditional message queue.</p>
 
-<p><b>Candidate: Are messages consumed in the same order they were produced?</p>
-<p><b>Interviewer: Yes, messages should be consumed in the same order they were produced. Note that this is an added feature. A traditional distributed message queue does not usually guarantee delivery orders.</p>
+<p><b>Candidate</b>: Are messages consumed in the same order they were produced?</p>
+<p><b>Interviewer</b>: Yes, messages should be consumed in the same order they were produced. Note that this is an added feature. A traditional distributed message queue does not usually guarantee delivery orders.</p>
 
 <p><b>Candidate</b>: Does data need to be persisted and what is the data retention?</p>
 <p><b>Interviewer</b>: Yes, let’s assume data retention is two weeks. This is an added feature. A traditional distributed message queue does not retain messages.</p>
