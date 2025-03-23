@@ -459,7 +459,7 @@ The concept of event sourcing is not hard to understand. In a traditional applic
 
 In event sourcing, instead of storing the current states, it keeps an immutable log of all state-changing events. These events are the golden source of truth. See Figure 17 for a comparison.
 
-![event_sourcing](images/event_sourcing.png)
+![event_sourcing](images/event_sourcing.webp)
 
 	Figure 17 Non-event sourcing vs event sourcing
 	
