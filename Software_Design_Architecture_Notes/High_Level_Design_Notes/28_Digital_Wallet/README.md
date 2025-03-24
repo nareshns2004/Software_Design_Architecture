@@ -1,135 +1,159 @@
 # Digital Wallet
-Payment platforms usually have a wallet service, where they allow clients to store funds within the application, which they can withdraw later.
 
-You can also use it to pay for goods & services or transfer money to other users, who use the digital wallet service. That can be faster and cheaper than doing it via normal payment rails.
-![digital-wallet](images/digital-wallet.png)
+Payment platforms usually provide a digital wallet service to clients, so they can store money in the wallet and spend it later. For example, you can add money to your digital wallet from your bank card and when you buy products online, you are given the option to pay using the money in your wallet. Figure 1 shows this process.
 
-# Step 1 - Understand the Problem and Establish Design Scope
- * C: Should we only focus on transfers between digital wallets? Should we support any other operations?
- * I: Let's focus on transfers between digital wallets for now.
- * C: How many transactions per second does the system need to support?
- * I: Let's assume 1mil TPS
- * C: A digital wallet has strict correctness requirements. Can we assume transactional guarantees are sufficient?
- * I: Sounds good
- * C: Do we need to prove correctness?
- * I: We can do that via reconciliation, but that only detects discrepancies vs. showing us the root cause for them. Instead, we want to be able to replay data from the beginning to reconstruct the history.
- * C: Can we assume availability requirement is 99.99%?
- * I: Yes
- * C: Do we need to take foreign exchange into consideration?
- * I: No, it's out of scope
+![digital_wallet](images/digital_wallet.png)
 
-Here's what we have to support in summary:
- * Support balance transfers between two accounts
- * Support 1mil TPS
- * Reliability is 99.99%
- * Support transactions
- * Support reproducibility
+	Figure 1 Digital wallet
+
+Spending money is not the only feature that the digital wallet provides. For a payment platform like PayPal, we can directly transfer money to somebody else’s wallet on the same payment platform. Compared with the bank-to-bank transfer, direct transfer between digital wallets is faster, and most importantly, it usually does not charge an extra fee. Figure 2 shows a cross-wallet balance transfer operation.
+
+![cross_wallet](images/cross_wallet.png)
+
+	Figure 2 Cross-wallet balance transfer
+
+Suppose we are asked to design the backend of a digital wallet application that supports the cross-wallet balance transfer operation. At the beginning of the interview, we will ask clarification questions to nail down the requirements.
+
+## Step 1 - Understand the Problem and Establish Design Scope
+
+<p><b>Candidate</b>: Should we only focus on balance transfer operations between two digital wallets? Do we need to worry about other features?</p>
+<p><b>Interviewer</b>: Let’s focus on balance transfer operations only.</p>
+
+<p><b>Candidate</b>: How many transactions per second (TPS) does the system need to support?</p>
+<p><b>Interviewer</b>: Let’s assume 1,000,000 TPS.</p>
+
+<p><b>Candidate</b>: A digital wallet has strict requirements for correctness. Can we assume transactional guarantees [1] are sufficient?</p>
+<p><b>Interviewer</b>: That sounds good.</p>
+
+<p><b>Candidate</b>: Do we need to prove correctness?</p>
+<p><b>Interviewer</b>: This is a good question. Correctness is usually only verifiable after a transaction is complete. One way to verify is to compare our internal records with statements from banks. The limitation of reconciliation is that it only shows discrepancies and cannot tell how a difference was generated. Therefore, we would like to design a system with reproducibility, meaning we could always reconstruct historical balance by replaying the data from the very beginning.</p>
+
+<p><b>Candidate</b>: Can we assume the availability requirement is 99.99%</p>
+<p><b>Interviewer</b>: Sounds good.</p>
+
+<p><b>Candidate</b>: Do we need to take foreign exchange into consideration?</p>
+<p><b>Interviewer</b>: No, it’s out of scope.</p>
+
+In summary, our digital wallet needs to support the following:
+
+ * Support balance transfer operation between two digital wallets.
+
+ * Support 1,000,000 TPS.
+
+ * Reliability is at least 99.99%.
+
+ * Support transactions.
+
+ * Support reproducibility.
 
 ## Back-of-the-envelope estimation
-A traditional relational database, provisioned in the cloud can support ~1000 TPS.
 
-In order to reach 1mil TPS, we'd need 1000 database nodes. But if each transfer has two legs, then we actually need to support 2mil TPS.
+When we talk about TPS, we imply a transactional database will be used. Today, a relational database running on a typical data center node can support a few thousand transactions per second. For example, reference [2] contains the performance benchmark of some of the popular transactional database servers. Let’s assume a database node can support 1,000 TPS. In order to reach 1 million TPS, we need 1,000 database nodes.
 
-One of our design goals would be to increase the TPS a single node can handle so that we can have less database nodes.
-| Per-node TPS | Node Number |
-|--------------|-------------|
-| 100          | 20,000      |
-| 1,000        | 2,000       |
-| 10,000       | 200         |
+However, this calculation is slightly inaccurate. Each transfer command requires two operations: deducting money from one account and depositing money to the other account. To support 1 million transfers per second, the system actually needs to handle up to 2 million TPS, which means we need 2,000 nodes.
 
-# Step 2 - Propose High-Level Design and Get Buy-In
-## API Design
-We only need to support one endpoint for this interview:
-```
-POST /v1/wallet/balance_transfer - transfers balance from one wallet to another
-```
+Table 1 shows the total number of nodes required when the “per-node TPS” (the TPS a single node can handle) changes. Assuming hardware remains the same, the more transactions a single node can handle per second, the lower the total number of nodes required, indicating lower hardware cost. So one of our design goals is to increase the number of transactions a single node can handle.
 
-Request parameters - from_account, to_account, amount (string to not lose precision), currency, transaction_id (idempotency key).
+![mapping](images/mapping.png)
 
-Sample response:
-```
-{
-    "status": "success"
-    "transaction_id": "01589980-2664-11ec-9621-0242ac130002"
-}
-```
+## Step 2 - Propose High-Level Design and Get Buy-In
 
-## In-memory sharding solution
-Our wallet application maintains account balances for every user account.
+In this section, we will discuss the following:
 
-One good data structure to represent this is a `map<user_id, balance>`, which can be implemented using an in-memory Redis store.
+ * API design
 
-Since one redis node cannot withstand 1mil TPS, we need to partition our redis cluster into multiple nodes.
+ * Three high-level designs
 
-Example partitioning algorithm:
-```
-String accountID = "A";
-Int partitionNumber = 7;
-Int myPartition = accountID.hashCode() % partitionNumber;
-```
+	* Simple in-memory solution
 
-Zookeeper can be used to store the number of partitions and addresses of redis nodes as it's a highly-available configuration storage. 
+	* Database-based distributed transaction solution
 
-Finally, a wallet service is a stateless service responsible for carrying out transfer operations. It can easily scale horizontally:
-![wallet-service](images/wallet-service.png)
+	* Event sourcing solution with reproducibility
 
-Although this solution addresses scalability concerns, it doesn't allow us to execute balance transfers atomically.
 
-## Distributed transactions
-One approach for handling transactions is to use the two-phase commit protocol on top of standard, sharded relational databases:
-![distributed-transactions-relational-dbs](images/distributed-transactions-relational-dbs.png)
+### API Design
 
-Here's how the two-phase commit (2PC) protocol works:
-![2pc-protocol](images/2pc-protocol.png)
- * Coordinator (wallet service) performs read and write operations on multiple databases as normal
- * When application is ready to commit the transaction, coordinator asks all databases to prepare it
- * If all databases replied with a "yes", then the coordinator asks the databases to commit the transaction.
- * Otherwise, all databases are asked to abort the transaction
+We will use the RESTful API convention. For this interview, we only need to support one API:
 
-Downsides to the 2PC approach:
- * Not performant due to lock contention
- * The coordinator is a single point of failure
+![restful_api](images/restful_api.png)
 
-## Distributed transaction using Try-Confirm/Cancel (TC/C)
-TC/C is a variation of the 2PC protocol, which works with compensating transactions:
- * Coordinator asks all databases to reserve resources for the transaction
- * Coordinator collects replies from DBs - if yes, DBs are asked to try-confirm. If no, DBs are asked to try-cancel.
+![sample_response](images/sample_response.png)
 
-One important difference between TC/C and 2PC is that 2PC performs a single transaction, whereas in TC/C, there are two independent transactions.
+One thing worth mentioning is that the data type of the “amount” field is “string,” rather than “double”. We explained the reasoning in the Payment System chapter.
 
-Here's how TC/C works in phases:
-| Phase | Operation | A                   | C                   |
-|-------|-----------|---------------------|---------------------|
-| 1     | Try       | Balance change: -$1 | Do nothing          |
-| 2     | Confirm   | Do nothing          | Balance change: +$1 |
-|       | Cancel    | Balance change: +$1 | Do Nothing          |
+In practice, many people still choose float or double representation of numbers because it is supported by almost every programming language and database. It is a proper choice as long as we understand the potential risk of losing precision.
 
-Phase 1 - try:
-![try-phase](images/try-phase.png)
- * coordinator starts local transaction in A's DB to reduce A's balance by 1$
- * C's DB is given a NOP instruction, which does nothing
+### In-memory sharding solution
 
-Phase 2a - confirm:
-![confirm-phase](images/confirm-phase.png)
- * if both DBs replied with "yes", confirm phase starts.
- * A's DB receives NOP, whereas C's DB is instructed to increase C's balance by 1$ (local transaction)
+The wallet application maintains an account balance for every user account. A good data structure to represent this <user,balance> relationship is a map, which is also called a hash table (map) or key-value store.
 
-Phase 2b - cancel:
-![cancel-phase](images/cancel-phase.png)
- * If any of the operations in phase 1 fails, the cancel phase starts.
- * A's DB is instructed to increase A's balance by 1$, C's DB receives NOP
+For in-memory stores, one popular choice is Redis. One Redis node is not enough to handle 1 million TPS. We need to set up a cluster of Redis nodes and evenly distribute user accounts among them. This process is called partitioning or sharding.
 
-Here's a comparison between 2PC and TC/C:
-|      | First Phase                                            | Second Phase: success              | Second Phase: fail                        |
-|------|--------------------------------------------------------|------------------------------------|-------------------------------------------|
-| 2PC  | transactions are not done yet                          | Commit/Cancel all transactions     | Cancel all transactions                   |
-| TC/C | All transactions are completed - committed or canceled | Execute new transactions if needed | Reverse the already committed transaction |
+To distribute the key-value data among N partitions, we could calculate the hash value of the key and divide it by N. The remainder is the destination of the partition. The pseudocode below shows the sharding process:
 
-TC/C is also referred to as a distributed transaction by compensation. High-level operation is handled in the business logic.
+![wallet_service](images/wallet_service.png)
 
-Other properties of TC/C:
- * database agnostic, as long as database supports transactions
- * Details and complexity of distributed transactions need to be handled in the business logic
+The number of partitions and addresses of all Redis nodes can be stored in a centralized place. We could use Zookeeper [4] as a highly-available configuration storage solution.
+
+The final component of this solution is a service that handles the transfer commands. We call it the wallet service and it has several key responsibilities.
+
+1. Receives the transfer command
+
+2. Validates the transfer command
+
+3. If the command is valid, it updates the account balances for the two users involved in the transfer. In a cluster, the account balances are likely to be in different Redis nodes
+
+The wallet service is stateless. It is easy to scale horizontally. Figure 3 shows the in-memory solution.
+
+![memory_solution](images/memory_solution.png)
+
+In this example, we have 3 Redis nodes. There are three clients, A, B, and C. Their account balances are evenly spread across these three Redis nodes. There are two wallet service nodes in this example that handle the balance transfer requests. When one of the wallet service nodes receives the transfer command which is to move <i>1fromclientAtoclientB,itissuestwocommandstotwoRedisnodes.FortheRedisnodethatcontainsclientA’saccount,thewalletservicededucts1</i> from the account. For client B, the wallet service adds $1 to the account.
+
+<b>Candidate</b>: In this design, account balances are spread across multiple Redis nodes. Zookeeper is used to maintain the sharding information. The stateless wallet service uses the sharding information to locate the Redis nodes for the clients and updates the account balances accordingly.
+
+<b>Interviewer</b>: This design works, but it does not meet our correctness requirement. The wallet service updates two Redis nodes for each transfer. There is no guarantee that both updates would succeed. If, for example, the wallet service node crashes after the first update has gone through but before the second update is done, it would result in an incomplete transfer. The two updates need to be in a single atomic transaction.
+
+### Distributed transactions
+
+#### Database sharding
+
+How do we make the updates to two different storage nodes atomic? The first step is to replace each Redis node with a transactional relational database node. Figure 4 shows the architecture. This time, clients A, B, and C are partitioned into 3 relational databases, rather than in 3 Redis nodes.
+
+![relational_database](images/relational_database.png)
+
+	Figure 4 Relational database
+	
+Using transactional databases only solves part of the problem. As mentioned in the last section, it is very likely that one transfer command will need to update two accounts in two different databases. There is no guarantee that two update operations will be handled at exactly the same time. If the wallet service restarted right after it updated the first account balance, how can we make sure the second account will be updated as well?
+
+#### Distributed transaction: two-phase commit
+
+In a distributed system, a transaction may involve multiple processes on multiple nodes. To make a transaction atomic, the distributed transaction might be the answer. There are two ways to implement a distributed transaction: a low-level solution and a high-level solution. We will examine each of them.
+
+The low-level solution relies on the database itself. The most commonly used algorithm is called two-phase commit (2PC). As the name implies, it has two phases, as in Figure 5.
+
+![phase_commit](images/phase_commit.png)
+
+	Figure 5 Two-phase commit (source [5])
+	
+1. The coordinator, which in our case is the wallet service, performs read and write operations on multiple databases as normal. As shown in Figure 5, both databases A and C are locked.
+
+2. When the application is about to commit the transaction, the coordinator asks all databases to prepare the transaction.
+
+3. In the second phase, the coordinator collects replies from all databases and performs the following:
+
+	* If all databases reply with a “yes”, the coordinator asks all databases to commit the transaction they have received.
+
+	* If any database replies with a “no”, the coordinator asks all databases to abort the transaction.
+
+It is a low-level solution because the prepare step requires a special modification to the database transaction. For example, there is an X/Open XA [6] standard that coordinates heterogeneous databases to achieve 2PC. The biggest problem with 2PC is that it’s not performant, as locks can be held for a very long time while waiting for a message from the other nodes. Another issue with 2PC is that the coordinator can be a single point of failure, as shown in Figure 6.
+
+![coordinator_crashes](images/coordinator_crashes.png)
+
+	Figure 6 Coordinator crashes
+
+#### Distributed transaction: Try-Confirm/Cancel (TC/C)
+
+
 
 ## TC/C Failure modes
 If the coordinator dies mid-flight, it needs to recover its intermediary state. 
