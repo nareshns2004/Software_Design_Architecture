@@ -97,11 +97,11 @@ The number of partitions and addresses of all Redis nodes can be stored in a cen
 
 The final component of this solution is a service that handles the transfer commands. We call it the wallet service and it has several key responsibilities.
 
-1. Receives the transfer command
+ 1. Receives the transfer command
 
-2. Validates the transfer command
+ 2. Validates the transfer command
 
-3. If the command is valid, it updates the account balances for the two users involved in the transfer. In a cluster, the account balances are likely to be in different Redis nodes
+ 3. If the command is valid, it updates the account balances for the two users involved in the transfer. In a cluster, the account balances are likely to be in different Redis nodes
 
 The wallet service is stateless. It is easy to scale horizontally. Figure 3 shows the in-memory solution.
 
@@ -135,11 +135,11 @@ The low-level solution relies on the database itself. The most commonly used alg
 
 	Figure 5 Two-phase commit (source [5])
 	
-1. The coordinator, which in our case is the wallet service, performs read and write operations on multiple databases as normal. As shown in Figure 5, both databases A and C are locked.
+ 1. The coordinator, which in our case is the wallet service, performs read and write operations on multiple databases as normal. As shown in Figure 5, both databases A and C are locked.
 
-2. When the application is about to commit the transaction, the coordinator asks all databases to prepare the transaction.
+ 2. When the application is about to commit the transaction, the coordinator asks all databases to prepare the transaction.
 
-3. In the second phase, the coordinator collects replies from all databases and performs the following:
+ 3. In the second phase, the coordinator collects replies from all databases and performs the following:
 
 	* If all databases reply with a “yes”, the coordinator asks all databases to commit the transaction they have received.
 
@@ -153,116 +153,347 @@ It is a low-level solution because the prepare step requires a special modificat
 
 #### Distributed transaction: Try-Confirm/Cancel (TC/C)
 
+TC/C is a type of compensating transaction [7] that has two steps:
+
+ 1. In the first phase, the coordinator asks all databases to reserve resources for the transaction.
+
+ 2. In the second phase, the coordinator collects replies from all databases:
+
+	* If all databases reply with “yes”, the coordinator asks all databases to confirm the operation, which is the Try-Confirm process.
+
+	* If any database replies with “no”, the coordinator asks all databases to cancel the operation, which is the Try-Cancel process.
+
+It’s important to note that the two phases in 2PC are wrapped in the same transaction, but in TC/C each phase is a separate transaction.
+
+<b>TC/C example</b>
+
+It would be much easier to explain how TC/C works with a real-world example. Suppose we want to transfer $1 from account A to account C. Table 2 gives a summary of how TC/C is executed in each phase.
+
+![try_confirm](images/try_confirm.png)
+
+Let’s assume the wallet service is the coordinator of the TC/C. At the beginning of the distributed transaction, account A has <i>1initsbalance,andaccountChas0</i>.
+
+<b>First phase: Try</b>
+
+In the Try phase, the wallet service, which acts as the coordinator, sends two transaction commands to two databases:
+
+ 1. For the database that contains account A, the coordinator starts a local transaction that reduces the balance of A by $1.
+
+ 2. For the database that contains account C, the coordinator gives it a NOP (no operation.) To make the example adaptable for other scenarios, let’s assume the coordinator sends to this database a NOP command. The database does nothing for NOP commands and always replies to the coordinator with a success message.
+
+The Try phase is shown in Figure 7. The thick line indicates that a lock is held by the transaction.
+
+![try_phase](images/try_phase.png)
+
+	Figure 7 Try phase
+	
+<b>Second phase: Confirm</b>
+
+If both databases reply “yes”, the wallet service starts the next Confirm phase.
+
+Account A’s balance has already been updated in the first phase. The wallet service does not need to change its balance. However, account C has not yet received its <i>1fromaccountAinthefirstphase.IntheConfirmphase,thewalletservicehastoadd1</i> to account C’s balance.
+
+The Confirm process is shown in Figure 8.
+
+![confirm_phase](images/confirm_phase.png)
+
+	Figure 8 Confirm phase
+	
+<b>Second phase: Cancel</b>
+
+What if the first Try phase fails? In the example above we have assumed the NOP operation on account C always succeeds, although in practice it may fail. For example, account C might be an illegal account, and the regulator has mandated that no money can flow into or out of this account. In this case, the distributed transaction must be canceled and we have to clean up.
+
+Because the balance of account A has already been updated in the transaction in the Try phase, it is impossible for the wallet service to cancel a completed transaction. What it can do is to start another transaction that reverts the effect of the transaction in the Try phase, which is to add $1 back to account A.
+
+Because account C was not updated in the Try phase, the wallet service just needs to send a NOP operation to account C’s database.
+
+The Cancel process is shown in Figure 9.
+
+![cancel_phase](images/cancel_phase.png)
+
+	Figure 9 Cancel phase
+	
+<b>Comparison between 2PC and TC/C</b>
+
+Table 3 shows that there are many similarities between 2PC and TC/C, but there are also differences. In 2PC, all local transactions are not done (still locked) when the second phase starts, while in TC/C, all local transactions are done (unlocked) when the second phase starts. In other words, the second phase of 2PC is about completing an unfinished transaction, such as an abort or commit, while in TC/C, the second phase is about using a reverse operation to offset the previous transaction result when an error occurs. The following table summarizes their differences.
+
+![tc_pc](images/tc_pc.png)
+
+TC/C is also called a distributed transaction by compensation. It is a high-level solution because the compensation, also called the “undo,” is implemented in the business logic. The advantage of this approach is that it is database-agnostic. As long as a database supports transactions, TC/C will work. The disadvantage is that we have to manage the details and handle the complexity of the distributed transactions in the business logic at the application layer.
+
+<b>Phase status table</b>
+
+We still have not yet answered the question asked earlier; what if the wallet service restarts in the middle of TC/C? When it restarts, all previous operation history might be lost, and the system may not know how to recover.
+
+The solution is simple. We can store the progress of a TC/C as phase status in a transactional database. The phase status includes at least the following information.
+
+ * The ID and content of a distributed transaction.
+
+ * The status of the Try phase for each database. The status could be “not sent yet”, “has been sent”, and “response received”.
+
+ * The name of the second phase. It could be “Confirm” or “Cancel.” It could be calculated using the result of the Try phase.
+
+ * The status of the second phase.
+
+ * An out-of-order flag (explained soon in the section “Out-of-Order Execution”).
+
+Where should we put the phase status tables? Usually, we store the phase status in the database that contains the wallet account from which money is deducted. The updated architecture diagram is shown in Figure 10.
+
+![status_table](images/status_table.png)
+
+	Figure 10 Phase status table
+
+<b>Unbalanced state</b>
+
+Have you noticed that by the end of the Try phase, $1 is missing (Figure 11)?
+
+Assuming everything goes well, by the end of the Try phase <i>1isdeductedfromaccountAandaccountCremainsunchanged.ThesumofaccountbalancesinAandCwillbe0</i>, which is less than at the beginning of the TC/C. It violates a fundamental rule of accounting that the sum should remain the same after a transaction.
+
+The good news is that the transactional guarantee is still maintained by TC/C. TC/C comprises several independent local transactions. Because TC/C is driven by application, the application itself is able to see the intermediate result between these local transactions. On the other hand, the database transaction or 2PC version of the distributed transaction was maintained by databases that are invisible to high-level applications.
+
+There are always data discrepancies during the execution of distributed transactions. The discrepancies might be transparent to us because lower-level systems such as databases already fixed the discrepancies. If not, we have to handle it ourselves (for example, TC/C).
+
+The unbalanced state is shown in Figure 11.
+
+![unbalanced_state](images/unbalanced_state.png)
+
+	Figure 11 Unbalanced state
+	
+<b>Valid operation orders</b>
+
+There are three choices for the Try phase:
+
+![phase_choices](images/phase_choices.png)
+
+All three choices look plausible, but some are not valid.
+
+For choice 2, if the Try phase on account C is successful, but has failed on account A (NOP), the wallet service needs to enter the Cancel phase. There is a chance that somebody else may jump in and move the <i>1awayfromaccountC.Laterwhenthewalletservicetriestodeduct1</i> from account C, it finds nothing is left, which violates the transactional guarantee of a distributed transaction.
+
+For choice 3, if <i>1isdeductedfromaccountAandaddedtoaccountCconcurrently,itintroduceslotsofcomplications.Forexample</i>,1 is added to account C, but it fails to deduct the money from account A. What should we do in this case?
+
+Therefore, choice 2 and choice 3 are flawed choices and only choice 1 is valid.
+
+<b>Out-of-order execution</b>
+
+One side effect of TC/C is the out-of-order execution. It will be much easier to explain using an example.
+
+We reuse the above example which transfers $1 from account A to account C. As Figure 12 shows, in the Try phase, the operation against account A fails and it returns a failure to the wallet service, which then enters the Cancel phase and sends the cancel operation to both account A and account C.
+
+Let’s assume that the database that handles account C has some network issues and it receives the Cancel instruction before the Try instruction. In this case, there is nothing to cancel.
+
+The out-of-order execution is shown in Figure 12.
+
+![order_execution](images/order_execution.png)
+
+	Figure 12 Out-of-order execution
+	
+To handle out-of-order operations, each node is allowed to Cancel a TC/C without receiving a Try instruction, by enhancing the existing logic with the following updates:
+
+ * The out-of-order Cancel operation leaves a flag in the database indicating that it has seen a Cancel operation, but it has not seen a Try operation yet.
+
+ * The Try operation is enhanced so it always checks whether there is an out-of-order flag, and it returns a failure if there is.
+
+This is why we added an out-of-order flag to the phase status table in the “Phase Status Table” section.
 
 
-## TC/C Failure modes
-If the coordinator dies mid-flight, it needs to recover its intermediary state. 
-That can be done by maintaining phase status tables, atomically updated within the database shards:
-![phase-status-tables](images/phase-status-tables.png)
+#### Distributed transaction: Saga
 
-What does that table contain:
- * ID and content of distributed transaction
- * status of try phase - not sent, has been sent, response received
- * second phase name - confirm or cancel
- * status of second phase
- * out-of-order flag (explained later)
+<b>Linear order execution</b>
 
-One caveat when using TC/C is that there is a brief moment where the account states are inconsistent with each other while a distributed transaction is in-flight:
-![unbalanced-state](images/unbalanced-state.png)
+There is another popular distributed transaction solution called Saga [8]. Saga is the de-facto standard in a microservice architecture. The idea of Saga is simple:
 
-This is fine as long as we always recover from this state and that users cannot use the intermediary state to eg spend it. 
-This is guaranteed by always executing deductions prior to additions.
-| Try phase choices  | Account A | Account C |
-|--------------------|-----------|-----------|
-| Choice 1           | -$1       | NOP       |
-| Choice 2 (invalid) | NOP       | +$1       |
-| Choice 3 (invalid) | -$1       | +$1       |
+ 1. All operations are ordered in a sequence. Each operation is an independent transaction on its own database.
 
-Note that choice 3 from table above is invalid because we cannot guarantee atomic execution of transactions across different databases without relying on 2PC.
+ 2. Operations are executed from the first to the last. When one operation has finished, the next operation is triggered.
 
-One edge-case to address is out of order execution:
-![out-of-order-execution](images/out-of-order-execution.png)
+ 3. When an operation has failed, the entire process starts to roll back from the current operation to the first operation in reverse order, using compensating transactions. So if a distributed transaction has n operations, we need to prepare 2n operations: n for the normal case and another n for the compensating transaction during rollback.
 
-It is possible that a database receives a cancel operation, before receiving a try. This edge case can be handled by adding an out of order flag in our phase status table.
-When we receive a try operation, we first check if the out of order flag is set and if so, a failure is returned.
+It is easier to understand this by using an example. Figure 13 shows the Saga workflow to transfer $1 from account A to account C. The top horizontal line shows the normal order of execution. The two vertical lines show what the system should do when there is an error. When it encounters an error, the transfer operations are rolled back and the client receives an error message. As we mentioned in the “Valid operation orders” section, we have to put the deduction operation before the addition operation.
 
-## Distributed transaction using Saga
-Another popular approach is using Sagas - a standard for implementing distributed transactions with microservice architectures.
+![saga_workflow](images/saga_workflow.png)
 
-Here's how it works:
- * all operations are ordered in a sequence. All operations are independent in their own databases.
- * operations are executed from first to last
- * when an operation fails, the entire process starts to roll back until the beginning with compensating operations
-![saga](images/saga.png)
+	Figure 13 Saga workflow
+	
+How do we coordinate the operations? There are two ways to do it:
 
-How do we coordinate the workflow? There are two approaches we can take:
- * Choreography - all services involved in a saga subscribe to the related events and do their part in the saga
- * Orchestration - a single coordinator instructs all services to do their jobs in the correct order
+ * Choreography. In a microservice architecture, all the services involved in the Saga distributed transaction do their jobs by subscribing to other services’ events. So it is fully decentralized coordination.
 
-The challenge of using choreography is that business logic is split across multiple service, which communicate asynchronously.
-The orchestration approach handles complexity well, so it is typically the preferred approach in a digital wallet system.
+ * Orchestration. A single coordinator instructs all services to do their jobs in the correct order.
 
-Here's a comparison between TC/C and Saga:
-|                                           | TC/C            | Saga                     |
-|-------------------------------------------|-----------------|--------------------------|
-| Compensating action                       | In Cancel phase | In rollback phase        |
-| Central coordination                      | Yes             | Yes (orchestration mode) |
-| Operation execution order                 | any             | linear                   |
-| Parallel execution possibility            | Yes             | No (linear execution)    |
-| Could see the partial inconsistent status | Yes             | Yes                      |
-| Application or database logic             | Application     | Application              |
+The choice of which coordination model to use is determined by the business needs and goals. The challenge of the choreography solution is that services communicate in a fully asynchronous way, so each service has to maintain an internal state machine in order to understand what to do when other services emit an event. It can become hard to manage when there are many services. The orchestration solution handles complexity well, so it is usually the preferred solution in a digital wallet system.
 
-The main difference is that TC/C is parallelizable, so our decision is based on the latency requirement - if we need to achieve low latency, we should go for the TC/C approach.
+<b>Comparison between TC/C and Saga</b>
 
-Regardless of the approach we take, we still need to support auditing and replaying history to recover from failed states.
+TC/C and Saga are both application-level distributed transactions. Table 5 summarizes their similarities and differences.
 
-## Event sourcing
-In real-life, a digital wallet application might be audited and we have to answer certain questions:
- * Do we know the account balance at any given time?
- * How do we know the historical and current balances are correct?
- * How do we prove the system logic is correct after a code change?
+![tc_saga](images/tc_saga.png)
 
-Event sourcing is a technique which helps us answer these questions.
+Which one should we use in practice? The answer depends on the latency requirement. As Table 5 shows, operations in Saga have to be executed in linear order, but it is possible to execute them in parallel in TC/C. So the decision depends on a few factors:
 
-It consists of four concepts:
- * command - intended action from the real world, eg transfer 1$ from account A to B. Need to have a global order, due to which they're put into a FIFO queue.
-   * commands, unlike events, can fail and have some randomness due to eg IO or invalid state.
-   * commands can produce zero or more events
-   * event generation can contain randomness such as external IO. This will be revisited later
- * event - historical facts about events which occured in the system, eg "transferred 1$ from A to B".
-   * unlike commands, events are facts that have happened within our system
-   * similar to commands, they need to be ordered, hence, they're enqueued in a FIFO queue
- * state - what has changed as a result of an event. Eg a key-value store between account and their balances.
- * state machine - drives the event sourcing process. It mainly validates commands and applies events to update the system state.
-   * the state machine should be deterministic, hence, it shouldn't read external IO or rely on randomness. 
-![event-sourcing](images/event-sourcing.png)
+ 1. If there is no latency requirement, or there are very few services, such as our money transfer example, we can choose either of them. If we want to go with the trend in microservice architecture, choose Saga.
 
-Here's a dynamic view of event sourcing:
-![dynamic-event-sourcing](images/dynamic-event-sourcing.png)
+ 2. If the system is latency-sensitive and contains many services/operations, TC/C might be a better option.
 
-For our wallet service, the commands are balance transfer requests. We can put them in a FIFO queue, such as Kafka:
-![command-queue](images/command-queue.png)
+<b>Candidate</b>: To make the balance transfer transactional, we replace Redis with a relational database, and use TC/C or Saga to implement distributed transactions.
 
-Here's the full picture:
-![wallet-service-state-machine](images/wallet-service-state-macghine.png)
- * state machine reads commands from the command queue
- * balance state is read from the database
- * command is validated. If valid, two events for each of the accounts is generated
- * next event is read and applied by updating the balance (state) in the database
+<b>Interviewer</b>: Great work! The distributed transaction solution works, but there might be cases where it doesn’t work well. For example, users might enter the wrong operations at the application level. In this case, the money we specified might be incorrect. We need a way to trace back the root cause of the issue and audit all account operations. How can we do this?
 
-The main advantage of using event sourcing is its reproducibility. In this design, all state update operations are saved as immutable history of all balance changes.
+### Event sourcing
 
-Historical balances can always be reconstructed by replaying events from the beginning. 
-Because the event list is immutable and the state machine is deterministic, we are guaranteed to succeed in replaying any of the intermediary states.
-![historical-states](images/historical-states.png)
+#### Background
 
-All audit-related questions asked in the beginning of the section can be addressed by relying on event sourcing:
- * Do we know the account balance at any given time? - events can be replayed from the start until the point which we are interested in
- * How do we know the historical and current balances are correct? - correctness can be verified by recalculating all events from the start
- * How do we prove the system logic is correct after a code change? - we can run different versions of the code against the events and verify their results are identical
+In real life, a digital wallet provider may be audited. These external auditors might ask some challenging questions, for example:
 
-Answering client queries about their balance can be addressed using the CQRS architecture - there can be multiple read-only state machines which are responsible for querying the historical state, based on the immutable events list:
-![cqrs-architecture](images/cqrs-architecture.png)
+ 1. Do we know the account balance at any given time?
+
+ 2. How do we know the historical and current account balances are correct?
+
+ 3. How do we prove that the system logic is correct after a code change?
+
+One design philosophy that systematically answers those questions is event sourcing, which is a technique developed in Domain-Driven Design (DDD) [9].
+
+#### Definition
+
+There are four important terms in event sourcing.
+
+ 1. Command
+
+ 2. Event
+
+ 3. State
+
+ 4. State machine
+
+<b>Command</b>
+
+A command is the intended action from the outside world. For example, if we want to transfer $1 from client A to client C, this money transfer request is a command.
+
+In event sourcing, it is very important that everything has an order. So commands are usually put into a FIFO (first in, first out) queue.
+
+<b>Event</b>
+
+Command is an intention and not a fact because some commands may be invalid and cannot be fulfilled. For example, the transfer operation will fail if the account balance becomes negative after the transfer.
+
+A command must be validated before we do anything about it. Once the command passes the validation, it is valid and must be fulfilled. The result of the fulfillment is called an event.
+
+There are two major differences between command and event.
+
+ 1. Events must be executed because they represent a validated fact. In practice, we usually use the past tense for an event. If the command is “transfer 1fromAtoC”,thecorrespondingeventwouldbe“transferr∗∗ed∗∗1 from A to C”.
+
+ 2. Commands may contain randomness or I/O, but events must be deterministic. Events represent historical facts.
+
+There are two important properties of the event generation process.
+
+ 1. One command may generate any number of events. It could generate zero or more events.
+
+ 2. Event generation may contain randomness, meaning it is not guaranteed that a command always generates the same event(s). The event generation may contain external I/O or random numbers. We will revisit this property in more detail near the end of the chapter.
+
+The order of events must follow the order of commands. So events are stored in a FIFO queue, as well.
+
+<b>State</b>
+
+State is what will be changed when an event is applied. In the wallet system, state is the balances of all client accounts, which can be represented with a map data structure. The key is the account name or ID, and the value is the account balance. Key-value stores are usually used to store the map data structure. The relational database can also be viewed as a key-value store, where keys are primary keys and values are table rows.
+
+<b>State machine</b>
+
+A state machine drives the event sourcing process. It has two major functions.
+
+ 1. Validate commands and generate events.
+
+ 2. Apply event to update state.
+
+Event sourcing requires the behavior of the state machine to be deterministic. Therefore, the state machine itself should never contain any randomness. For example, it should never read anything random from the outside using I/O, or use any random numbers. When it applies an event to a state, it should always generate the same result.
+
+Figure 14 shows the static view of event sourcing architecture. The state machine is responsible for converting the command to an event and for applying the event. Because state machine has two primary functions, we usually draw two state machines, one for validating commands and the other for applying events.
+
+![event_sourcing](images/event_sourcing.png)
+
+	Figure 14 Static view of event sourcing
+	
+If we add the time dimension, Figure 15 shows the dynamic view of event sourcing. The system keeps receiving commands and processing them, one by one.
+
+![dynamic_view](images/dynamic_view.png)
+
+	Figure 15 Dynamic view of event sourcing
+	
+#### Wallet service example
+
+For the wallet service, the commands are balance transfer requests. These commands are put into a FIFO queue. One popular choice for the command queue is Kafka [10]. The command queue is shown in Figure 16.
+
+![command_queue](images/command_queue.png)
+
+Figure 16 Command queue
+Let us assume the state (the account balance) is stored in a relational database. The state machine examines each command one by one in FIFO order. For each command, it checks whether the account has a sufficient balance. If yes, the state machine generates an event for each account. For example, if the command is <i>“A->1−C”,thestatemachinegeneratestwoevents:“A:−1” and “C:+$1”</i>.
+
+Figure 17 shows how the state machine works in 5 steps.
+
+ 1. Read commands from the command queue.
+
+ 2. Read balance state from the database.
+
+ 3. Validate the command. If it is valid, generate two events for each of the accounts.
+
+ 4. Read the next Event.
+
+ 5. Apply the Event by updating the balance in the database.
+
+![state_machine](images/state_machine.png)
+
+	Figure 17 How state machine works
+	
+#### Reproducibility
+
+The most important advantage that event sourcing has over other architectures is reproducibility.
+
+In the distributed transaction solutions mentioned earlier, a wallet service saves the updated account balance (the state) into the database. It is difficult to know why the account balance was changed. Meanwhile, historical balance information is lost during the update operation. In the event sourcing design, all changes are saved first as immutable history. The database is only used as an updated view of what balance looks like at any given point in time.
+
+We could always reconstruct historical balance states by replaying the events from the very beginning. Because the event list is immutable and the state machine logic is deterministic, it is guaranteed that the historical states generated from each replay are the same.
+
+Figure 18 shows how to reproduce the states of the wallet service by replaying the events.
+
+![reproduce_states](images/reproduce_states.png)
+
+	Figure 18 Reproduce states
+	
+Reproducibility helps us answer the difficult questions that the auditors ask at the beginning of the section. We repeat the questions here.
+
+ 1. Do we know the account balance at any given time?
+
+ 2. How do we know the historical and current account balances are correct?
+
+ 3. How do we prove the system logic is correct after a code change?
+
+For the first question, we could answer it by replaying events from the start, up to the point in time where we would like to know the account balance.
+
+For the second question, we could verify the correctness of the account balance by recalculating it from the event list.
+
+For the third question, we can run different versions of the code against the events and verify that their results are identical.
+
+Because of the audit capability, event sourcing is often chosen as the de facto solution for the wallet service.
+
+#### Command-query responsibility segregation (CQRS)
+
+So far, we have designed the wallet service to move money from one account to another efficiently. However, the client still does not know what the account balance is. There needs to be a way to publish state (balance information) so the client, which is outside of the event sourcing framework, can know what the state is.
+
+Intuitively, we can create a read-only copy of the database (historical state) and share it with the outside world. Event sourcing answers this question in a slightly different way.
+
+Rather than publishing the state (balance information), event sourcing publishes all the events. The external world could rebuild any customized state itself. This design philosophy is called CQRS [11].
+
+In CQRS, there is one state machine responsible for the write part of the state, but there can be many read-only state machines, which are responsible for building views of the states. Those views could be used for queries.
+
+These read-only state machines can derive different state representations from the event queue. For example, clients may want to know their balances and a read-only state machine could save state in a database to serve the balance query. Another state machine could build state for a specific time period to help investigate issues like possible double charges. The state information is an audit trail that could help to reconcile the financial records.
+
+The read-only state machines lag behind to some extent, but will always catch up. The architecture design is eventually consistent.
+
+Figure 19 shows a classic CQRS architecture.
+
+![cqrs_architecture](images/cqrs_architecture.png)
+
+	Figure 19 CQRS architecture
+	
+<b>Candidate</b>: In this design, we use event sourcing architecture to make the whole system reproducible. All valid business records are saved in an immutable Event queue which could be used for correctness verification.
+
+<b>Interviewer</b>: That’s great. But the event sourcing architecture you proposed only handles one event at a time and it needs to communicate with several external systems. Can we make it faster?
 
 # Step 3 - Design Deep Dive
 In this section we'll explore some performance optimizations as we're still required to scale to 1mil TPS.
