@@ -688,7 +688,7 @@ The money transfer operation contains 2 distributed operations: A-1andC+1. The S
 
  3. Saga coordinator examines the order of operations and determines that it needs to handle A-1<i>first.Thecoordinatorsends</i>A−1 as a command to Partition 1, which contains account A’s information.
 
- 4. Partition 1’s Raft leader receives the A-1<i>commandandstoresitinthecommandlist.Itthenvalidatesthecommand.Ifitisvalid,itisconvertedintoanevent.TheRaftconsensusalgorithmisusedtosynchronizedataacrossdifferentnodes.Theevent(deducting<\i>1 from A’s account balance) is executed after synchronization is complete.
+ 4. Partition 1’s Raft leader receives the A-1<i>commandandstoresitinthecommandlist.Itthenvalidatesthecommand.Ifitisvalid,itisconvertedintoanevent.TheRaftconsensusalgorithmisusedtosynchronizedataacrossdifferentnodes.Theevent(deducting</i>1 from A’s account balance) is executed after synchronization is complete.
 
  5. After the event is synchronized, the event sourcing framework of Partition 1 synchronizes the data to the read path using CQRS. The read path reconstructs the state and the status of execution.
 
