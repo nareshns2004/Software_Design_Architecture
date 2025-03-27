@@ -1,38 +1,80 @@
 # Hotel Reservation System
-In this chapter, we're designing a hotel reservation system, similar to Marriott International.
 
-Applicable to other types of systems as well - Airbnb, flight reservation, movie ticket booking.
+In this chapter, we design a hotel reservation system for a hotel chain such as Marriott International. The design and techniques used in this chapter are also applicable to other popular booking-related interview topics:
 
-# Step 1 - Understand the Problem and Establish Design Scope
-Before diving into designing the system, we should ask the interviewer questions to clarify the scope:
- * C: What is the scale of the system?
- * I: We're building a website for a hotel chain \w 5000 hotels and 1mil rooms
- * C: Do customers pay when they make a reservation or when they arrive at the hotel?
- * I: They pay in full when making reservations.
- * C: Do customers book hotel rooms through the website only? Do we have to support other reservation options such as phone calls?
- * I: They make bookings through the website or app only.
- * C: Can customers cancel reservations?
- * I: Yes
- * C: Other things to consider?
- * I: Yes, we allow overbooking by 10%. Hotel will sell more rooms than there actually are. Hotels do this in anticipation that clients will cancel bookings.
- * C: Since not much time, we'll focus on - show hotel-related page, hotel-room details page, reserve a room, admin panel, support overbooking.
- * I: Sounds good.
- * I: One more thing - hotel prices change all the time. Assume a hotel room's price changes every day.
- * C: OK.
+ * Design Airbnb
 
-## Non-functional requirements
- * Support high concurrency - there might be a lot of customers trying to book the same hotel during peak season.
- * Moderate latency - it's ideal to have low latency when a user makes a reservation, but it's acceptable if the system takes a few seconds to process it.
+ * Design a flight reservation system
 
-## Back-of-the-envelope estimation
- * 5000 hotels and 1mil rooms in total
- * Assume 70% of rooms are occupied and average stay duration is 3 days
- * Estimated daily reservations - 1mil * 0.7 / 3 = ~240k reservations per day
- * Reservations per second - 240k / 10^5 seconds in a day = ~3. Average reservation TPS is low.
+ * Design a movie ticket booking system
 
-Let's estimate the QPS. If we assume that there are three steps to reach the reservation page and there is a 10% conversion rate per page,
-we can estimate that if there are 3 reservations, then there must be 30 views of reservation page and 300 views of hotel room detail page.
-![qps-estimation](images/qps-estimation.png)
+## Step 1 - Understand the Problem and Establish Design Scope
+
+The hotel reservation system is complicated and its components vary based on business use cases. Before diving into the design, you should ask the interviewer clarification questions to narrow down the scope.
+
+<p><b>Candidate</b>: What is the scale of the system?</p>
+<p><b>Interviewer</b>: Let’s assume we are building a website for a hotel chain that has 5,000 hotels and 1 million rooms in total.</p>
+
+<p><b>Candidate</b>: Do customers pay when they make reservations or when they arrive at the hotel?</p>
+<p><b>Interviewer</b>: For simplicity, they pay in full when they make reservations.</p>
+
+<p><b>Candidate</b>: Do customers book hotel rooms through the hotel’s website only? Do we need to support other reservation options such as phone calls?</p>
+<p><b>Interviewer</b>: Let’s assume people could book a hotel room through the hotel website or app.</p>
+
+<p><b>Candidate</b>: Can customers cancel their reservations?</p>
+<p><b>Interviewer</b>: Yes.</p>
+
+<p><b>Candidate</b>: Are there any other things we need to consider?</p>
+<p><b>Interviewer</b>: Yes, we allow 10% overbooking. In case you do not know, overbooking means the hotel will sell more rooms than they actually have. Hotels do this in anticipation that some customers will cancel their reservations.</p>
+
+<p><b>Candidate</b>: Since we have limited time, I assume the hotel room search is not within the scope. We focus on the following features.</p>
+
+ * Show the hotel-related page.
+
+ * Show the hotel room-related detail page.
+
+ * Reserve a room.
+
+Admin panel to add/remove/update hotel or room info.
+
+Support the overbooking feature.
+
+<p><b>Interviewer</b>: Sounds good.</p>
+
+<p><b>Interviewer</b>: One more thing, hotel prices change dynamically. The price of a hotel room depends on how full the hotel is expected to be on a given day. For this interview, we can assume the price could be different each day.</p>
+<p><b>Candidate</b>: I’ll keep this in mind.</p>
+
+Next, you might want to talk about the most important non-functional requirements.
+
+### Non-functional requirements
+
+ * Support high concurrency. During peak season or big events, some popular hotels may have a lot of customers trying to book the same room.
+
+ * Moderate latency. It’s ideal to have a fast response time when a user makes the reservation, but it’s acceptable if the system takes a few seconds to process a reservation request.
+ 
+### Back-of-the-envelope estimation
+
+ * 5000 hotels and 1 million rooms in total.
+
+ * Assume 70% of the rooms are occupied and the average stay duration is 3 days.
+
+ * Estimated daily reservations: (1 million * 0.7) / 3 = 233,333 (rounding up to ~240,000)
+
+ * Reservations per second = 240,000 / 10^5 seconds in a day = ~3. As we can see, the average reservation transaction per second (TPS) is not high.
+
+Next, let’s do a rough calculation of the QPS of all pages in the system. There are three steps in a typical customer flow:
+
+ 1. View hotel/room detail page. Users browse this page (query).
+
+ 2. View the booking page. Users can confirm the booking details, such as dates, number of guests, payment information before booking (query).
+
+ 3. Reserve a room. Users click on the “book” button to book the room and the room is reserved (transaction).
+
+Let’s assume around 10% of users reach the next step and 90% of users drop off the flow before reaching the final step. We can also assume that no prefetching feature (prefetching the content before the user reaches the next step) is implemented. Figure 1 shows a rough estimation of what the QPS looks like for different steps. We know the final reservation TPS is 3 so we can work backwards along the funnel. The QPS of the order confirmation page is 30 and the QPS for the detail page is 300.
+
+![qps_estimation](images/qps_estimation.png)
+
+	Figure 1 QPS distribution
 
 # Step 2 - Propose High-Level Design and Get Buy-In
 We'll explore - API Design, Data model, high-level design.
