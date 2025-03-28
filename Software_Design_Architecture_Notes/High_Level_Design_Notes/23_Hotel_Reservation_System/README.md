@@ -76,45 +76,21 @@ Let’s assume around 10% of users reach the next step and 90% of users drop off
 
 	Figure 1 QPS distribution
 
-# Step 2 - Propose High-Level Design and Get Buy-In
-We'll explore - API Design, Data model, high-level design.
+## Step 2 - Propose High-Level Design and Get Buy-In
 
-## API Design
-This API Design focuses on the core endpoints (using RESTful practices), we'll need in order to support a hotel reservation system.
+In this section, we’ll discuss:
 
-A fully-fledged system would require a more extensive API with support for searching for rooms based on lots of criteria, but we won't be focusing on that in this section.
-Reason is that they aren't technically challenging, so they're out of scope.
+ * API design
 
-**Hotel-related API**
- * `GET /v1/hotels/{id}` - get detailed info about a hotel
- * `POST /v1/hotels` - add a new hotel. Only available to ops
- * `PUT /v1/hotels/{id}` - update hotel info. Only available to ops
- * `DELETE /v1/hotels/{id}` - delete a hotel. API is only available to ops
+ * Data models
 
-**Room-related API**
- * `GET /v1/hotels/{id}/rooms/{id}` - get detailed information about a room
- * `POST /v1/hotels/{id}/rooms` - Add a room. Only available to ops
- * `PUT /v1/hotels/{id}/rooms/{id}` - Update room info. Only available to ops
- * `DELETE /v1/hotels/{id}/rooms/{id}` - Delete a room. Only available to ops
+ * High-level design
 
-**Reservation-related API**
- * `GET /v1/reservations` - get reservation history of current user
- * `GET /v1/reservations/{id}` - get detailed info about a reservation
- * `POST /v1/reservations` - make a new reservation
- * `DELETE /v1/reservations/{id}` - cancel a reservation
+### API Design
 
-Here's an example request to make a reservation:
-```
-{
-  "startDate":"2021-04-28",
-  "endDate":"2021-04-30",
-  "hotelID":"245",
-  "roomID":"U12354673389",
-  "reservationID":"13422445"
-}
-```
+We explore the API design for the hotel reservation system. The most important APIs are listed below using the RESTful conventions.
 
-Note that the `reservationID` is an idempotency key to avoid double booking. Details explained in [concurrency section](#concurrency)
+Note that this chapter focuses on the design of a hotel reservation system. For a complete hotel website, the design needs to provide intuitive features for customers to search for rooms based on a large array of criteria. The APIs for these search features, while important, are not technically challenging. They are out of scope for this chapter.
 
 ## Data model
 Before we choose what database to use, let's consider our access patterns.
