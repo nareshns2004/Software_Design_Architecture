@@ -92,6 +92,18 @@ We explore the API design for the hotel reservation system. The most important A
 
 Note that this chapter focuses on the design of a hotel reservation system. For a complete hotel website, the design needs to provide intuitive features for customers to search for rooms based on a large array of criteria. The APIs for these search features, while important, are not technically challenging. They are out of scope for this chapter.
 
+![hotel](images/hotel.png)
+
+![room](images/room.png)
+
+![reservation](images/reservation.png)
+
+Making a new reservation is a very important feature. The request parameters of making a new reservation (POST /v1/reservations) could look like this.
+
+![start](images/start.png)
+
+Please note reservationID is used as the idempotency key to prevent double booking. Double booking means multiple reservations are made for the same room on the same day. The details are explained in “Concurrency issue” in the ‘Deep Dive’ section.
+
 ## Data model
 Before we choose what database to use, let's consider our access patterns.
 
