@@ -138,21 +138,45 @@ Most attributes are self-explanatory and we will only explain the status field i
 	
 This schema design has a major issue. This data model works for companies like Airbnb as room_id (might be called listing_id) is given when users make reservations. However, this isn’t the case for hotels. A user actually reserves <b>a type of room</b> in a given hotel instead of a specific room. For instance, a room type can be a standard room, king-size room, queen-size room with two queen beds, etc. Room numbers are given when the guest checks in and not at the time of the reservation. We need to update our data model to reflect this new requirement. See “Improved data model” in the ‘Deep Dive’ section for more details.
 
-## High-level Design
-We've chosen a microservice architecture for this design. It has gained great popularity in recent years:
-![high-level-design](images/high-level-design.png)
- * Users book a hotel room on their phone or computer
- * Admin perform administrative functions such as refunding/cancelling a payment, etc
- * CDN caches static resources such as JS bundles, images, videos, etc
- * Public API Gateway - fully-managed service which supports rate limiting, authentication, etc.
- * Internal APIs - only visible to authorized personnel. Usually protected by a VPN.
- * Hotel service - provides detailed information about hotels and rooms. Hotel and room data is static, so it can be cached aggressively.
- * Rate service - provides room rates for different future dates. An interesting note about this domain is that prices depend on how full a hotel is at a given day.
- * Reservation service - receives reservation requests and reserves hotel rooms. Also tracks room inventory as reservations are made/cancelled.
- * Payment service - processes payments and updates reservation statuses on success.
- * Hotel management service - available to authorized personnel only. Allows certain administrative functions for managing and viewing reservations, hotels, etc.
+### High-level Design
 
-Inter-service communication can be facilitated via a RPC framework, such as gRPC.
+We use the microservice architecture for this hotel reservation system. Over the past few years, microservice architecture has gained great popularity. Companies that use microservice include Amazon, Netflix, Uber, Airbnb, Twitter, etc. If you want to learn more about the benefits of a microservice architecture, you can check out some good resources [1] [2].
+
+Our design is modeled with the microservice architecture and the high-level design diagram is shown in Figure 4.
+
+![high_level_design](images/high_level_design.png)
+
+	Figure 4 High-level design
+
+We will briefly go over each component of the system from top to bottom.
+
+ * User: a user books a hotel room on their mobile phone or computer.
+
+ * Admin (hotel staff): authorized hotel staff perform administrative operations such as refunding a customer, canceling a reservation, updating room information, etc.
+
+ * CDN (content delivery network): for better load time, CDN is used to cache all static assets, including JavaScript bundles, images, videos, HTML, etc.
+
+ * Public API Gateway: this is a fully managed service that supports rate limiting, authentication, etc. The API gateway is configured to direct requests to specific services based on the endpoints. For example, requests to load the hotel homepage are directed to the hotel service and requests to book a hotel room are routed to the reservation service.
+
+ * Internal APIs: those APIs are only available to authorized hotel staff. They are accessible through internal software or websites. They are usually further protected by a VPN (virtual private network).
+
+ * Hotel Service: this provides detailed information on hotels and rooms. Hotel and room data are generally static, so can be easily cached.
+
+ * Rate Service: this provides room rates for different future dates. An interesting fact about the hotel industry is that the price of a room depends on how full the hotel is expected to be on a given day.
+
+ * Reservation Service: receives reservation requests and reserves the hotel rooms. This service also tracks room inventory as rooms are reserved or reservations are canceled.
+
+ * Payment Service: executes payment from a customer and updates the reservation status to “paid” once a payment transaction succeeds, or “rejected” if the transaction fails.
+
+ * Hotel Management Service: only available to authorized hotel staff. Hotel staff are eligible to use the following features: view the record of an upcoming reservation, reserve a room for a customer, cancel a reservation, etc.
+
+For clarity, Figure 4 omits many arrows of interactions between microservices. For example, as shown in Figure 5, there should be an arrow between Reservation service and Rate service. Reservation service queries Rate service for room rates. This is used to compute the total room charge for a reservation. Another example is that there should be many arrows connecting the Hotel Management Service with most of the other services. When an admin makes changes via Hotel Management Service, the requests are forwarded to the actual service owning the data, to handle the changes.
+
+![connections](images/connections.png)
+
+	Figure 5 Connections between services
+
+For production systems, inter-service communication often employs a modern and high-performance remote procedure call (RPC) framework like gPRC. There are many benefits to using such frameworks. To learn more about gPRC in particular, check out [3].
 
 # Step 3 - Design Deep Dive
 Let's dive deeper into:
