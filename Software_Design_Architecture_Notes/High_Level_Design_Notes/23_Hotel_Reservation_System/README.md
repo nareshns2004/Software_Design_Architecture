@@ -178,276 +178,399 @@ For clarity, Figure 4 omits many arrows of interactions between microservices. F
 
 For production systems, inter-service communication often employs a modern and high-performance remote procedure call (RPC) framework like gPRC. There are many benefits to using such frameworks. To learn more about gPRC in particular, check out [3].
 
-# Step 3 - Design Deep Dive
-Let's dive deeper into:
+## Step 3 - Design Deep Dive
+
+Now we’ve talked about the high-level design, let’s go deeper into the following.
+
  * Improved data model
+
  * Concurrency issues
- * Scalability
- * Resolving data inconsistency in microservices
 
-## Improved data model
-As mentioned in a previous section, we need to amend our API and schema to enable reserving a type of room vs. a particular one.
+ * Scaling the system
 
-For the reservation API, we no longer reserve a `roomID`, but we reserve a `roomTypeID`:
-```
-POST /v1/reservations
-{
-  "startDate":"2021-04-28",
-  "endDate":"2021-04-30",
-  "hotelID":"245",
-  "roomTypeID":"12354673389",
-  "roomCount":"3",
-  "reservationID":"13422445"
-}
-```
+ * Resolving data inconsistency in the microservice architecture
 
-Here's the updated schema:
-![updated-schema](images/updated-schema.png)
- * room - contains information about a room
- * room_type_rate - contains information about prices for a given room type
- * reservation - records guest reservation data
- * room_type_inventory - stores inventory data about hotel rooms. 
+### Improved data model
 
-Let's take a look at the `room_type_inventory` columns as that table is more interesting:
- * hotel_id - id of hotel
- * room_type_id - id of a room type
- * date - a single date
- * total_inventory - total number of rooms minus those that are temporarily taken off the inventory.
- * total_reserved - total number of rooms booked for given (hotel_id, room_type_id, date)
+As mentioned in the high-level design, when we reserve a hotel room, we actually reserve a type of room, as opposed to a specific room. What do we need to change about the API and schema to accommodate this?
 
-There are alternative ways to design this table, but having one room per (hotel_id, room_type_id, date) enables easy 
-reservation management and easier queries.
+For the reservation API, roomID is replaced by roomTypeID in the request parameter. The API to make a reservation looks like this:
 
-The rows in the table are pre-populated using a daily CRON job.
+	POST /v1/reservations
 
-Sample data:
-| hotel_id | room_type_id | date       | total_inventory | total_reserved |
-|----------|--------------|------------|-----------------|----------------|
-| 211      | 1001         | 2021-06-01 | 100             | 80             |
-| 211      | 1001         | 2021-06-02 | 100             | 82             |
-| 211      | 1001         | 2021-06-03 | 100             | 86             |
-| 211      | 1001         | ...        | ...             |                |
-| 211      | 1001         | 2023-05-31 | 100             | 0              |
-| 211      | 1002         | 2021-06-01 | 200             | 16             |
-| 2210     | 101          | 2021-06-01 | 30              | 23             |
-| 2210     | 101          | 2021-06-02 | 30              | 25             |
+Request parameters:
 
-Sample SQL query to check the availability of a type of room:
-```
-SELECT date, total_inventory, total_reserved
-FROM room_type_inventory
-WHERE room_type_id = ${roomTypeId} AND hotel_id = ${hotelId}
-AND date between ${startDate} and ${endDate}
-```
+![parameters](images/parameters.png)
 
-How to check availability for a specified number of rooms using that data (note that we support overbooking):
-```
-if (total_reserved + ${numberOfRoomsToReserve}) <= 110% * total_inventory
-```
+The updated schema is shown in Figure 6.
 
-Now let's do some estimation about the storage volume.
- * We have 5000 hotels.
- * Each hotel has 20 types of rooms.
- * 5000 * 20 * 2 (years) * 365 (days) = 73mil rows
+![updated_schema](images/updated_schema.webp)
 
-73 million rows is not a lot of data and a single database server can handle it.
-It makes sense, however, to setup read replication (potentially across different zones) to enable high availability.
+	Figure 6 Updated schema
+	
+We’ll briefly go over some of the most important tables.
 
-Follow-up question - if reservation data is too large for a single database, what would you do?
- * Store only current and future reservation data. Reservation history can be moved to cold storage.
- * Database sharding - we can shard our data by `hash(hotel_id) % servers_cnt` as we always select the `hotel_id` in our queries.
+<b>room</b>: contains information about a room.
 
-## Concurrency issues
-Another important problem to address is double booking.
+<b>room_type_rate</b>: stores price data for a specific room type, for future dates.
 
-There are two issues to address:
- * Same user clicks on "book" twice
- * Multiple users try to book a room at the same time
+<b>reservation</b>: records guest reservation data.
 
-Here's a visualization of the first problem:
-![double-booking-single-user](images/double-booking-single-user.png)
+<b>room_type_inventory</b>: stores inventory data about hotel rooms. This table is very important for the reservation system, so let’s take a close look at each column.
 
-There are two approaches to solving this problem:
- * Client-side handling - front-end can disable the book button once clicked. If a user disabled javascript, however, they won't see the button becoming grayed out.
- * Idemptent API - Add an idempotency key to the API, which enables a user to execute an action once, regardless of how many times the endpoint is invoked:
-![idempotency](images/idempotency.png)
+ * hotel_id: ID of the hotel
 
-Here's how this flow works:
- * A reservation order is generated once you're in the process of filling in your details and making a booking. The reservation order is generated using a globally unique identifier.
- * Submit reservation 1 using the `reservation_id` generated in the previous step.
- * If "complete booking" is clicked a second time, the same `reservation_id` is sent and the backend detects that this is a duplicate reservation.
- * The duplication is avoided by making the `reservation_id` column have a unique constraint, preventing multiple records with that id being stored in the DB.
-![unique-constraint-violation](images/unique-constraint-violation.png)
+ * room_type_id: ID of a room type.
 
-What if there are multiple users making the same reservation?
-![double-booking-multiple-users](images/double-booking-multiple-users.png)
- * Let's assume the transaction isolation level is not serializable
- * User 1 and 2 attempt to book the same room at the same time.
- * Transaction 1 checks if there are enough rooms - there are
- * Transaction 2 check if there are enough rooms - there are
- * Transaction 2 reserves the room and updates the inventory
- * Transaction 1 also reserves the room as it still sees there are 99 `total_reserved` rooms out of 100.
- * Both transactions successfully commit the changes
+ * date: a single date.
 
-This problem can be solved using some form of locking mechanism:
+ * total_inventory: the total number of rooms minus those that are temporarily taken off the inventory. Some rooms might be taken off the market for maintenance.
+
+ * totalreserved: the total number of rooms booked for the specified _hotel_id, room_type_id, and date.
+
+There are other ways to design the room_type_inventory table, but having one row per date makes managing reservations within a date range and queries easy. As shown in Figure 6, (hotel_id, room_type_id, date) is the composite primary key. The rows of the table are pre-populated by querying the inventory data across all future dates within 2 years. We have a scheduled daily job that pre-populates inventory data when the dates advance further.
+
+Now that we’ve finalized the schema design, let’s do some estimation about the storage volume. As mentioned in the back-of-the-envelope estimation, we have 5,000 hotels. Assume each hotel has 20 types of rooms. That’s (5000 hotels * 20 types of rooms* 2 years * 365 days) = 73 million rows. 73 million is not a lot of data and a single database is enough to store the data. However, a single server means a single point of failure. To achieve high availability, we could set up database replications across multiple regions or availability zones.
+
+Table 4 shows the sample data of the “room_type_inventory” table.
+
+![sample_data](images/sample_data.png)
+
+The room_type_inventory table is utilized to check if a customer can reserve a specific type of room or not. The input and output for a reservation might look like this:
+
+ * Input: startDate (2021-07-01), endDate (2021-07-03), roomTypeId, hotelId, numberOfRoomsToReserve
+
+ * Output: True if the specified type of room has inventory and users can book it. Otherwise, it returns false.
+
+From the SQL perspective, it contains the following two steps:
+
+1. Select rows within a date range
+
+![hotel_inventory](images/hotel_inventory.png)
+
+2. For each entry, the application checks the condition below:
+
+![total_reserved](images/total_reserved.png)
+
+At this point, the interviewer might ask a follow-up question: “if the reservation data is too large for a single database, what would you do?” There are a few strategies:
+
+ * Store only current and future reservation data. Reservation history is not frequently accessed. So they can be archived and some can even be moved to cold storage.
+
+ * Database sharding. The most frequent queries include making a reservation or looking up a reservation by name. In both queries, we need to choose the hotel first, meaning hotel_id is a good sharding key. The data can be sharded by hash(hotel_id) % number_of_servers.
+
+### Concurrency issues
+
+Another important problem to look at is double booking. We need to solve two problems: 
+
+1) the same user clicks on the “book” button multiple times.
+
+2) multiple users try to book the same room at the same time.
+
+Let’s take a look at the first scenario. As shown in Figure 7, two reservations are made.
+
+![two_made](images/two_made.png)
+
+There are two common approaches to solve this problem:
+
+ * Client-side implementation. A client can gray out, hide or disable the “submit” button once a request is sent. This should prevent the double-clicking issue most of the time. However, this approach is not very reliable. For example, users can disable JavaScript, thereby bypassing the client check.
+
+ * Idempotent APIs. Add an idempotency key in the reservation API request. An API call is idempotent if it produces the same result no matter how many times it is called. Figure 8 shows how to use the idempotency key (reservation_id) to avoid the double-reservation issue. The detailed steps are explained below.
+ 
+![unique_constraint](images/unique_constraint.png)
+
+	Figure 8 Unique constraint
+	
+1. Generate a reservation order. After a customer enters detailed information about the reservation (room type, check-in date, check-out date, etc) and clicks the “continue” button, a reservation order is generated by the reservation service.
+
+2. The system generates a reservation order for the customer to review. The unique reservation_id is generated by a globally unique ID generator and returned as part of the API response. The UI of this step might look like this:
+
+![confirmation_page](images/confirmation_page.webp)
+
+	Figure 9 Confirmation page (Source: [4])
+	
+3a. Submit reservation 1. The reservation_id is included as part of the request. It is the primary key of the reservation table (Figure 6). Please note that the idempotency key doesn’t have to be the reservation_id. We choose reservation_id because it already exists and works well for our design.
+
+3b. If a user clicks the “Complete my booking” button a second time, reservation 2 is submitted. Because reservation_id is the primary key of the reservation table, we can rely on the unique constraint of the key to ensure no double reservation happens.
+
+Figure 10 explains why double reservation can be avoided.
+
+![violation](images/violation.png)
+
+	Figure 10 Unique constraint violation
+	
+Scenario 2: what happens if multiple users book the same type of room at the same time when there is only one room left? Let’s consider the scenario as shown in Figure 11.
+
+![race_condition](images/race_condition.png)
+
+	Figure 11 Race condition
+	
+1. Let’s assume the database isolation level is not serializable [5]. User 1 and User 2 try to book the same type of room at the same time, but there is only 1 room left. Let’s call User 1’s execution ‘transaction 1’ and User 2’s execution ‘transaction 2.’ At this time, there are 100 rooms in the hotel and 99 of them are reserved.
+
+2. Transaction 2 checks if there are enough rooms left by checking if (total_reserved + rooms_to_book) <= total_inventory. Since there is 1 room left, it returns true.
+
+3. Transaction 1 checks if there are enough rooms by checking if (total_reserved + rooms_to_book) <= total_inventory. Since there is 1 room left, it also returns true.
+
+4. Transaction 1 reserves the room and updates the inventory: reserved_room becomes 100.
+
+5. Then transaction 2 reserves the room. The isolation property in ACID means database transactions must complete their tasks independently from other transactions. So data changes made by transaction 1 are not visible to transaction 2 until transaction 1 is completed (committed). So transaction 2 still sees total_reserved as 99 and reserves the room by updating the inventory: reserved_room becomes 100. This results in the system allowing both users to book a room, even though there is only 1 room left.
+
+6. Transaction 1 successfully commits the change.
+
+7. Transaction 2 successfully commits the change.
+
+The solution to this problem generally requires some form of locking mechanism. We explore the following techniques:
+
  * Pessimistic locking
+
  * Optimistic locking
+
  * Database constraints
 
-Here's the SQL we use to reserve a room:
-```sql
-# step 1: check room inventory
-SELECT date, total_inventory, total_reserved
-FROM room_type_inventory
-WHERE room_type_id = ${roomTypeId} AND hotel_id = ${hotelId}
-AND date between ${startDate} and ${endDate}
+Before jumping into a fix, let’s take a look at the SQL pseudo-code utilized to reserve a room. The SQL has two parts:
 
-# For every entry returned from step 1
-if((total_reserved + ${numberOfRoomsToReserve}) > 110% * total_inventory) {
-  Rollback
-}
+ * Check room inventory
 
-# step 2: reserve rooms
-UPDATE room_type_inventory
-SET total_reserved = total_reserved + ${numberOfRoomsToReserve}
-WHERE room_type_id = ${roomTypeId}
-AND date between ${startDate} and ${endDate}
+ * Reserve a room
 
-Commit
-```
+![room_inventory](images/room_inventory.png)
 
-### Option 1: Pessimistic locking
-Pessimistic locking prevents simultaneous updates by putting a lock on a record while it's being updated.
+#### Option 1: Pessimistic locking
 
-This can be done in MySQL by using the `SELECT... FOR UPDATE` query, which locks the rows selected by the query until the transaction is committed.
-![pessimistic-locking](images/pessimistic-locking.png)
+Pessimistic locking [6], also called pessimistic concurrency control, prevents simultaneous updates by placing a lock on a record as soon as one user starts to update it. Other users who attempt to update the record have to wait until the first user has released the lock (committed the changes).
 
-Pros:
- * Prevents applications from updating data that is being changed
- * Easy to implement and avoids conflict by serializing updates. Useful when there is heavy data contention.
+For MySQL, the “SELECT ... FOR UPDATE'' statement works by locking the rows returned by a selection query. Let’s assume a transaction is started by “transaction 1”. Other transactions have to wait for transaction 1 to finish before beginning another transaction. A detailed explanation is shown in Figure 12.
 
-Cons:
- * Deadlocks may occur when multiple resources are locked.
- * This approach is not scalable - if transaction is locked for too long, this has impact on all other transactions trying to access the resource.
- * The impact is severe when the query selects a lot of resources and the transaction is long-lived.
+![pessismetic_locking](images/pessismetic_locking.png)
 
-The author doesn't recommend this approach due to its scalability issues.
+	Figure 12 Pessimistic locking
+	
+In Figure 12, the “SELECT ... FOR UPDATE” statement of transaction 2 waits for transaction 1 to finish because transaction 1 locks the rows. After transaction 1 finishes, total_reserved becomes 100, which means there is no room for user 2 to book.
 
-### Option 2: Optimistic locking
-Optimistic locking allows multiple users to attempt to update a record at the same time.
+<b>Pros:</b>
 
-There are two common ways to implement it - version numbers and timestamps. Version numbers are recommended as server clocks can be inaccurate.
-![optimistic-locking](images/optimistic-locking.png)
- * A new `version` column is added to the database table
- * Before a user modifies a database row, the version number is read
- * When the user updates the row, the version number is increased by 1 and written back to the database
- * Database validation prevents the insert if the new version number doesn't exceed the previous one
+ * Prevents applications from updating data that is being – or has been – changed.
 
-Optimistic locking is usually faster than pessimistic locking as we're not locking the database. 
-Its performance tends to degrade when concurrency is high, however, as that leads to a lot of rollbacks.
+ * It is easy to implement and it avoids conflict by serializing updates. Pessimistic locking is useful when data contention is heavy.
 
-Pros:
- * It prevents applications from editing stale data
- * We don't need to acquire a lock in the database
- * Preferred option when data contention is low, ie rarely are there update conflicts
+<b>Cons:</b>
 
-Cons:
- * Performance is poor when data contention is high
+ * Deadlocks may occur when multiple resources are locked. Writing deadlock-free application code could be challenging.
 
-Optimistic locking is a good option for our system as reservation QPS is not extremely high.
+ * This approach is not scalable. If a transaction is locked for too long, other transactions cannot access the resource. This has a significant impact on database performance, especially when transactions are long-lived or involve a lot of entities.
 
-### Option 3: Database constraints
-This approach is very similar to optimistic locking, but the guardrails are implemented using a database constraint:
-```
-CONSTRAINT `check_room_count` CHECK((`total_inventory - total_reserved` >= 0))
-```
-![database-constraint](images/database-constraint.png)
+Due to these limitations, we do not recommend pessimistic locking for the reservation system.
 
-Pros:
- * Easy to implement
- * Works well when data contention is small
+#### Option 2: Optimistic locking
 
-Cons:
- * Similar to optimistic locking, performs poorly when data contention is high
- * Database constraints cannot be easily version-controlled like application code
- * Not all databases support constraints
+Optimistic locking [7], also referred to as optimistic concurrency control, allows multiple concurrent users to attempt to update the same resource.
 
-This is another good option for a hotel reservation system due to its ease of implementation.
+There are two common ways to implement optimistic locking: version number and timestamp. Version number is generally considered to be a better option because the server clock can be inaccurate over time. We explain how optimistic locking works with version number.
 
-## Scalability
-Usually, the load of a hotel reservation system is not high. 
+Figure 13 shows a successful case and a failure case.
 
-However, the interviewer might ask you how you'd handle a situation where the system gets adopted for a larger, popular travel site such as booking.com
-In that case, QPS can be 1000 times larger.
+![optimistic_locking](images/optimistic_locking.png)
 
-When there is such a situation, it is important to understand where our bottlenecks are. All the services are stateless, so they can be easily scaled via replication.
+	Figure 13 Optimistic locking
+	
+1. A new column called “version” is added to the database table.
 
-The database, however, is stateful and it's not as obvious how it can get scaled.
+2. Before a user modifies a database row, the application reads the version number of the row.
 
-One way to scale it is by implementing database sharding - we can split the data across multiple databases, where each of them contain a portion of the data.
+3. When the user updates the row, the application increases the version number by 1 and writes it back to the database.
 
-We can shard based on `hotel_id` as all queries filter based on it. 
-Assuming, QPS is 30,000, after sharding the database in 16 shards, each shard handles 1875 QPS, which is within a single MySQL cluster's load capacity.
-![database-sharding](images/database-sharding.png)
+4. A database validation check is put in place; the next version number should exceed the current version number by 1. The transaction aborts if the validation fails and the user tries again from step 2.
 
-We can also utilize caching for room inventory and reservations via Redis. We can set TTL so that old data can expire for days which are past.
-![inventory-cache](images/inventory-cache.png)
+Optimistic locking is usually faster than pessimistic locking because we do not lock the database. However, the performance of optimistic locking drops dramatically when concurrency is high.
 
-The way we store an inventory is based on the `hotel_id`, `room_type_id` and `date`:
-```
-key: hotelID_roomTypeID_{date}
-value: the number of available rooms for the given hotel ID, room type ID and date.
-```
+To understand why, consider the case when many clients try to reserve a hotel room at the same time. Because there is no limit on how many clients can read the available room count, all of them read back the same available room count and the current version number. When different clients make reservations and write back the results to the database, only one of them will succeed, and the rest of the clients receive a version check failure message. These clients have to retry. In the subsequent round of retries, there is only one successful client again, and the rest have to retry. Although the end result is correct, repeated retries cause a very unpleasant user experience.
 
-Data consistency happens async and is managed by using a CDC streaming mechanism - database changes are read and applied to a separate system.
-Debezium is a popular option for synchronizing database changes with Redis.
+<b>Pros:</b>
 
-Using such a mechanism, there is a possibility that the cache and database are inconsistent for some time.
-This is fine in our case because the database will prevent us from making an invalid reservation.
+ * It prevents applications from editing stale data.
 
-This will cause some issue on the UI as a user would have to refresh the page to see that "there are no more rooms left", 
-but that is something which can happen regardless of this issue if eg a person hesitates a lot before making a reservation.
+ * We don’t need to lock the database resource. There's actually no locking from the database point of view. It's entirely up to the application to handle the logic with the version number.
 
-Caching pros:
- * Reduced database load
- * High performance, as Redis manages data in-memory
+ * Optimistic locking is generally used when the data contention is low. When conflicts are rare, transactions can complete without the expense of managing locks.
 
-Caching cons:
- * Maintaining data consistency between cache and DB is hard. We need to consider how the inconsistency impacts user experience.
+<b>Cons:</b>
 
-## Data consistency among services
-A monolithic application enables us to use a shared relational database for ensuring data consistency.
+ * Performance is poor when data contention is heavy.
+ 
+Optimistic locking is a good option for a hotel reservation system since the QPS for reservations is usually not high.
 
-In our microservice design, we chose a hybrid approach where some services are separate, 
-but the reservation and inventory APIs are handled by the same servicefor the reservation and inventory APIs.
+#### Option 3: Database constraints
 
-This is done because we want to leverage the relational database's ACID guarantees to ensure consistency.
+This approach is very similar to optimistic locking. Let’s explore how it works. In the room_type_inventory table, add the following constraint:
 
-However, the interviewer might challenge this approach as it's not a pure microservice architecture, where each service has a dedicated database:
-![microservices-vs-monolith](images/microservices-vs-monolith.png)
+![room_count](images/room_count.png)
 
-This can lead to consistency issues. In a monolithic server, we can leverage a relational DBs transaction capabilities to implement atomic operations:
-![atomicity-monolith](images/atomicity-monolith.png)
+Using the same example as shown in Figure 14, when user 2 tries to reserve a room, total_reserved becomes 101, which violates the total_inventory (100) - total_reserved (101) >= 0 constraint. The transaction is then rolled back.
 
-It's more challenging, however, to guarantee this atomicity when the operation spans across multiple services:
-![microservice-non-atomic-operation](images/microservice-non-atomic-operation.png)
+![database_constraint](images/database_constraint.png)
 
-There are some well-known techniques to handle these data inconsistencies:
- * Two-phase commit - a database protocol which guarantees atomic transaction commit across multiple nodes. 
-   It's not performant, though, since a single node lag leads to all nodes blocking the operation.
- * Saga - a sequence of local transactions, where compensating transactions are triggered if any of the steps in a workflow fail. This is an eventually consistent approach.
+	Figure 14 Database constraint
+	
+<b>Pros:</b>
 
-It's worth noting that addressing data inconsistencies across microservices is a challenging problem, which raise the system complexity.
-It is good to consider whether the cost is worth it, given our more pragmatic approach of encapsulating dependent operations within the same relational database.
+ * Easy to implement.
+ 
+ * It works well when data contention is minimal.
 
-# Step 4 - Wrap Up
-We presented a design for a hotel reservation system.
+<b>Cons:</b>
 
-These are the steps we went through:
- * Gathering requirements and doing back-of-the-envelope calculations to understand the system's scale
- * We presented the API Design, Data Model and system architecture in the high-level design
- * In the deep dive, we explored alternative database schema designs as requirements changed
- * We discussed race conditions and proposed solutions - pessimistic/optimistic locking, database constraints
- * Ways to scale the system via database sharding and caching
- * Finally we addressed how to handle data consistency issues across multiple microservices
+ * Similar to optimistic locking, when data contention is heavy, it can result in a high volume of failures. Users could see there are rooms available, but when they try to book one, they get the “no rooms available” response. This experience can be frustrating to users.
+
+ * The database constraints cannot be version-controlled easily like the application code.
+
+ * Not all databases support constraints. It might cause problems when we migrate from one database solution to another.
+
+Since this approach is easy to implement and the data contention for a hotel reservation is usually not high (low QPS), it is another good option for the hotel reservation system.
+
+### Scalability
+
+Usually, the load of the hotel reservation system is not high. However, the interviewer might have a follow-up question: “what if the hotel reservation system is used not just for a hotel chain, but for a popular travel site such as booking.com or expedia.com?” In this case, the QPS could be 1,000 times higher.
+
+When the system load is high, we need to understand what might become the bottleneck. All our services are stateless, so they can be easily expanded by adding more servers. However, the database contains all the states and cannot be scaled up by simply adding more databases. Let’s explore how to scale the database.
+
+#### Database sharding
+
+One way to scale the database is to apply database sharding. The idea is to split the data into multiple databases so that each of them only contains a portion of data.
+
+When we shard a database, we need to consider how to distribute the data. As we can see from the data model section, most queries need to filter by hotel_id. So a natural conclusion is we shard data by hotel_id. In Figure 15, the load is spread among 16 shards. Assume the QPS is 30,000. After database sharding, each shard handles 30,000 / 16 = 1875 QPS, which is within a single MySQL server’s load capacity.
+
+![database_sharding](images/database_sharding.png)
+
+	Figure 15 Database sharding
+	
+#### Caching
+
+The hotel inventory data has an interesting characteristic; only current and future hotel inventory data are meaningful because customers can only book rooms in the near future.
+
+So for the storage choice, ideally we want to have a time-to-live (TTL) mechanism to expire old data automatically. Historical data can be queried on a different database. Redis is a good choice because TTL and Least Recently Used (LRU) cache eviction policy help us make optimal use of memory.
+
+If the loading speed and database scalability become issues (for instance, we are designing at booking.com or expedia.com’s scale), we can add a cache layer on top of the database and move the check room inventory and reserve room logic to the cache layer, as shown in Figure 16. In this design, only a small percentage of the requests hit the inventory database as most ineligible requests are blocked by the inventory cache. One thing worth mentioning is that even when there is enough inventory shown in Redis, we still need to recheck the inventory at the database side as a precaution. The database is the source of truth for the inventory data.
+
+![caching](images/caching.webp)
+
+	Figure 16 Caching
+	
+Let’s first go over each component in this system.
+
+<b>Reservation service</b>: supports the following inventory management APIs:
+
+ * Query the number of available rooms for a given hotel ID, room type, and date range.
+
+ * Reserve a room by executing total_reserved + 1.
+
+ * Update inventory when a user cancels a reservation.
+
+<b>Inventory cache</b>: all inventory management query operations are moved to the inventory cache (Redis) and we need to pre-populate inventory data to the cache. The cache is a key-value store with the following structure:
+
+![given_room](images/given_room.png)
+
+For a hotel reservation system, the volume of read operations (check room inventory) is an order of magnitude higher than write operations. Most of the read operations are answered by the cache.
+
+<b>Inventory DB</b>: stores inventory data as the source of truth.
+
+<b>New challenges posed by the cache</b>
+
+Adding a cache layer significantly increases the system scalability and throughput, but it also introduces a new challenge: how to maintain data consistency between the database and the cache.
+
+When a user books a room, two operations are executed in the happy path:
+
+ 1. Query room inventory to find out if there are enough rooms left. The query runs on the Inventory cache.
+
+ 2. Update inventory data. The inventory DB is updated first. The change is then propagated to the cache asynchronously. This asynchronous cache update could be invoked by the application code, which updates the inventory cache after data is saved to the database. It could also be propagated using change data capture (CDC) [8]. CDC is a mechanism that reads data changes from the database and applies the changes to another data system. One common solution is Debezium [9]. It uses a source connector to read changes from a database and applies them to cache solutions such as Redis [10].
+
+Because the inventory data is updated on the database first, there is a possibility that the cache does not reflect the latest inventory data. For example, the cache may report there is still an empty room when the database says there is no room left, or vice versa.
+
+If you think carefully, you find that the inconsistency between inventory cache and database actually does not matter, as long as the database does the final inventory validation check.
+
+Let’s take a look at an example. Let’s say the cache states there is still an empty room, but the database says there is not. In this case, when the user queries the room inventory, they find there is still room available, so they try to reserve it. When the request reaches the inventory database, the database does the validation and finds that there is no room left. In this case, the client receives an error, indicating someone else just booked the last room before them. When a user refreshes the website, they probably see there is no room left because the database has synchronized inventory data to the cache, before they click the refresh button.
+
+<b>Pros:</b>
+
+ * Reduced database load. Since read queries are answered by the cache layer, database load is significantly reduced.
+
+ * High performance. Read queries are very fast because results are fetched from memory.
+
+<b>Cons:</b>
+
+ * Maintaining data consistency between the database and cache is hard. We need to think carefully about how this inconsistency affects user experience.
+ 
+### Data consistency among services
+
+In a traditional monolithic architecture [11], a shared relational database is used to ensure data consistency. In our microservice design, we chose a hybrid approach by having Reservation Service handle both reservation and inventory APIs, so that the inventory and reservation database tables are stored in the same relational database. As explained in the “Concurrency Issues” section, this arrangement allows us to leverage the ACID properties of the relational database to elegantly handle many concurrency issues that arise during the reservation flow.
+
+However, if your interviewer is a microservice purist, they might challenge this hybrid approach. In their mind, for a microservice architecture, each microservice has its own databases, as shown on the right in Figure 17.
+
+![architecture](images/architecture.png)
+
+	Figure 17 Monolithic vs microservice
+	
+This pure design introduces many data consistency issues. Since this is the first time we cover microservices, let’s explain how and why it happens. To make it easier to understand, only two services are used in this discussion. In the real world, there could be hundreds of microservices within a company. In a monolithic architecture, as shown in Figure 18, different operations can be wrapped within a single transaction to ensure ACID properties.
+
+![monolithic](images/monolithic.png)
+
+However, in a microservice architecture, each service has its own database. One logically atomic operation can span multiple services. This means we cannot use a single transaction to ensure data consistency. As shown in Figure 19, if the update operation fails in the reservation database, we need to roll back the reserved room count in the inventory database. Generally, there is only one happy path, but many failure cases that could cause data inconsistency.
+
+![microservice](images/microservice.png)
+
+	Figure 19 Microservice architecture
+	
+To address the data inconsistency, here is a high-level summary of industry-proven techniques. If you want to read the details, please refer to the reference materials.
+
+ * Two-phase commit (2PC) [12]. 2PC is a database protocol used to guarantee atomic transaction commit across multiple nodes, i.e., either all nodes succeeded or all nodes failed. Because 2PC is a blocking protocol, a single node failure blocks the progress until the node has recovered. It’s not performant.
+
+ * Saga. A saga is a sequence of local transactions. Each transaction updates and publishes a message to trigger the next transaction step. If a step fails, the saga executes compensating transactions to undo the changes that were made by preceding transactions [13]. 2PC works as a single commit to perform ACID transactions while Saga consists of multiple steps and relies on eventual consistency.
+
+It is worth noting that addressing data inconsistency between microservices requires some complicated mechanisms that greatly increase the complexity of the overall design. It is up to you as an architect to decide if the added complexity is worth it. For this problem, we decided that it was not worth it and so went with the more pragmatic approach of storing reservation and inventory data under the same relational database.
+
+## Step 4 - Wrap Up
+
+In this chapter, we presented a design for a hotel reservation system. We started by gathering requirements and calculating a back-of-the-envelope estimation to understand the scale. In the high-level design, we presented the API design, the first draft of the data model, and the system architecture diagram. In the deep dive, we explored alternative database schema designs as we realized reservations should be made at the room type-level, as opposed to specific rooms. We discussed race conditions in depth and proposed a few potential solutions:
+
+ * pessimistic locking
+
+ * optimistic locking
+
+ * database constraints
+
+We then discussed different approaches to scale the system, including database sharding and using Redis cache. Lastly, we tackled data consistency issues in microservice architecture and briefly went through a few solutions.
+
+Congratulations on getting this far! Now give yourself a pat on the back. Good job!
+
+## Chapter Summary
+
+![chapter_summary](images/chapter_summary.webp)
+
+# Reference Material
+
+[1] Microservices: https://en.wikipedia.org/wiki/Microservices
+
+[2] What Are The Benefits of Microservices Architecture?:
+https://www.appdynamics.com/topics/benefits-of-microservices
+
+[3] gRPC: https://www.grpc.io/docs/what-is-grpc/introduction/
+
+[4] Source: Booking.com iOS app
+
+[5] Serializability: https://en.wikipedia.org/wiki/Serializability
+
+[6] Optimistic and pessimistic record locking: https://ibm.co/3Eb293O
+
+[7] Optimistic concurrency control: https://en.wikipedia.org/wiki/Optimistic_concurrency_control
+
+[8] Change data capture: https://docs.oracle.com/cd/B10500_01/server.920/a96520/cdc.htm
+
+[9] Debizium: https://debezium.io/
+
+[10] Redis sink: https://bit.ly/3r3AEUD
+
+[11] Monolithic Architecture: https://microservices.io/patterns/monolithic.html
+
+[12] Two-phase commit protocol: https://en.wikipedia.org/wiki/Two-phase_commit_protocol
+
+[13] Saga: https://microservices.io/patterns/data/saga.html
+
 
