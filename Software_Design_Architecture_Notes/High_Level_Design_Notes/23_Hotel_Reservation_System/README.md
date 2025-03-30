@@ -104,33 +104,39 @@ Making a new reservation is a very important feature. The request parameters of 
 
 Please note reservationID is used as the idempotency key to prevent double booking. Double booking means multiple reservations are made for the same room on the same day. The details are explained in “Concurrency issue” in the ‘Deep Dive’ section.
 
-## Data model
-Before we choose what database to use, let's consider our access patterns.
+### Data model
 
-We need to support the following queries:
- * View detailed info about a hotel
- * Find available types of rooms given a date range
- * Record a reservation
- * Look up a reservation or past history of reservations
+Before we decide which database to use, let’s take a close look at the data access patterns. For the hotel reservation system, we need to support the following queries:
 
-From our estimations, we know the scale of the system is not large, but we need to prepare for traffic surges.
+Query 1: View detailed information about a hotel.
 
-Given this knowledge, we'll choose a relational database because:
- * Relational DBs work well with read-heavy and less write-heavy systems.
- * NoSQL databases are normally optimized for writes, but we know we won't have many as only a fraction of users who visit the site make a reservation.
- * Relational DBs provide ACID guarantees. These are important for such a system as without them, we won't be able to prevent problems such as negative balance, double charge, etc.
- * Relational DBs can easily model the data as the structure is very clear.
+Query 2: Find available types of rooms given a date range.
 
-Here is our schema design:
-![schema-design](images/schema-design.png)
+Query 3: Record a reservation.
 
-Most fields are self-explanatory. Only field worth mentioning is the `status` field which represents the state machine of a given room:
-![status-state-machine](images/status-state-machine.png)
+Query 4: Look up a reservation or past history of reservations.
 
-This data model works well for a system like Airbnb, but not for hotels where users don't reserve a particular room but a room type.
-They reserve a type of room and a room number is chosen at the point of reservation.
+From the back-of-the-envelope estimation, we know the scale of the system is not large but we need to prepare for traffic surges during big events. With these requirements in mind, we choose a relational database because:
 
-This shortcoming will be addressed in the [Improved Data Model](#improved-data-model) section.
+ * A relational database works well with read-heavy and write less frequently workflows. This is because the number of users who visit the hotel website/apps is a few orders of magnitude higher than those who actually make reservations. NoSQL databases are generally optimized for writes and the relational database works well enough for read-heavy workflow.
+
+ * A relational database provides ACID (atomicity, consistency, isolation, durability) guarantees. ACID properties are important for a reservation system. Without those properties, it’s not easy to prevent problems such as negative balance, double charge, double reservations, etc. ACID properties make application code a lot simpler and make the whole system easier to reason about. A relational database usually provides these guarantees.
+
+ * A relational database can easily model the data. The structure of the business data is very clear and the relationship between different entities (hotel, room, room_type, etc) is stable. This kind of data model is easily modeled by a relational database.
+
+Now that we have chosen the relational database as our data store, let’s explore the schema design. Figure 2 shows a straightforward schema design and it is the most natural way for many candidates to model the hotel reservation system.
+
+![database_schema](images/database_schema.webp)
+
+	Figure 2 Database schema
+	
+Most attributes are self-explanatory and we will only explain the status field in the reservation table. The status field can be in one of these states: pending, paid, refunded, canceled, rejected. The state machine is shown in Figure 3.
+
+![reservation_status](images/reservation_status.png)
+
+	Figure 3 Reservation status
+	
+This schema design has a major issue. This data model works for companies like Airbnb as room_id (might be called listing_id) is given when users make reservations. However, this isn’t the case for hotels. A user actually reserves <b>a type of room</b> in a given hotel instead of a specific room. For instance, a room type can be a standard room, king-size room, queen-size room with two queen beds, etc. Room numbers are given when the guest checks in and not at the time of the reservation. We need to update our data model to reflect this new requirement. See “Improved data model” in the ‘Deep Dive’ section for more details.
 
 ## High-level Design
 We've chosen a microservice architecture for this design. It has gained great popularity in recent years:
