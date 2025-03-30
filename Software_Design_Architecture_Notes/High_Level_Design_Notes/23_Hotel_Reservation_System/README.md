@@ -269,6 +269,8 @@ Another important problem to look at is double booking. We need to solve two pro
 Let’s take a look at the first scenario. As shown in Figure 7, two reservations are made.
 
 ![two_made](images/two_made.png)
+	
+	Figure 7 Two reservations are made
 
 There are two common approaches to solve this problem:
 
@@ -512,6 +514,8 @@ This pure design introduces many data consistency issues. Since this is the firs
 
 ![monolithic](images/monolithic.png)
 
+	Figure 18 Monolithic architecture
+
 However, in a microservice architecture, each service has its own database. One logically atomic operation can span multiple services. This means we cannot use a single transaction to ensure data consistency. As shown in Figure 19, if the update operation fails in the reservation database, we need to roll back the reserved room count in the inventory database. Generally, there is only one happy path, but many failure cases that could cause data inconsistency.
 
 ![microservice](images/microservice.png)
@@ -543,6 +547,8 @@ Congratulations on getting this far! Now give yourself a pat on the back. Good j
 ## Chapter Summary
 
 ![chapter_summary](images/chapter_summary.webp)
+
+	Chapter Summary
 
 # Reference Material
 
