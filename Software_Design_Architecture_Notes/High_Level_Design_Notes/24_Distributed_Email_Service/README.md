@@ -1,29 +1,69 @@
 # Distributed Email Service
-We'll design a distributed email service, similar to gmail in this chapter.
 
-In 2020, gmail had 1.8bil active users, while Outlook had 400mil users worldwide.
+In this chapter we design a large-scale email service, such as Gmail, Outlook, or Yahoo Mail. The growth of the internet has led to an explosion in the volume of emails. In 2020, Gmail had over 1.8 billion active users and Outlook had over 400 million users worldwide [1] [2].
 
-# Step 1 - Understand the Problem and Establish Design Scope
- * C: How many users use the system?
- * I: 1bil users
- * C: I think following features are important - auth, send/receive email, fetch email, filter emails, search email, anti-spam protection.
- * I: Good list. Don't worry about auth for now.
- * C: How do users connect \w email servers?
- * I: Typically, email clients connect via SMTP, POP, IMAP, but we'll use HTTP for this problem.
- * C: Can emails have attachments?
- * I: Yes
+![email_providers](images/email_providers.webp)
 
-## Non-functional requirements
- * Reliability - we shouldn't lose data
- * Availability - We should use replication to prevent single points of failure. We should also tolerate partial system failures.
- * Scalability - As userbase grows, our system should be able to handle them.
- * Flexibility and extensibility - system should be flexible and easy to extend with new features. One of the reasons we chose HTTP over SMTP/other mail protocols.
+	Figure 1 Popular email providers
 
-## Back-of-the-envelope estimation
- * 1bil users
- * Assuming one person sends 10 emails per day -> 100k emails per second.
- * Assuming one person receives 40 emails per day and each email on average has 50kb metadata -> 730pb storage per year.
- * Assuming 20% of emails have storage attachments and average size is 500kb -> 1,460pb per year.
+## Step 1 - Understand the Problem and Establish Design Scope
+
+Over the years, email services have changed significantly in complexity and scale. A modern email service is a complex system with many features. There is no way we can design a real-world system in 45 minutes. So before jumping into the design, we definitely want to ask clarifying questions to narrow down the scope.
+
+<p><b>Candidate</b>: How many people use the product?</p>
+<p><b>Interviewer</b>: One billion users.</p>
+
+<p><b>Candidate</b>: I think the following features are important:</p>
+
+ * Authentication.
+
+ * Send and receive emails.
+
+ * Fetch all emails.
+
+ * Filter emails by read and unread status.
+
+ * Search emails by subject, sender, and body.
+
+ * Anti-spam and anti-virus.
+
+<p><b>Interviewer</b>: That’s a good list. We don’t need to worry about authentication. Let’s focus on the other features you mentioned.</p>
+
+<p><b>Candidate</b>: How do users connect with mail servers?</p>
+<p><b>Interviewer</b>: Traditionally, users connect with mail servers through native clients that use SMTP, POP, IMAP, and vendor-specific protocols. Those protocols are legacy to some extent, yet still very popular. For this interview, let’s assume HTTP is used for client and server communication.</p>
+
+<p><b>Candidate</b>: Can emails have attachments?</p>
+<p><b>Interviewer</b>: Yes.</p>
+
+### Non-functional requirements
+
+Next, let’s go over the most important non-functional requirements.
+
+<b>Reliability.</b> We should not lose email data.
+
+<b>Availability.</b> Email and user data should be automatically replicated across multiple nodes to ensure availability. Besides, the system should continue to function despite partial system failures.
+
+<b>Scalability.</b> As the number of users grows, the system should be able to handle the increasing number of users and emails. The performance of the system should not degrade with more users or emails.
+
+<b>Flexibility and extensibility.</b> A flexible/extensible system allows us to add new features or improve performance easily by adding new components. Traditional email protocols such as POP and IMAP have very limited functionality (more on this in high-level design). Therefore, we may need custom protocols to satisfy the flexibility and extensibility requirements.
+
+### Back-of-the-envelope estimation
+
+Let’s do a back-of-the-envelope calculation to determine the scale and to discover some challenges our solution will need to address. By design, emails are storage heavy applications.
+
+ * 1 billion users.
+
+ * Assume the average number of emails a person sends per day is 10. QPS for sending emails = 10^9 * 10 / (10^5) = 100,000.
+
+ * Assume the average number of emails a person receives in a day is 40 [3] and the average size of email metadata is 50KB. Metadata refers to everything related to an email, excluding attachment files.
+
+ * Assume metadata is stored in a database. Storage requirement for maintaining metadata in 1 year: 1 billion users * 40 emails / day * 365 days * 50 KB = 730 PB.
+
+ * Assume 20% of emails contain an attachment and the average attachment size is 500 KB.
+
+ * Storage for attachments in 1 year is: 1 billion users * 40 emails / day * 365 days * 20% * 500 KB = 1,460 PB
+
+From this back-of-the-envelope calculation, it’s clear we would deal with a lot of data. So, it’s likely that we need a distributed database solution.
 
 # Step 2 - Propose High-Level Design and Get Buy-In
 ## Email knowledge 101
