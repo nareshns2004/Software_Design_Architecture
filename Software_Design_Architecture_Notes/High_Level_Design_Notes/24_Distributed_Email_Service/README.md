@@ -66,6 +66,16 @@ Let’s do a back-of-the-envelope calculation to determine the scale and to disc
 From this back-of-the-envelope calculation, it’s clear we would deal with a lot of data. So, it’s likely that we need a distributed database solution.
 
 # Step 2 - Propose High-Level Design and Get Buy-In
+
+In this section, we first discuss some basics about email servers and how email servers evolve over time. Then we look at the high-level design of distributed email servers. The content is structured as follows:
+
+ * Email knowledge 101
+
+ * Traditional mail servers
+
+ * Distributed mail servers
+
+
 ## Email knowledge 101
 There are various protocols used for sending and receiving emails:
  * SMTP - standard protocol for sending emails from one server to another.
