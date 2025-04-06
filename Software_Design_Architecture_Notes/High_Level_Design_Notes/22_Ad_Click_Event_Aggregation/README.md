@@ -1,239 +1,290 @@
 # Ad Click Event Aggregation
-Digital advertising is a big industry with the rise of Facebook, YouTube, TikTok, etc.
 
-Hence, tracking ad click events is important. In this chapter, we explore how to design an ad click event aggregation system at Facebook/Google scale.
+With the rise of Facebook, YouTube, TikTok, and the online media economy, digital advertising is taking an ever-bigger share of the total advertising spending. As a result, tracking ad click events is very important. In this chapter, we explore how to design an ad click event aggregation system at Facebook or Google scale.
 
-Digital advertising has a process called real-time bidding (RTB), where digital advertising inventory is bought and sold:
-![digital-advertising-example](images/digital-advertising-example.png)
+Before we dive into technical design, let’s learn about the core concepts of online advertising to better understand this topic. One core benefit of online advertising is its measurability, as quantified by real-time data.
 
-Speed of RTB is important as it usually occurs within a second.
-Data accuracy is also very important as it impacts how much money advertisers pay.
+Digital advertising has a core process called Real-Time Bidding (RTB), in which digital advertising inventory is bought and sold. Figure 1 shows how the online advertising process works.
 
-Based on ad click event aggregations, advertisers can make decisions such as adjust target audience and keywords.
+![RTB_process](images/RTB_process.png)
 
-# Step 1 - Understand the Problem and Establish Design Scope
- * C: What is the format of the input data?
- * I: 1bil ad clicks per day and 2mil ads in total. Number of ad-click events grows 30% year-over-year.
- * C: What are some of the most important queries our system needs to support?
- * I: Top queries to take into consideration:
-   * Return number of click events for ad X in last Y minutes
-   * Return top 100 most clicked ads in the past 1min. Both parameters should be configurable. Aggregation occurs every minute.
-   * Support data filtering by `ip`, `user_id`, `country` for the above queries
- * C: Do we need to worry about edge cases? Some of the ones I can think of:
-   * There might be events that arrive later than expected
-   * There might be duplicate events
-   * Different parts of the system might be down, so we need to consider system recovery
- * I: That's a good list, take those into consideration
- * C: What is the latency requirement?
- * I: A few minutes of e2e latency for ad click aggregation. For RTB, it is less than a second. It is ok to have that latency for ad click aggregation as those are usually used for billing and reporting.
+	Figure 1 RTB process
+	
+The speed of the RTB process is important as it usually occurs in less than a second.
 
-## Functional requirements
- * Aggregate the number of clicks of `ad_id` in the last Y minutes
- * Return top 100 most clicked `ad_id` every minute
- * Support aggregation filtering by different attributes
- * Dataset volume is at Facebook or Google scale
+Data accuracy is also very important. Ad click event aggregation plays a critical role in measuring the effectiveness of online advertising, which essentially impacts how much money advertisers pay. Based on the click aggregation results, campaign managers can control the budget or adjust bidding strategies, such as changing targeted audience groups, keywords, etc. The key metrics used in online advertising, including click-through rate (CTR) [1] and conversion rate (CVR) [2], depend on aggregated ad click data.
 
-## Non-functional requirements
- * Correctness of the aggregation result is important as it's used for RTB and ads billing
- * Properly handle delayed or duplicate events
- * Robustness - system should be resilient to partial failures
- * Latency - a few minutes of e2e latency at most
+## Step 1 - Understand the Problem and Establish Design Scope
 
-## Back-of-the-envelope estimation
- * 1bil DAU
- * Assuming user clicks 1 ad per day -> 1bil ad clicks per day
- * Ad click QPS = 10,000
- * Peak QPS is 5 times the number = 50,000
- * A single ad click occupies 0.1KB storage. Daily storage requirement is 100gb
- * Monthly storage = 3tb
+The following set of questions helps to clarify requirements and narrow down the scope.
 
-# Step 2 - Propose High-Level Design and Get Buy-In
-In this section, we discuss query API design, data model and high-level design.
+<p><b>Candidate</b>: What is the format of the input data?</p>
+<p><b>Interviewer</b>: It’s a log file located in different servers and the latest click events are appended to the end of the log file. The event has the following attributes: ad_id, click_timestamp, user_id, ip, and country.</p>
 
-## Query API Design
-The API is a contract between the client and the server. In our case, the client is the dashboard user - data scientist/analyst, advertiser, etc.
+<p><b>Candidate</b>: What’s the data volume?</p>
+<p><b>Interviewer</b>: 1 billion ad clicks per day and 2 million ads in total. The number of ad click events grows 30% year-over-year.</p>
 
-Here's our functional requirements:
- * Aggregate the number of clicks of `ad_id` in the last Y minutes
- * Return top N most clicked `ad_id` in the last M minutes
- * Support aggregation filtering by different attributes
+<p><b>Candidate</b>: What are some of the most important queries to support?</p>
+<p><b>Interviewer</b>: The system needs to support the following 3 queries:</p>
 
-We need two endpoints to achieve those requirements. Filtering can be done via query parameters on one of them.
+ * Return the number of click events for a particular ad in the last M minutes.
 
-**Aggregate number of clicks of ad_id in the last M minutes**:
-```
-GET /v1/ads/{:ad_id}/aggregated_count
-```
+ * Return the top 100 most clicked ads in the past 1 minute. Both parameters should be configurable. Aggregation occurs every minute.
 
-Query parameters:
- * from - start minute. Default is now - 1 min
- * to - end minute. Default is now
- * filter - identifier for different filtering strategies. Eg 001 means "non-US clicks".
+ * Support data filtering by ip, user_id, or country for the above two queries.
 
-Response:
- * ad_id - ad identifier
- * count - aggregated count between start and end minutes
+<p><b>Candidate</b>: Do we need to worry about edge cases? I can think of the following:</p>
 
-**Return top N most clicked ad_ids in the last M minutes**
-```
-GET /v1/ads/popular_ads
-```
+ * There might be events that arrive later than expected.
+ 
+ * There might be duplicated events.
+ 
+ * Different parts of the system might be down at any time, so we need to consider system recovery.
 
-Query parameters:
- * count - top N most clicked ads
- * window - aggregation window size in minutes
- * filter - identifier for different filtering strategies
+<p><b>Interviewer</b>: That’s a good list. Yes, take these into consideration.</p>
 
-Response:
- * list of ad_ids
+<p><b>Candidate</b>: What is the latency requirement?</p>
+<p><b>Interviewer</b>: A few minutes of end-to-end latency. Note that latency requirements for RTB and ad click aggregation are very different. While latency for RTB is usually less than one second due to the responsiveness requirement, a few minutes of latency is acceptable for ad click event aggregation because it is primarily used for ad billing and reporting.</p>
 
-## Data model
-In our system, we have raw and aggregated data.
+With the information gathered above, we have both functional and non-functional requirements.
 
-Raw data looks like this:
-```
-[AdClickEvent] ad001, 2021-01-01 00:00:01, user 1, 207.148.22.22, USA
-```
+### Functional requirements
 
-Here's an example in a structured format:
-| ad_id | click_timestamp     | user  | ip            | country |
-|-------|---------------------|-------|---------------|---------|
-| ad001 | 2021-01-01 00:00:01 | user1 | 207.148.22.22 | USA     |
-| ad001 | 2021-01-01 00:00:02 | user1 | 207.148.22.22 | USA     |
-| ad002 | 2021-01-01 00:00:02 | user2 | 209.153.56.11 | USA     |
+ * Aggregate the number of clicks of ad_id in the last M minutes.
 
-Here's the aggregated version:
-| ad_id | click_minute | filter_id | count |
-|-------|--------------|-----------|-------|
-| ad001 | 202101010000 | 0012      | 2     |
-| ad001 | 202101010000 | 0023      | 3     |
-| ad001 | 202101010001 | 0012      | 1     |
-| ad001 | 202101010001 | 0023      | 6     |
+ * Return the top 100 most clicked ad_id every minute.
 
-The `filter_id` helps us achieve our filtering requirements.
-| filter_id | region | IP        | user_id |
-|-----------|--------|-----------|---------|
-| 0012      | US     | *         | *       |
-| 0013      | *      | 123.1.2.3 | *       |
+ * Support aggregation filtering by different attributes.
 
-To support quickly returning top N most clicked ads in the last M minutes, we'll also maintain this structure:
-| most_clicked_ads   |           |                                                  |
-|--------------------|-----------|--------------------------------------------------|
-| window_size        | integer   | The aggregation window size (M) in minutes       |
-| update_time_minute | timestamp | Last updated timestamp (in 1-minute granularity) |
-| most_clicked_ads   | array     | List of ad IDs in JSON format.                   |
+ * Dataset volume is at Facebook or Google scale (see the back-of-envelope estimation section below for detailed system scale requirements).
 
-What are some pros and cons between storing raw data and storing aggregated data?
- * Raw data enables using the full data set and supports data filtering and recalculation
- * On the other hand, aggregated data allows us to have a smaller data set and a faster query
- * Raw data means having a larger data store and a slower query
- * Aggregated data, however, is derived data, hence there is some data loss.
+### Non-functional requirements
 
-In our design, we'll use a combination of both approaches:
- * It's a good idea to keep the raw data around for debugging. If there is some bug in aggregation, we can discover the bug and backfill.
- * Aggregated data should be stored as well for faster query performance.
- * Raw data can be stored in cold storage to avoid extra storage costs.
+ * Correctness of the aggregation result is important as the data is used for RTB and ads billing.
 
-When it comes to the database, there are several factors to take into consideration:
- * What does the data look like? Is it relational, document or blob?
- * Is the workload read-heavy, write-heavy or both?
- * Are transactions needed?
- * Do the queries rely on OLAP functions like SUM and COUNT?
+ * Properly handle delayed or duplicate events.
 
-For the raw data, we can see that the average QPS is 10k and peak QPS is 50k, so the system is write-heavy.
-On the other hand, read traffic is low as raw data is mostly used as backup if anything goes wrong.
+ * Robustness. The system should be resilient to partial failures.
 
-Relational databases can do the job, but it can be challenging to scale the writes. 
-Alternatively, we can use Cassandra or InfluxDB which have better native support for heavy write loads.
+ * Latency requirement. End-to-end latency should be a few minutes, at most.
+ 
+### Back-of-the-envelope estimation
 
-Another option is to use Amazon S3 with a columnar data format like ORC, Parquet or AVRO. Since this setup is unfamiliar, we'll stick to Cassandra.
+Let’s do an estimation to understand the scale of the system and the potential challenges we will need to address.
 
-For aggregated data, the workload is both read and write heavy as aggregated data is constantly queried for dashboards and alerts.
-It is also write-heavy as data is aggregated and written every minute by the aggregation service. 
-Hence, we'll use the same data store (Cassandra) here as well.
+ * 1 billion DAU.
 
-## High-level design
-Here's how our system looks like:
-![high-level-design-1](images/high-level-design-1.png)
+ * Assume on average each user clicks 1 ad per day. That’s 1 billion ad click events per day.
 
-Data flows as an unbounded data stream on both inputs and outputs.
+ * Ad click QPS = 10^9 events / 10^5 seconds in a day = 10,000
 
-In order to avoid having a synchronous sink, where a consumer crashing can cause the whole system to stall, 
-we'll leverage asynchronous processing using message queues (Kafka) to decouple consumers and producers.
-![high-level-design-2](images/high-level-design-2.png)
+ * Assume peak ad click QPS is 5 times the average number. Peak QPS = 50,000 QPS.
 
-The first message queue stores ad click event data:
-| ad_id | click_timestamp | user_id | ip | country |
-|-------|-----------------|---------|----|---------|
+ * Assume a single ad click event occupies 0.1 KB storage. Daily storage requirement is: 0.1 KB * 1 billion = 100 GB. The monthly storage requirement is about 3 TB.
+ 
+## Step 2 - Propose High-Level Design and Get Buy-In
 
-The second message queue contains ad click counts, aggregated per-minute:
-| ad_id | click_minute | count |
-|-------|--------------|-------|
+In this section, we discuss query API design, data model, and high-level design.
 
-As well as top N clicked ads aggregated per minute:
-| update_time_minute | most_clicked_ads |
-|--------------------|------------------|
+### Query API Design
 
-The second message queue is there in order to achieve end to end exactly-once atomic commit semantics:
-![atomic-commit](images/atomic-commit.png)
+The purpose of the API design is to have an agreement between the client and the server. In a consumer app, a client is usually the end-user who uses the product. In our case, however, a client is the dashboard user (data scientist, product manager, advertiser, etc.) who runs queries against the aggregation service.
 
-For the aggregation service, using the MapReduce framework is a good option:
-![ad-count-map-reduce](images/ad-count-map-reduce.png)
-![top-100-map-reduce](images/top-100-map-reduce.png)
+Let’s review the functional requirements so we can better design the APIs:
 
-Each node is responsible for one single task and it sends the processing result to the downstream node.
+ * Aggregate the number of clicks of ad_id in the last M minutes.
 
-The map node is responsible for reading from the data source, then filtering and transforming the data.
+ * Return the top N most clicked ad_ids in the last M minute.
 
-For example, the map node can allocate data across different aggregation nodes based on the `ad_id`:
-![map-node](images/map-node.png)
+ * Support aggregation filtering by different attributes.
 
-Alternatively, we can distribute ads across Kafka partitions and let the aggregation nodes subscribe directly within a consumer group.
-However, the mapping node enables us to sanitize or transform the data before subsequent processing.
+We only need two APIs to support those three use cases because filtering (the last requirement) can be supported by adding query parameters to the requests.
 
-Another reason might be that we don't have control over how data is produced, 
-so events related to the same `ad_id` might go on different partitions.
+<b>API 1: Aggregate the number of clicks of ad_id in the last M minutes.</b>
 
-The aggregate node counts ad click events by `ad_id` in-memory every minute.
+![parameters](images/parameters.png)
 
-The reduce node collects aggregated results from aggregate node and produces the final result:
-![reduce-node](images/reduce-node.png)
+![response](images/response.png)
 
-This DAG model uses the MapReduce paradigm. It takes big data and leverages parallel distributed computing to turn it into regular-sized data.
+<b>API 2: Return top N most clicked ad_ids in the last M minutes</b>
 
-In the DAG model, intermediate data is stored in-memory and different nodes communicate with each other using TCP or shared memory.
+![popular](images/popular.png)
 
-Let's explore how this model can now help us to achieve our various use-cases.
+![ads](images/ads.png)
 
-**Use-case 1 - aggregate the number of clicks**:
-![use-case-1](images/use-case-1.png)
- * Ads are partitioned using `ad_id % 3`
+### Data model
 
-**Use-case 2 - return top N most clicked ads**:
-![use-case-2](images/use-case-2.png)
- * In this case, we're aggregating the top 3 ads, but this can be extended to top N ads easily
- * Each node maintains a heap data structure for fast retrieval of top N ads
+There are two types of data in the system: raw data and aggregated data.
 
-**Use-case 3 - data filtering**:
-To support fast data filtering, we can predefine filtering criterias and pre-aggregate based on it:
-| ad_id | click_minute | country | count |
-|-------|--------------|---------|-------|
-| ad001 | 202101010001 | USA     | 100   |
-| ad001 | 202101010001 | GPB     | 200   |
-| ad001 | 202101010001 | others  | 3000  |
-| ad002 | 202101010001 | USA     | 10    |
-| ad002 | 202101010001 | GPB     | 25    |
-| ad002 | 202101010001 | others  | 12    |
+#### Raw data
 
-This technique is called the **star schema** and is widely used in data warehouses.
-The filtering fields are called **dimensions**.
+Below shows what the raw data looks like in log files:
 
-This approach has the following benefits:
- * Simple to undertand and build
- * Current aggregation service can be reused to create more dimensions in the star schema.
- * Accessing data based on filtering criteria is fast as results are pre-calculated
+![raw](images/raw.png)
 
-A limitation of this approach is that it creates many more buckets and records, especially when we have lots of filtering criterias.
+#### Aggregated data
+
+Assume that ad click events are aggregated every minute. Table 8 shows the aggregated result.
+
+![data](images/data.png)
+
+To support ad filtering, we add an additional field called filter_id to the table. Records with the same ad_id and click_minute are grouped by filter_id as shown in Table 9, and filters are defined in Table 10.
+
+![filter](images/filter.png)
+
+To support the query to return the top N most clicked ads in the last M minutes, the following structure is used.
+
+![support](images/support.png)
+
+#### Comparison
+
+The comparison between storing raw data and aggregated data is shown below:
+
+![aggregated](images/aggregated.png)
+
+Should we store raw data or aggregated data? Our recommendation is to store both. Let’s take a look at why.
+
+ * It’s a good idea to keep the raw data. If something goes wrong, we could use the raw data for debugging. If the aggregated data is corrupted due to a bad bug, we can recalculate the aggregated data from the raw data, after the bug is fixed.
+
+ * Aggregated data should be stored as well. The data size of the raw data is huge. The large size makes querying raw data directly very inefficient. To mitigate this problem, we run read queries on aggregated data.
+
+ * Raw data serves as backup data. We usually don’t need to query raw data unless recalculation is needed. Old raw data could be moved to cold storage to reduce costs.
+
+ * Aggregated data serves as active data. It is tuned for query performance.
+ 
+#### Choose the right database
+
+When it comes to choosing the right database, we need to evaluate the following:
+
+ * What does the data look like? Is the data relational? Is it a document or a blob?
+
+ * Is the workflow read-heavy, write-heavy, or both?
+
+ * Is transaction support needed?
+
+ * Do the queries rely on many online analytical processing (OLAP) functions [3] like SUM, COUNT?
+
+Let’s examine the raw data first. Even though we don’t need to query the raw data during normal operations, it is useful for data scientists or machine learning engineers to study user response prediction, behavioral targeting, relevance feedback, etc. [4].
+
+As shown in the back of the envelope estimation, the average write QPS is 10,000, and the peak QPS can be 50,000, so the system is write-heavy. On the read side, raw data is used as backup and a source for recalculation, so in theory, the read volume is low.
+
+Relational databases can do the job, but scaling the write can be challenging. NoSQL databases like Cassandra and InfluxDB are more suitable because they are optimized for write and time-range queries.
+
+Another option is to store the data in Amazon S3 using one of the columnar data formats like ORC [5], Parquet [6], or AVRO [7]. We could put a cap on the size of each file (say, 10GB) and the stream processor responsible for writing the raw data could handle the file rotation when the size cap is reached. Since this setup may be unfamiliar for many, in this design we use Cassandra as an example.
+
+For aggregated data, it is time-series in nature and the workflow is both read and write heavy. This is because, for each ad, we need to query the database every minute to display the latest aggregation count for customers. This feature is useful for auto-refreshing the dashboard or triggering alerts in a timely manner. Since there are two million ads in total, the workflow is read-heavy. Data is aggregated and written every minute by the aggregation service, so it’s write-heavy as well. We could use the same type of database to store both raw data and aggregated data.
+
+Now we have discussed query API design and data model, let’s put together the high-level design.
+
+### High-level design
+
+In real-time big data [8] processing, data usually flows into and out of the processing system as unbounded data streams. The aggregation service works in the same way; the input is the raw data (unbounded data streams), and the output is the aggregated results (see Figure 2).
+
+![workflow](images/workflow.png)
+
+	Figure 2 Aggregation workflow
+
+#### Asynchronous processing
+
+The design we currently have is synchronous. This is not good because the capacity of producers and consumers is not always equal. Consider the following case; if there is a sudden increase in traffic and the number of events produced is far beyond what consumers can handle, consumers might get out-of-memory errors or experience an unexpected shutdown. If one component in the synchronous link is down, the whole system stops working.
+
+A common solution is to adopt a message queue (Kafka) to decouple producers and consumers. This makes the whole process asynchronous and producers/consumers can be scaled independently.
+
+Putting everything we have discussed together, we come up with the high-level design as shown in Figure 3. Log watcher, aggregation service, and database are decoupled by two message queues. The database writer polls data from the message queue, transforms the data into the database format, and writes it to the database.
+
+![high_design](images/high_design.png)
+
+	Figure 3 High-level design
+	
+What is stored in the first message queue? It contains ad click event data as shown in Table 13.
+
+![queue](images/queue.png)
+
+You might be wondering why we don’t write the aggregated results to the database directly. The short answer is that we need the second message queue like Kafka to achieve end-to-end exactly-once semantics (atomic commit).
+
+![end_to_end](images/end_to_end.png)
+
+	Figure 4: End-to-end exactly once
+	
+Next, let’s dig into the details of the aggregation service.
+
+#### Aggregation service
+
+The MapReduce framework is a good option to aggregate ad click events. The directed acyclic graph (DAG) is a good model for it [9]. The key to the DAG model is to break down the system into small computing units, like the Map/Aggregate/Reduce nodes, as shown in Figure 5.
+
+![service_1](images/service_1.png)
+
+![service_2](images/service_2.png)
+
+	Figure 5 Aggregation service
+	
+Each node is responsible for one single task and it sends the processing result to its downstream nodes.
+
+<b>Map node</b>
+
+A Map node reads data from a data source, and then filters and transforms the data. For example, a Map node sends ads with ad_id % 2 = 0 to node 1, and the other ads go to node 2, as shown in Figure 6.
+
+![operation](images/operation.png)
+
+	Figure 6 Map operation
+	
+You might be wondering why we need the Map node. An alternative option is to set up Kafka partitions or tags and let the aggregate nodes subscribe to Kafka directly. This works, but the input data may need to be cleaned or normalized, and these operations can be done by the Map node. Another reason is that we may not have control over how data is produced and therefore events with the same ad_id might land in different Kafka partitions.
+
+<b>Aggregate node</b>
+
+An Aggregate node counts ad click events by ad_id in memory every minute. In the MapReduce paradigm, the Aggregate node is part of the Reduce. So the map-aggregate-reduce process really means map-reduce-reduce.
+
+<b>Reduce node</b>
+
+A Reduce node reduces aggregated results from all “Aggregate” nodes to the final result. For example, as shown in Figure 7, there are three aggregation nodes and each contains the top 3 most clicked ads within the node. The Reduce node reduces the total number of most clicked ads to 3.
+
+![reduce](images/reduce.png)
+
+	Figure 7 Reduce node
+	
+The DAG model represents the well-known MapReduce paradigm. It is designed to take big data and use parallel distributed computing to turn big data into little- or regular-sized data.
+
+In the DAG model, intermediate data can be stored in memory and different nodes communicate with each other through either TCP (nodes running in different processes) or shared memory (nodes running in different threads).
+
+#### Main use cases
+
+Now that we understand how MapReduce works at the high level, let’s take a look at how it can be utilized to support the main use cases:
+
+ * Aggregate the number of clicks of adid in the last _M mins.
+
+ * Return top N most clicked adids in the last _M minutes.
+
+ * Data filtering.
+
+<b>Use case 1: aggregate the number of clicks</b>
+
+As shown in Figure 8, input events are partitioned by ad_id (ad_id % 3) in Map nodes and are then aggregated by Aggregation nodes.
+
+![clicks](images/clicks.png)
+
+	Figure 8 Aggregate the number of clicks
+	
+<b>Use case 2: return top N most clicked ads</b>
+
+Figure 9 shows a simplified design of getting the top 3 most clicked ads, which can be extended to top N. Input events are mapped using ad_id and each Aggregate node maintains a heap data structure to get the top 3 ads within the node efficiently. In the last step, the Reduce node reduces 9 ads (top 3 from each aggregate node) to the top 3 most clicked ads every minute.
+
+![return](images/return.png)
+
+<b>Use case 3: data filtering</b>
+
+To support data filtering like “show me the aggregated click count for ad001 within the USA only”, we can pre-define filtering criteria and aggregate based on them. For example, the aggregation results look like this for ad001 and ad002:
+
+![country](images/country.png)
+
+This technique is called the star schema [11], which is widely used in data warehouses. The filtering fields are called dimensions. This approach has the following benefits:
+
+ * It is simple to understand and build.
+
+ * The current aggregation service can be reused to create more dimensions in the star schema. No additional component is needed.
+
+ * Accessing data based on filtering criteria is fast because the result is pre-calculated.
+
+A limitation with this approach is that it creates many more buckets and records, especially when we have a lot of filtering criteria.
 
 # Step 3 - Design Deep Dive
 Let's dive deeper into some of the more interesting topics.
