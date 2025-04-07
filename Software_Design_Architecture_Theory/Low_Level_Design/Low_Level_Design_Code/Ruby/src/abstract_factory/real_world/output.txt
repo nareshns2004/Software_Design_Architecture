@@ -1,2 +1,0 @@
-WindowsButton has been drawn
-WindowsCheckbox has been drawn
